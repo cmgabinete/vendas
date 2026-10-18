@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="pt"><head><meta charset="utf-8"><title>Análise de Vendas da Loja</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f2f5fa;--card:#fff;--tx:#0d1626;--mut:#59657a;--ac:#0b5fff;--bd:#dce3ee;--ok:#12805c;--bad:#d1293d;--warn:#b86e00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#080c14;--card:#111926;--tx:#e8edf6;--mut:#8f9bb0;--ac:#4d8dff;--bd:#202b3e;--ok:#37c690;--bad:#ff6b7b;--warn:#f5b042;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#080c14;--card:#111926;--tx:#e8edf6;--mut:#8f9bb0;--ac:#4d8dff;--bd:#202b3e;--ok:#37c690;--bad:#ff6b7b;--warn:#f5b042;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 -apple-system,system-ui,"Segoe UI",sans-serif}
+.w{max-width:980px;margin:0 auto;padding:14px}
+h1{font-size:19px;margin:0}h2{font-size:15px;margin:18px 0 8px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.mut{color:var(--mut);font-size:13px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px}
+button,select,textarea{font:inherit;color:var(--tx)}
+.chip{border:1px solid var(--bd);background:var(--card);border-radius:20px;padding:7px 13px;white-space:nowrap;cursor:pointer}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.big{font-size:24px;font-weight:700}
+.sc{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+th{color:var(--mut);font-weight:600;font-size:12px}
+.forte{color:var(--ok);font-weight:600}.fraco{color:var(--warn);font-weight:600}.crit{color:var(--bad);font-weight:600}
+.bar{height:6px;background:var(--bd);border-radius:4px;margin-top:6px}.bar i{display:block;height:100%;border-radius:4px;background:var(--ac)}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.g2{background:transparent;color:var(--ac);border:1px solid var(--ac)}
+textarea,select{width:100%;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px;margin:4px 0}
+.note{border-left:3px solid var(--ac);padding:4px 10px;margin:6px 0;background:var(--bg);border-radius:0 8px 8px 0}
+.note.f{border-color:var(--ok)}.note.c{border-color:var(--warn)}
+.x{float:right;background:none;border:0;color:var(--mut);cursor:pointer}
+ol{padding-left:20px;margin:6px 0}li{margin:6px 0}
+</style></head>
+<body><div class="w">
+<div class="top"><div><h1>Análise de Vendas da Loja</h1><div class="mut" id="sub">A carregar…</div></div>
+<div><input type="file" id="fx" accept=".xlsx" hidden><button class="btn g2" id="up">Atualizar com Excel</button> <button class="btn g2" id="out" hidden>Sair</button></div></div>
+<div id="lg" class="card" style="max-width:360px;margin:40px auto" hidden><h1>Entrar</h1><input id="em" type="email" placeholder="Email" autocomplete="username" style="width:100%;margin:10px 0 4px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><input id="pw" type="password" placeholder="Palavra-passe" autocomplete="current-password" style="width:100%;margin:4px 0 10px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><button class="btn" id="li">Entrar</button><div class="mut" id="le" style="margin-top:8px"></div></div>
+<div class="chips" id="chips"></div><div id="main"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const KP=[["TV",3],["Meo Energia",3],["PPP",1],["Refid's",1],["Facturação",1]];
+const LB={"Refid's":"Refid’s","Facturação":"Faturação"};
+const lab=k=>LB[k]||k;
+const TPL={"TV":"Treinar a abordagem de TV e pacotes: perguntas de qualificação (quantos ecrãs, o que veem) e proposta no momento do contrato.",
+"PPP":"Propor PPP em todos os atendimentos (MxO e stand-alone) e fazer role-play da objeção de preço.",
+"Meo Energia":"Incluir a energia no fecho de cada contrato e praticar um argumento de poupança de 30 segundos.",
+"Refid's":"Começar o turno com a lista de clientes a terminar fidelização e agendar os contactos de refidelização.",
+"Facturação":"Trabalhar a venda associada (acessórios e smartphones) em cada equipamento vendido.",
+"NPS":"Pedir feedback no fecho de cada atendimento e rever em conjunto os casos de NPS baixo.",
+"Div":"Aumentar a variedade de produtos por cliente (acessórios, seguros, serviços) em cada venda.",
+"Seg":"Propor seguro em todos os equipamentos e treinar o argumento de proteção."};
+const VS={"Liliana Cardoso":"Liliana","Rodolfo Correia":"Rodolfo","Adriana Marta":"Adriana","Adriano Machado":"Adriano","Ana Rosado":"Ana Dulcineia","Ana Santos":"Ana Margarida","Julio Benck":"Julio","Carla Costa":"Carla","Cristiana Santos":"Cristiana","Pedro Carvalho":"Pedro","Telma Maltez":"Telma","Tiago Vigario":"Tiago"};
+let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pc=x=>x==null?"–":Math.round(x*100)+"%";
+const nf=(n,k)=>n==null?"–":(k==="Facturação"?Math.round(n).toLocaleString("pt-PT")+" €":Math.round(n*10)/10);
+const med=a=>{a=a.filter(x=>x!=null).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:null};
+const fr0=()=>(snap.dia||snap.dias||30)/(snap.dias||30);const pfo=d=>d.real/d.obj/fr0();
+function ana(v,all){
+  const r=[];
+  for(const[k,w]of KP){const d=v.k[k];if(!d||!d.obj)continue;
+    const cur=d.real/d.obj,pf=pfo(d),m=med(all.map(o=>o.k[k]&&o.k[k].obj?pfo(o.k[k]):null));
+    let s="ok";if(pf<0.85)s="crit";else if(pf<1)s="fraco";else if(pf>=1.25&&pf>=m)s="forte";
+    r.push({k,w,d,cur,pf,m,s,txt:`${nf(d.real,k)} / ${nf(d.obj,k)}`,gap:w*(1-Math.min(pf,1))});}
+  const n=v.k.NPS;if(n&&n.obj!=null&&n.real!=null)r.push({k:"NPS",w:1,d:n,cur:n.real/n.obj,pf:null,s:n.real<n.obj?(n.real<n.obj*0.7?"crit":"fraco"):"forte",txt:`${Math.round(n.real*100)}% / ${Math.round(n.obj*100)}%`,gap:n.real<n.obj?1-n.real/n.obj:0});
+  if(v.funcao!=="GOE"&&v.div!=null){const sd=snap.store.Diversos;
+    if(!(sd&&sd.pf>=1.6)&&v.div<1.6)r.push({k:"Div",w:1,s:"fraco",txt:`${v.div.toFixed(2)} / 1,60`,gap:(1.6-v.div)/1.6});
+    const ss=snap.store.Seguros;if(!(ss&&ss.pf>=0.15)&&v.seg<0.15)r.push({k:"Seg",w:1,s:"fraco",txt:`${(v.seg*100).toFixed(1)}% / 15%`,gap:(0.15-v.seg)/0.15});}
+  return r;}
+const SL={forte:"Ponto forte",ok:"Em linha",fraco:"A melhorar",crit:"Crítico"};
+const KL={Div:"Diversidade",Seg:"Seguros",NPS:"NPS"};
+const nm=k=>KL[k]||lab(k);
+function peer(k,self){let b=null,bp=-1;for(const o of snap.vendedores){if(o.nome===self||!o.k[k]||!o.k[k].obj)continue;const p=pfo(o.k[k]);if(p>bp){bp=p;b=o.nome}}return b?`${b} (${pc(bp)})`:null}
+function perito(){
+ const V=snap.vendedores,rows=[],ins=[],SK={"Facturação":"Faturação","Refid's":"Refidelizações"};
+ for(const[k]of KP){
+  const a=V.map(v=>({n:v.nome,r:Math.max(0,(v.k[k]||{}).real||0)})).sort((x,y)=>y.r-x.r),t=a.reduce((s,x)=>s+x.r,0);if(!t)continue;
+  const s1=a[0].r/t,s2=(a[0].r+a[1].r)/t;let c=0,n8=0;for(const x of a){c+=x.r;n8++;if(c>=.8*t)break}
+  const m=med(a.map(x=>x.r)),op=a.filter(x=>x.r<m).reduce((s,x)=>s+m-x.r,0),ob=(snap.store[SK[k]||k]||{}).obj;
+  const rk=s1>=.3||s2>=.5?"Alta":s1>=.2||s2>=.4?"Média":"Baixa",cl=rk==="Alta"?"crit":rk==="Média"?"fraco":"forte",z=a[a.length-1];
+  rows.push(`<tr><td>${lab(k)}</td><td>${nf(t,k)}</td><td>${esc(a[0].n)} (${pc(s1)})</td><td>${pc(s2)}</td><td>${n8} de ${a.length}</td><td class="${cl}">${rk}</td><td>${nf(op,k)}</td><td>${esc(z.n)}</td></tr>`);
+  if(rk!=="Baixa")ins.push(`<b>${lab(k)}:</b> ${n8} de ${a.length} colaboradores fazem 80% do resultado e ${esc(a[0].n)} pesa ${pc(s1)}. Se esta pessoa falhar, a loja perde essa fatia. Ação: ${esc(a[0].n)} acompanha ${esc(z.n)} e partilha a abordagem que usa.`);
+  if(ob&&t<ob&&op>0)ins.push(`<b>${lab(k)}:</b> faltam ${nf(ob-t,k)} para o objetivo e, se quem está abaixo da mediana chegasse à mediana, a loja ganhava ${nf(op,k)}. Há margem na base da equipa.`);
+ }
+ return '<h2>Análise de especialista</h2><div class="card sc"><table><tr><th>Produto</th><th>Total</th><th>Líder (peso)</th><th>Top 2</th><th>Fazem 80%</th><th>Dependência</th><th>Potencial*</th><th>Mais fraco</th></tr>'+rows.join("")+'</table></div><div class="mut">*Unidades extra se quem está abaixo da mediana da equipa chegasse à mediana.</div><div class="card" style="margin-top:10px">'+(ins.slice(0,6).map(x=>`<p style="margin:6px 0">${x}</p>`).join("")||"Resultados bem distribuídos pela equipa.")+"</div>";}
+function loja(){
+  const S=snap.store;let h='<h2>Loja</h2><div class="g">';
+  for(const k of ["TV","PPP","Meo Energia","Faturação","Refidelizações"]){const d=S[k];if(!d)continue;const c=d.real/d.obj;
+    h+=`<div class="card"><div class="mut">${k==="Refidelizações"?"Refid’s":k}</div><div class="big">${pc(c)}</div><div class="mut">${nf(d.real,k==="Faturação"?"Facturação":k)} / ${nf(d.obj,k==="Faturação"?"Facturação":k)}</div><div class="mut">Previsão de fecho: ${pc(c/fr0())}</div><div class="bar"><i style="width:${Math.min(100,c*100)}%"></i></div></div>`}
+  h+='</div>'+perito()+'<h2>Quem precisa de apoio primeiro</h2><div class="card sc"><table><tr><th>Colaborador</th><th>Função</th><th>TCO</th>'+KP.map(x=>`<th>${lab(x[0])}</th>`).join("")+"<th>Fraquezas</th></tr>";
+  const rows=snap.vendedores.map(v=>({v,a:ana(v,snap.vendedores)}));
+  rows.forEach(r=>r.sc=r.a.reduce((t,x)=>t+(x.s==="fraco"||x.s==="crit"?x.gap:0),0));rows.sort((a,b)=>b.sc-a.sc);
+  for(const{v,a}of rows){h+=`<tr><td><b>${esc(v.nome)}</b></td><td>${esc(v.funcao||"")}</td><td>${pc(v.tco)}</td>`;
+    for(const[k]of KP){const x=a.find(y=>y.k===k);h+=x?`<td class="${x.s}">${pc(x.pf)}</td>`:"<td>–</td>"}
+    h+=`<td>${a.filter(x=>x.s==="fraco"||x.s==="crit").map(x=>nm(x.k)).join(", ")||"–"}</td></tr>`}
+  return h+'</table></div><div class="mut">Cores pela previsão de fecho do mês. Toque num colaborador acima para ver o perfil e o plano.</div>';}
+function sem(v){
+ if(!v.d)return"";const dias=snap.dias||30,dia=snap.dia||dias,W=[];
+ for(let a=1;a<=dias;a+=7)W.push([a,Math.min(a+6,dias)]);
+ const cu=W.findIndex(([a,b])=>dia>=a&&dia<=b),i=wk==null?cu:wk,[a,b]=W[i],r=b-Math.min(b,dia),ev=dia>=b?"fechada":"em curso";
+ const sm=(k,x,y)=>v.d[k].slice(x,y).reduce((s,z)=>s+z,0),P=[];
+ for(const[k,w]of KP){const o=v.k[k];if(!o||!o.obj)continue;
+  const base=o.obj/dias*(b-a+1),atraso=Math.max(0,o.obj/dias*(a-1)-sm(k,0,a-1)),meta=base+atraso,feito=sm(k,a-1,Math.min(b,dia)),falta=Math.max(0,meta-feito);
+  P.push({k,w,base,atraso,meta,feito,falta,sc:w*falta/meta})}
+ P.sort((x,y)=>y.sc-x.sc);
+ let h='<h2>Semana e prioridades</h2><div class="chips" style="padding-top:0">'+W.map(([x,y],j)=>`<button class="chip ${j===i?"on":""}" data-w="${j}">S${j+1} · ${x}–${y}</button>`).join("")+`</div><div class="card sc"><div class="mut" style="margin-bottom:6px">Semana ${i+1} (dias ${a}–${b}), ${ev}${r>0?`: ${r} dia(s) por fazer`:""}. A meta inclui o atraso que vem das semanas anteriores. TV e Meo Energia são os produtos core e pesam mais na ordem das prioridades.</div><table><tr><th>Prioridade</th><th>Meta da semana</th><th>Feito</th><th>Falta</th><th>Por dia</th></tr>`;
+ P.forEach((x,j)=>{const core=x.k==="TV"||x.k==="Meo Energia";h+=`<tr><td><b>${x.falta>0?(j+1)+"º":"✓"}</b> ${lab(x.k)}${core?' <span class="mut">(core)</span>':""}</td><td>${nf(x.base,x.k)}${x.atraso>0.05?` + ${nf(x.atraso,x.k)} de atraso`:""}</td><td>${nf(x.feito,x.k)}</td><td class="${x.falta<=0?"forte":x.sc>0.5?"crit":"fraco"}">${x.falta<=0?"cumprida":nf(x.falta,x.k)}</td><td>${r>0&&x.falta>0?nf(x.falta/r,x.k):"–"}</td></tr>`});
+ const t=P.filter(x=>x.falta>0).slice(0,2);
+ h+="</table>"+(t.length?`<div style="margin-top:8px"><b>Foco:</b> ${t.map(x=>lab(x.k)).join(" e ")}${r>0?`. Nos ${r} dia(s) que restam, é aqui que a semana se decide.`:". A semana terminou com défice, que passa para a meta da semana seguinte."}</div>`:'<div class="forte" style="margin-top:8px">Metas da semana cumpridas.</div>')+"</div>";
+ return h;}
+function evol(v){
+ if(!v.d)return"";const dias=snap.dias||30,dia=snap.dia||dias,ks=KP.filter(([k])=>v.k[k]&&v.k[k].obj),S=[];TR="";
+ for(let a=1;a<=dia;a+=7){const b=Math.min(a+6,dia),e=b-a+1;let ts=0,tw=0;const c=[];
+  for(const[k,w]of ks){const o=v.k[k].obj/dias*e,r=v.d[k].slice(a-1,b).reduce((x,y)=>x+y,0),p=o?r/o:0;c.push([k,r,o,p]);ts+=w*Math.min(p,1.5);tw+=w}
+  S.push({a,b,c,s:tw?ts/tw:0})}
+ const cl=p=>p>=1?"forte":p>=.7?"fraco":"crit";
+ let h='<h2>Evolução do mês</h2><div class="card sc"><table><tr><th>Dias</th>'+ks.map(([k])=>`<th>${lab(k)}</th>`).join("")+'<th>Ritmo</th></tr>';
+ for(const x of S)h+=`<tr><td>${x.a}–${x.b}</td>`+x.c.map(([k,r,o,p])=>`<td class="${cl(p)}">${nf(r,k)} / ${nf(o,k)} · ${pc(p)}</td>`).join("")+`<td class="${cl(x.s)}"><b>${pc(x.s)}</b></td></tr>`;
+ h+="</table></div>";
+ const T=S.filter(x=>x.b-x.a>=3);
+ if(T.length>1){const l=T[T.length-1].s,p=T[T.length-2].s,t=l-p,best=T.reduce((m,x)=>x.s>m.s?x:m,T[0]),worst=T.reduce((m,x)=>x.s<m.s?x:m,T[0]);
+  TR=t<=-.1?"a piorar":"";
+  h+=`<div class="mut" style="margin-top:6px">Cada célula: real / esperado na semana (objetivo mensal repartido pelos dias) · %. Melhor semana: dias ${best.a}–${best.b} (${pc(best.s)}); pior: ${worst.a}–${worst.b} (${pc(worst.s)}). Última semana completa vs anterior: <b class="${t>=.1?"forte":t<=-.1?"crit":"fraco"}">${t>=.1?"a melhorar":t<=-.1?"a piorar":"estável"}</b> (${pc(p)} → ${pc(l)}).</div>`}
+ return h;}
+function colab(v){
+  const a=ana(v,snap.vendedores),fr=a.filter(x=>x.s==="fraco"||x.s==="crit").sort((x,y)=>y.gap-x.gap),fo=a.filter(x=>x.s==="forte");
+  const my=notes.filter(n=>n.nome===v.nome);
+  let h=`<h2>${esc(v.nome)} <span class="mut">${esc(v.funcao||"")}</span></h2><div class="g"><div class="card"><div class="mut">TCO</div><div class="big">${pc(v.tco)}</div></div><div class="card"><div class="mut">Cash (até agora)</div><div class="big">${v.cash==null?"–":Math.round(v.cash)+" €"}</div></div></div>`;
+  h+=sem(v)+'<h2>Indicadores</h2><div class="card sc"><table><tr><th>Indicador</th><th>Real / Objetivo</th><th>Atual</th><th>Previsão</th><th>Média loja</th><th>Estado</th></tr>';
+  for(const x of a)h+=`<tr><td>${nm(x.k)}</td><td>${x.txt}</td><td>${x.cur!=null?pc(x.cur):"–"}</td><td>${pc(x.pf)}</td><td>${pc(x.m)}</td><td class="${x.s}">${SL[x.s]}</td></tr>`;
+  h+=`</table></div>${evol(v)}<h2>Pontos fortes e a melhorar (dados)</h2><div class="g"><div class="card"><b class="forte">Pontos fortes</b><br>${fo.map(x=>nm(x.k)+" ("+x.txt+")").join("<br>")||'<span class="mut">Nenhum acima do padrão este mês.</span>'}</div><div class="card"><b class="fraco">A melhorar</b><br>${fr.map(x=>nm(x.k)+" ("+x.txt+")").join("<br>")||'<span class="mut">Sem fraquezas.</span>'}</div></div>`;
+  h+=`<h2>Observações</h2><div class="card"><select id="nt"><option value="forte">Ponto forte observado</option><option value="corrigir">A corrigir</option></select><textarea id="nx" rows="2" placeholder="O que observaste hoje?"></textarea><button class="btn" id="na">Guardar observação</button>`;
+  for(const n of my)h+=`<div class="note ${n.tipo==="forte"?"f":"c"}"><button class="x" data-d="${n.id}">✕</button><b>${n.tipo==="forte"?"Ponto forte":"A corrigir"}</b> · <span class="mut">${new Date(n.ts).toLocaleDateString("pt-PT")}</span><br>${esc(n.texto)}</div>`;
+  h+='</div><h2>Plano de desenvolvimento</h2><div class="card">';
+  const items=fr.slice(0,2),cor=my.filter(n=>n.tipo==="corrigir").slice(0,3);
+  if(!items.length&&!cor.length)h+='<span class="mut">Sem prioridades de desenvolvimento neste momento. Sugestão: dar a este colaborador o papel de tutor nos indicadores fortes.</span>';
+  else{h+=(TR==="a piorar"?'<div class="fraco">O ritmo desceu na última semana completa: convém rever já a abordagem em vez de esperar pelo fim do mês.</div>':"")+"<ol>";for(const x of items){const p=peer(x.k,v.nome),d=x.d,f=d&&d.obj?` Faltam ${nf(Math.max(0,d.obj-d.real),x.k)} para o objetivo.`:"";
+    h+=`<li><b>${nm(x.k)}</b> (${x.txt}, previsão ${pc(x.pf)}).${f}<br>${TPL[x.k]}${p?`<br>Acompanhar o atendimento de ${esc(p)}, o melhor da loja neste indicador.`:""}</li>`}
+    for(const n of cor)h+=`<li><b>Observado:</b> ${esc(n.texto)}</li>`;
+    h+="</ol><div class=\"mut\">Acompanhamento: conversa semanal de 10 minutos com o responsável; reavaliar os números ao fim de 3 semanas.</div>"}
+  return h+"</div>";}
+function render(){
+  $("up").style.display="";
+  if(!db){$("main").innerHTML='<div class="card">Sem acesso aos dados. Inicia sessão para ver os dados.</div>';return}
+  if(!snap){$("main").innerHTML='<div class="card">Ainda não há dados. Toca em “Atualizar com Excel” e escolhe o teu ficheiro.</div>';return}
+  $("sub").textContent=`${snap.mes} · atualizado a ${new Date(snap.at).toLocaleString("pt-PT")}`+(msg?` · ${msg}`:"");
+  $("chips").innerHTML=`<button class="chip ${sel?"":"on"}" data-s="">Loja</button>`+snap.vendedores.map(v=>`<button class="chip ${sel===v.nome?"on":""}" data-s="${esc(v.nome)}">${esc(v.nome)}</button>`).join("");
+  const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=v?colab(v):loja();
+  if(!v)document.querySelectorAll("#main tbody tr td:first-child b").forEach(b=>{b.style.cursor="pointer";b.onclick=()=>{sel=b.textContent;render()}});}
+document.addEventListener("click",async e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.s!==undefined&&t.classList.contains("chip")){sel=t.dataset.s;wk=null;render()}
+  if(t.id==="na"){const tx=$("nx").value.trim();if(!tx)return;try{await db.collection("notes").add({nome:sel,tipo:$("nt").value,texto:tx,ts:Date.now()})}catch(err){msg="Não foi possível guardar."}}
+  if(t.dataset&&t.dataset.d){try{await db.collection("notes").doc(t.dataset.d).delete()}catch(err){}}
+  if(t.id==="up")$("fx").click();
+  if(t.dataset&&t.dataset.w!==undefined){wk=+t.dataset.w;render()}});
+const nv=x=>{if(x===null||x===undefined||x==="")return null;x=Number(x);return isFinite(x)?Math.round(x*1e4)/1e4:null};
+$("fx").onchange=async e=>{
+  const fl=e.target.files[0];if(!fl)return;msg="a ler o Excel…";render();
+  try{const wb=XLSX.read(await fl.arrayBuffer(),{type:"array",sheets:["Resumo Loja","inputRGUs","inputFaturação",...Object.keys(VS)],cellDates:true,cellFormula:false,cellStyles:false});
+    const aoa=(n,rg)=>XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,range:rg,raw:true,defval:null});
+    const rl=aoa("Resumo Loja","B11:Y23"),store={},rat={};
+    for(const r of rl.slice(1)){if(r[0])store[r[0]]={obj:nv(r[1]),real:nv(r[2]),pf:nv(r[8])};const k=String(r[11]||"").trim();if(k)rat[k]={div:nv(r[17]),seg:nv(r[18])}}
+    const vend=[];
+    for(const[sh,short]of Object.entries(VS)){const rows=aoa(sh,"A1:M30"),k={};
+      for(const r of rows.slice(12)){const l=String(r[3]||"").trim();
+        if(["TV","PPP","Meo Energia","Refid's","Facturação","Net Segura"].includes(l)&&!k[l])k[l]={obj:nv(r[4]),real:nv(r[5]),pf:nv(r[11])};
+        if(l==="NPS")k.NPS={obj:nv(r[4]),real:nv(r[5])}}
+      const v={nome:short,funcao:rows[11][0],tco:nv(rows[3][5]),tcoPrev:nv(rows[3][6]),cash:nv(rows[3][9]),k};
+      const rr=rat[short]||rat[short.split(" ")[0]];if(rr){v.div=rr.div;v.seg=rr.seg}vend.push(v)}
+    const nomes=vend.map(v=>v.nome),who=s=>{s=String(s||"").trim().toLowerCase();return nomes.find(n=>s.startsWith(n.trim().toLowerCase()))},N=x=>Number(x)||0,D={};
+    vend.forEach(v=>{D[v.nome]={"TV":Array(31).fill(0),"PPP":Array(31).fill(0),"Meo Energia":Array(31).fill(0),"Refid's":Array(31).fill(0),"Facturação":Array(31).fill(0)}});
+    let last=0,mon=null;
+    for(const r of aoa("inputRGUs","A2:AK4000")){const d=r[1];if(!(d instanceof Date))continue;const st=String(r[36]||"").trim();if(!st||st==="Não Instalado")continue;const n=who(r[2]);if(!n)continue;const i=d.getDate()-1,o=D[n];mon=[d.getFullYear(),d.getMonth()];last=Math.max(last,d.getDate());o.TV[i]+=N(r[9]);o.PPP[i]+=N(r[12])+N(r[13])+N(r[14]);o["Meo Energia"][i]+=N(r[20]);o["Refid's"][i]+=N(r[19])}
+    for(const r of aoa("inputFaturação","A2:G4000")){const d=r[0];if(!(d instanceof Date))continue;const n=who(r[6]);if(!n)continue;D[n]["Facturação"][d.getDate()-1]+=N(r[5]);last=Math.max(last,d.getDate())}
+    vend.forEach(v=>v.d=D[v.nome]);
+    const MN="Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split(" "),dias=mon?new Date(mon[0],mon[1]+1,0).getDate():30;
+    await db.doc("snap/current").set({mes:mon?MN[mon[1]]+" "+mon[0]:"Mês atual",store,vendedores:vend,dias,dia:last||dias,at:Date.now()});msg="atualizado";
+  }catch(err){msg="Erro a ler o Excel: "+(err.message||err);render()}
+  e.target.value="";};
+const SUPABASE_URL="https://nfpjwxezlrunruzqbhjn.supabase.co",SUPABASE_KEY="sb_publishable_Nf9n_q5rIe3t_dek7H0A9w_gloi0dEJ";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY),L={snap:[],notes:[]};
+const loadSnap=async()=>{const{data}=await sb.from("snap").select("data").eq("id","current").maybeSingle();L.snap.forEach(cb=>cb({exists:!!data,data:()=>data&&data.data}))};
+const loadNotes=async()=>{const{data}=await sb.from("notes").select("*");L.notes.forEach(cb=>cb({docs:(data||[]).map(r=>({id:r.id,data:()=>({nome:r.nome,tipo:r.tipo,texto:r.texto,ts:Number(r.ts)})}))}))};
+const chk=async p=>{const{error}=await p;if(error)throw error};
+const mk=()=>({
+ doc:()=>({set:async d=>{await chk(sb.from("snap").upsert({id:"current",data:d}));await loadSnap()},onSnapshot:cb=>{L.snap.push(cb);loadSnap()}}),
+ collection:()=>({add:async d=>{await chk(sb.from("notes").insert(d));await loadNotes()},
+  doc:id=>({delete:async()=>{await chk(sb.from("notes").delete().eq("id",id));await loadNotes()}}),
+  onSnapshot:cb=>{L.notes.push(cb);loadNotes()}})});
+async function entrar(){db=mk();$("lg").hidden=true;$("out").hidden=false;$("up").hidden=false;db.doc().onSnapshot(s=>{snap=s.exists?s.data():null;render()});db.collection().onSnapshot(q=>{notes=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.ts-a.ts);render()})}
+function login(){db=null;snap=null;$("lg").hidden=false;$("out").hidden=true;$("up").hidden=true;$("main").innerHTML="";$("chips").innerHTML="";$("sub").textContent="Acesso reservado"}
+$("li").onclick=async()=>{$("le").textContent="";const{error}=await sb.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error)$("le").textContent="Email ou palavra-passe incorretos.";else{$("pw").value="";entrar()}};
+$("out").onclick=async()=>{await sb.auth.signOut();login()};
+(async()=>{const{data}=await sb.auth.getSession();if(data.session)entrar();else login()})();
+</script></body></html>
