@@ -30,13 +30,13 @@ textarea,select{width:100%;background:var(--bg);border:1px solid var(--bd);borde
 .note{border-left:3px solid var(--ac);padding:4px 10px;margin:6px 0;background:var(--bg);border-radius:0 8px 8px 0}
 .note.f{border-color:var(--ok)}.note.c{border-color:var(--warn)}
 .x{float:right;background:none;border:0;color:var(--mut);cursor:pointer}
-ol{padding-left:20px;margin:6px 0}.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:10px}.rw{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:14px}li{margin:6px 0}
+ol{padding-left:20px;margin:6px 0}.app{display:flex;min-height:100vh}nav{display:flex;flex-direction:column;gap:6px;padding:14px 10px;width:190px;flex:none;background:var(--card);border-right:1px solid var(--bd)}nav[hidden]{display:none}nav b{font-size:16px;padding:6px 10px 14px}nav button{text-align:left;background:none;border:0;color:var(--mut);padding:10px 12px;border-radius:10px;cursor:pointer;font:inherit}nav button.on{background:var(--ac);color:#fff}.app>.w{flex:1;min-width:0;max-width:1100px;margin:0}@media(max-width:760px){.app{flex-direction:column}nav{width:auto;flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--bd)}nav b{display:none}nav button{white-space:nowrap}}.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:10px}.rw{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:14px}li{margin:6px 0}
 </style></head>
-<body><div class="w">
+<body><div class="app"><nav id="nav" hidden><b>TIPO LOJA</b><button data-v="geral">▦ Vista geral</button><button data-v="diaria">◷ Vista diária</button><button data-v="colab">☺ Colaboradores</button></nav><div class="w">
 <div class="top"><div><h1>Análise de Vendas da Loja</h1><div class="mut" id="sub">A carregar…</div></div>
 <div><input type="file" id="fx" accept=".xlsx" hidden><button class="btn g2" id="up">Atualizar com Excel</button> <button class="btn g2" id="out" hidden>Sair</button></div></div>
 <div id="lg" class="card" style="max-width:360px;margin:40px auto" hidden><h1>Entrar</h1><input id="em" type="email" placeholder="Email" autocomplete="username" style="width:100%;margin:10px 0 4px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><input id="pw" type="password" placeholder="Palavra-passe" autocomplete="current-password" style="width:100%;margin:4px 0 10px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><button class="btn" id="li">Entrar</button><div class="mut" id="le" style="margin-top:8px"></div></div>
-<div class="chips" id="chips"></div><div id="main"></div></div>
+<div class="chips" id="chips"></div><div id="main"></div></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
@@ -52,7 +52,7 @@ const TPL={"TV":"Treinar a abordagem de TV e pacotes: perguntas de qualificaçã
 "Div":"Aumentar a variedade de produtos por cliente (acessórios, seguros, serviços) em cada venda.",
 "Seg":"Propor seguro em todos os equipamentos e treinar o argumento de proteção."};
 const VS={"Liliana Cardoso":"Liliana","Rodolfo Correia":"Rodolfo","Adriana Marta":"Adriana","Adriano Machado":"Adriano","Ana Rosado":"Ana Dulcineia","Ana Santos":"Ana Margarida","Julio Benck":"Julio","Carla Costa":"Carla","Cristiana Santos":"Cristiana","Pedro Carvalho":"Pedro","Telma Maltez":"Telma","Tiago Vigario":"Tiago"};
-let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="",dd=null,ck="TV";
+let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="",dd=null,ck="TV",view="geral";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pc=x=>x==null?"–":Math.round(x*100)+"%";
@@ -105,7 +105,7 @@ function resumo(){
  h+='<div class="card"><div class="mut">DESEMPENHO DO MÊS ATÉ AO DIA '+d+'</div>'+KP.map(([k])=>{const p=T[k]?sm(k,d)/T[k]:0;return `<div style="margin-top:8px"><div class="rw" style="border:0;padding:0"><span>${lab(k)}</span><b style="color:${C[k]}">${pc(p)}</b></div><div class="bar"><i style="width:${Math.min(100,p*100)}%;background:${C[k]}"></i></div></div>`}).join("")+"</div></div>";
  return h;}
 function loja(){
-  const S=snap.store;let h=resumo()+'<h2>Mês até agora</h2><div class="g">';
+  const S=snap.store;let h='<h2>Vista geral da loja</h2><div class="g">';
   for(const k of ["TV","PPP","Meo Energia","Faturação","Refidelizações"]){const d=S[k];if(!d)continue;const c=d.real/d.obj;
     h+=`<div class="card"><div class="mut">${k==="Refidelizações"?"Refid’s":k}</div><div class="big">${pc(c)}</div><div class="mut">${nf(d.real,k==="Faturação"?"Facturação":k)} / ${nf(d.obj,k==="Faturação"?"Facturação":k)}</div><div class="mut">Previsão de fecho: ${pc(c/fr0())}</div><div class="bar"><i style="width:${Math.min(100,c*100)}%"></i></div></div>`}
   h+='</div>'+perito()+'<h2>Quem precisa de apoio primeiro</h2><div class="card sc"><table><tr><th>Colaborador</th><th>Função</th><th>TCO</th>'+KP.map(x=>`<th>${lab(x[0])}</th>`).join("")+"<th>Fraquezas</th></tr>";
@@ -165,16 +165,19 @@ function render(){
   if(!db){$("main").innerHTML='<div class="card">Sem acesso aos dados. Inicia sessão para ver os dados.</div>';return}
   if(!snap){$("main").innerHTML='<div class="card">Ainda não há dados. Toca em “Atualizar com Excel” e escolhe o teu ficheiro.</div>';return}
   $("sub").textContent=`${snap.mes} · atualizado a ${new Date(snap.at).toLocaleString("pt-PT")}`+(msg?` · ${msg}`:"");
-  $("chips").innerHTML=`<button class="chip ${sel?"":"on"}" data-s="">Loja</button>`+snap.vendedores.map(v=>`<button class="chip ${sel===v.nome?"on":""}" data-s="${esc(v.nome)}">${esc(v.nome)}</button>`).join("");
-  const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=v?colab(v):loja();
-  if(!v)document.querySelectorAll("#main tbody tr td:first-child b").forEach(b=>{b.style.cursor="pointer";b.onclick=()=>{sel=b.textContent;render()}});}
+  if(view==="colab"&&!sel)sel=snap.vendedores[0].nome;
+  $("nav").hidden=false;document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
+  $("chips").innerHTML=view==="colab"?snap.vendedores.map(v=>`<button class="chip ${sel===v.nome?"on":""}" data-s="${esc(v.nome)}">${esc(v.nome)}</button>`).join(""):"";
+  const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=view==="colab"&&v?colab(v):view==="diaria"?resumo():loja();
+  if(view==="geral")document.querySelectorAll("#main tbody tr td:first-child b").forEach(b=>{b.style.cursor="pointer";b.onclick=()=>{sel=b.textContent;view="colab";render()}});}
 document.addEventListener("click",async e=>{
   const t=e.target;
   if(t.dataset&&t.dataset.s!==undefined&&t.classList.contains("chip")){sel=t.dataset.s;wk=null;render()}
   if(t.id==="na"){const tx=$("nx").value.trim();if(!tx)return;try{await db.collection("notes").add({nome:sel,tipo:$("nt").value,texto:tx,ts:Date.now()})}catch(err){msg="Não foi possível guardar."}}
   if(t.dataset&&t.dataset.d){try{await db.collection("notes").doc(t.dataset.d).delete()}catch(err){}}
   if(t.id==="up")$("fx").click();
-  if(t.dataset&&t.dataset.w!==undefined){wk=+t.dataset.w;render()}});
+  if(t.dataset&&t.dataset.w!==undefined){wk=+t.dataset.w;render()}
+  if(t.dataset&&t.dataset.v){view=t.dataset.v;render()}});
 const nv=x=>{if(x===null||x===undefined||x==="")return null;x=Number(x);return isFinite(x)?Math.round(x*1e4)/1e4:null};
 $("fx").onchange=async e=>{
   const fl=e.target.files[0];if(!fl)return;msg="a ler o Excel…";render();
@@ -209,8 +212,8 @@ const mk=()=>({
  collection:()=>({add:async d=>{await chk(sb.from("notes").insert(d));await loadNotes()},
   doc:id=>({delete:async()=>{await chk(sb.from("notes").delete().eq("id",id));await loadNotes()}}),
   onSnapshot:cb=>{L.notes.push(cb);loadNotes()}})});
-async function entrar(){db=mk();$("lg").hidden=true;$("out").hidden=false;$("up").hidden=false;db.doc().onSnapshot(s=>{snap=s.exists?s.data():null;render()});db.collection().onSnapshot(q=>{notes=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.ts-a.ts);render()})}
-function login(){db=null;snap=null;$("lg").hidden=false;$("out").hidden=true;$("up").hidden=true;$("main").innerHTML="";$("chips").innerHTML="";$("sub").textContent="Acesso reservado"}
+async function entrar(){db=mk();$("nav").hidden=false;$("lg").hidden=true;$("out").hidden=false;$("up").hidden=false;db.doc().onSnapshot(s=>{snap=s.exists?s.data():null;render()});db.collection().onSnapshot(q=>{notes=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.ts-a.ts);render()})}
+function login(){db=null;$("nav").hidden=true;snap=null;$("lg").hidden=false;$("out").hidden=true;$("up").hidden=true;$("main").innerHTML="";$("chips").innerHTML="";$("sub").textContent="Acesso reservado"}
 $("li").onclick=async()=>{$("le").textContent="";const{error}=await sb.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error)$("le").textContent="Email ou palavra-passe incorretos.";else{$("pw").value="";entrar()}};
 $("out").onclick=async()=>{await sb.auth.signOut();login()};
 (async()=>{const{data}=await sb.auth.getSession();if(data.session)entrar();else login()})();
