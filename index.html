@@ -2,7 +2,7 @@
 <html lang="pt"><head><meta charset="utf-8"><title>Análise de Vendas da Loja</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f2f5fa;--card:#fff;--tx:#0d1626;--mut:#59657a;--ac:#0b5fff;--bd:#dce3ee;--ok:#12805c;--bad:#d1293d;--warn:#b86e00}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#070d1a;--card:#0e1829;--tx:#e8eefc;--mut:#8ea0c0;--ac:#3b82f6;--bd:#1b2a45;--ok:#37c690;--bad:#ff6b7b;--warn:#f5b042;color-scheme:dark}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#080c14;--card:#111926;--tx:#e8edf6;--mut:#8f9bb0;--ac:#4d8dff;--bd:#202b3e;--ok:#37c690;--bad:#ff6b7b;--warn:#f5b042;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#080c14;--card:#111926;--tx:#e8edf6;--mut:#8f9bb0;--ac:#4d8dff;--bd:#202b3e;--ok:#37c690;--bad:#ff6b7b;--warn:#f5b042;color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -30,7 +30,7 @@ textarea,select{width:100%;background:var(--bg);border:1px solid var(--bd);borde
 .note{border-left:3px solid var(--ac);padding:4px 10px;margin:6px 0;background:var(--bg);border-radius:0 8px 8px 0}
 .note.f{border-color:var(--ok)}.note.c{border-color:var(--warn)}
 .x{float:right;background:none;border:0;color:var(--mut);cursor:pointer}
-ol{padding-left:20px;margin:6px 0}li{margin:6px 0}
+ol{padding-left:20px;margin:6px 0}.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:10px}.rw{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:14px}li{margin:6px 0}
 </style></head>
 <body><div class="w">
 <div class="top"><div><h1>Análise de Vendas da Loja</h1><div class="mut" id="sub">A carregar…</div></div>
@@ -52,7 +52,7 @@ const TPL={"TV":"Treinar a abordagem de TV e pacotes: perguntas de qualificaçã
 "Div":"Aumentar a variedade de produtos por cliente (acessórios, seguros, serviços) em cada venda.",
 "Seg":"Propor seguro em todos os equipamentos e treinar o argumento de proteção."};
 const VS={"Liliana Cardoso":"Liliana","Rodolfo Correia":"Rodolfo","Adriana Marta":"Adriana","Adriano Machado":"Adriano","Ana Rosado":"Ana Dulcineia","Ana Santos":"Ana Margarida","Julio Benck":"Julio","Carla Costa":"Carla","Cristiana Santos":"Cristiana","Pedro Carvalho":"Pedro","Telma Maltez":"Telma","Tiago Vigario":"Tiago"};
-let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="";
+let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="",dd=null,ck="TV";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pc=x=>x==null?"–":Math.round(x*100)+"%";
@@ -86,8 +86,26 @@ function perito(){
   if(ob&&t<ob&&op>0)ins.push(`<b>${lab(k)}:</b> faltam ${nf(ob-t,k)} para o objetivo e, se quem está abaixo da mediana chegasse à mediana, a loja ganhava ${nf(op,k)}. Há margem na base da equipa.`);
  }
  return '<h2>Análise de especialista</h2><div class="card sc"><table><tr><th>Produto</th><th>Total</th><th>Líder (peso)</th><th>Top 2</th><th>Fazem 80%</th><th>Dependência</th><th>Potencial*</th><th>Mais fraco</th></tr>'+rows.join("")+'</table></div><div class="mut">*Unidades extra se quem está abaixo da mediana da equipa chegasse à mediana.</div><div class="card" style="margin-top:10px">'+(ins.slice(0,6).map(x=>`<p style="margin:6px 0">${x}</p>`).join("")||"Resultados bem distribuídos pela equipa.")+"</div>";}
+function resumo(){
+ const dias=snap.dias||30,V=snap.vendedores;let d=Math.min(Math.max(1,dd||snap.dia||dias),dias);
+ const SK={"Facturação":"Faturação","Refid's":"Refidelizações"},C={"TV":"#3b82f6","PPP":"#a855f7","Meo Energia":"#f5b301","Refid's":"#14b8a6","Facturação":"#4ade80"},S={},O={},T={};
+ for(const[k]of KP){S[k]=Array(dias).fill(0);for(const v of V)if(v.d&&v.d[k])v.d[k].forEach((x,i)=>{if(i<dias)S[k][i]+=x});T[k]=(snap.store[SK[k]||k]||{}).obj||0;O[k]=T[k]/dias}
+ const pr=(k,i)=>O[k]&&i>=0?S[k][i]/O[k]:null,sm=(k,n)=>S[k].slice(0,n).reduce((a,b)=>a+b,0),pv=k=>T[k]?sm(k,d)/T[k]/(d/dias):0;
+ let ts=0,tw=0;for(const[k,w]of KP){const p=pr(k,d-1);if(p!=null){ts+=w*Math.min(p,1.5);tw+=w}}
+ const cz=tw?ts/tw:0,st=cz>=1?["No rumo certo","#22c55e"]:cz>=.7?["Atenção","#f5b301"]:["Em risco","#ef4444"];
+ const ring=(p,c)=>`<svg viewBox="0 0 120 120" width="110" height="110"><circle cx="60" cy="60" r="50" fill="none" stroke="var(--bd)" stroke-width="10"/><circle cx="60" cy="60" r="50" fill="none" stroke="${c}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${Math.min(1,p)*314} 314" transform="rotate(-90 60 60)"/><text x="60" y="66" text-anchor="middle" fill="var(--tx)" font-size="20" font-weight="700">${pc(p)}</text></svg>`;
+ let h=`<div class="top" style="margin-top:6px"><div><h1>Resumo diário</h1><select onchange="dd=+this.value;render()" style="width:auto">${Array.from({length:dias},(_,i)=>`<option value="${i+1}" ${i+1===d?"selected":""}>Dia ${i+1} · ${esc(snap.mes)}</option>`).join("")}</select></div><div class="card"><div class="mut">Estado do dia</div><b style="color:${st[1]}">● ${st[0]}</b></div><div class="card" style="min-width:190px"><div class="mut">Concretização do dia</div><div class="big" style="color:${st[1]}">${pc(cz)}</div><div class="bar"><i style="width:${Math.min(100,cz*100)}%;background:${st[1]}"></i></div></div></div>`;
+ h+='<div class="g" style="margin-top:12px">'+KP.map(([k])=>{const p=pr(k,d-1),c=C[k];return `<div class="card" style="border-top:3px solid ${c}"><div class="mut">${lab(k)}${k==="TV"||k==="Meo Energia"?" · core":""}</div><div class="big">${nf(S[k][d-1],k)}</div><div class="mut">Objetivo: ${nf(O[k],k)}</div><div style="color:${c};font-weight:700">${pc(p)}</div><div class="bar"><i style="width:${Math.min(100,(p||0)*100)}%;background:${c}"></i></div></div>`}).join("")+"</div>";
+ const f=S["Facturação"][d-1],pf=pr("Facturação",d-1);
+ h+=`<div class="g3"><div class="card"><div class="mut">PREVISÃO TV</div>${ring(pv("TV"),C.TV)}<div class="mut">${nf(sm("TV",d),"TV")} / ${nf(T.TV,"TV")} no mês</div></div><div class="card" style="text-align:center;border-color:#1f6b45"><div class="mut">FATURAÇÃO DO DIA</div><div class="big" style="font-size:34px">${nf(f,"Facturação")}</div><div class="mut">Objetivo do dia: ${nf(O["Facturação"],"Facturação")}</div><div style="color:${pf>=1?"#22c55e":"#ef4444"};font-weight:700;margin-top:6px">${pc(pf)} ${pf>=1?"acima do objetivo":"abaixo do objetivo"}</div></div><div class="card"><div class="mut">PREVISÃO MEO ENERGIA</div>${ring(pv("Meo Energia"),C["Meo Energia"])}<div class="mut">${nf(sm("Meo Energia",d),"Meo Energia")} / ${nf(T["Meo Energia"],"Meo Energia")} no mês</div></div></div>`;
+ const cum=[];let a=0;S[ck].slice(0,d).forEach(x=>{a+=x;cum.push(a)});
+ const mx=Math.max(T[ck],a,1),X=i=>10+i*300/Math.max(1,dias-1),Y=v=>125-v/mx*110;
+ h+=`<div class="g3"><div class="card"><div class="mut">EVOLUÇÃO DO MÊS (acumulado)</div><div class="chips" style="padding:6px 0">${KP.map(([k])=>`<button class="chip ${k===ck?"on":""}" data-k="${k}" onclick="ck=this.dataset.k;render()">${lab(k)}</button>`).join("")}</div><svg viewBox="0 0 320 140" style="width:100%"><polyline points="${X(0)},${Y(T[ck]/dias)} ${X(dias-1)},${Y(T[ck])}" fill="none" stroke="var(--mut)" stroke-dasharray="4 3"/><polyline points="${cum.map((v,i)=>X(i)+","+Y(v)).join(" ")}" fill="none" stroke="${C[ck]}" stroke-width="2.5"/></svg><div class="mut">Linha cheia: real · tracejado: objetivo (${nf(T[ck],ck)} no mês)</div></div>`;
+ h+='<div class="card"><div class="mut">COMPARATIVO COM ONTEM</div>'+KP.map(([k])=>{const t=S[k][d-1],y=d>1?S[k][d-2]:null,df=y==null?null:t-y;return `<div class="rw"><span>${lab(k)}</span><span>${nf(t,k)}</span><span class="mut">Ontem ${y==null?"–":nf(y,k)}</span><b class="${df==null?"":df>=0?"forte":"crit"}">${df==null?"–":(df>=0?"▲ +":"▼ ")+nf(df,k)}</b></div>`}).join("")+"</div>";
+ h+='<div class="card"><div class="mut">DESEMPENHO DO MÊS ATÉ AO DIA '+d+'</div>'+KP.map(([k])=>{const p=T[k]?sm(k,d)/T[k]:0;return `<div style="margin-top:8px"><div class="rw" style="border:0;padding:0"><span>${lab(k)}</span><b style="color:${C[k]}">${pc(p)}</b></div><div class="bar"><i style="width:${Math.min(100,p*100)}%;background:${C[k]}"></i></div></div>`}).join("")+"</div></div>";
+ return h;}
 function loja(){
-  const S=snap.store;let h='<h2>Loja</h2><div class="g">';
+  const S=snap.store;let h=resumo()+'<h2>Mês até agora</h2><div class="g">';
   for(const k of ["TV","PPP","Meo Energia","Faturação","Refidelizações"]){const d=S[k];if(!d)continue;const c=d.real/d.obj;
     h+=`<div class="card"><div class="mut">${k==="Refidelizações"?"Refid’s":k}</div><div class="big">${pc(c)}</div><div class="mut">${nf(d.real,k==="Faturação"?"Facturação":k)} / ${nf(d.obj,k==="Faturação"?"Facturação":k)}</div><div class="mut">Previsão de fecho: ${pc(c/fr0())}</div><div class="bar"><i style="width:${Math.min(100,c*100)}%"></i></div></div>`}
   h+='</div>'+perito()+'<h2>Quem precisa de apoio primeiro</h2><div class="card sc"><table><tr><th>Colaborador</th><th>Função</th><th>TCO</th>'+KP.map(x=>`<th>${lab(x[0])}</th>`).join("")+"<th>Fraquezas</th></tr>";
