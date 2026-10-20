@@ -37,7 +37,7 @@ ol{padding-left:20px;margin:6px 0}.app{display:flex;min-height:100vh}nav{display
 </style></head>
 <body><div class="app"><nav id="nav" hidden><b>TIPO LOJA</b><button data-v="geral">▦ Resumo loja</button><button data-v="diaria">◷ Vendas diárias</button><button data-v="colab">☺ Lojistas</button><button data-v="semanal">▤ Segunda-feira</button><button data-v="hist">📈 Histórico</button><button data-v="apoio">⚑ Apoio</button></nav><div class="w">
 <div class="top"><div><h1>Análise de Vendas da Loja</h1><div class="mut" id="sub">A carregar…</div></div>
-<div><input type="file" id="fx" accept=".xlsx" hidden><button class="btn g2" id="up">Atualizar com Excel</button> <button class="btn g2" onclick="window.print()">Exportar PDF</button> <button class="btn g2" id="out" hidden>Sair</button></div></div>
+<div><input type="file" id="fx" accept=".xlsx" hidden><select id="msel" hidden onchange="mid=this.value||null;useSnap();render()" style="width:auto;margin:0 6px 0 0"></select><button class="btn g2" id="up">Atualizar com Excel</button> <button class="btn g2" onclick="window.print()">Exportar PDF</button> <button class="btn g2" id="out" hidden>Sair</button></div></div>
 <div id="lg" class="card" style="max-width:360px;margin:40px auto" hidden><h1>Entrar</h1><input id="em" type="email" placeholder="Email" autocomplete="username" style="width:100%;margin:10px 0 4px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><input id="pw" type="password" placeholder="Palavra-passe" autocomplete="current-password" style="width:100%;margin:4px 0 10px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><button class="btn" id="li">Entrar</button><div class="mut" id="le" style="margin-top:8px"></div></div>
 <div class="chips" id="chips"></div><div id="main"></div></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -55,7 +55,7 @@ const TPL={"TV":"Treinar a abordagem de TV e pacotes: perguntas de qualificaçã
 "Div":"Aumentar a variedade de produtos por cliente (acessórios, seguros, serviços) em cada venda.",
 "Seg":"Propor seguro em todos os equipamentos e treinar o argumento de proteção."};
 const VS={"Liliana Cardoso":"Liliana","Rodolfo Correia":"Rodolfo","Adriana Marta":"Adriana","Adriano Machado":"Adriano","Ana Rosado":"Ana Dulcineia","Ana Santos":"Ana Margarida","Julio Benck":"Julio","Carla Costa":"Carla","Cristiana Santos":"Cristiana","Pedro Carvalho":"Pedro","Telma Maltez":"Telma","Tiago Vigario":"Tiago"};
-let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="",dd=null,ck="TV",view="geral",dv="",ct="desemp",sw=null,pf="",S0={"TV":0,"PPP":0,"Meo Energia":0,"Facturação":0},H=[];
+let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="",dd=null,ck="TV",view="geral",dv="",ct="desemp",sw=null,pf="",CUR=null,mid=null,S0={"TV":0,"PPP":0,"Meo Energia":0,"Facturação":0},H=[];
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pc=x=>x==null?"–":Math.round(x*100)+"%";
@@ -111,6 +111,8 @@ function cashm(v,k){k=k||1;const R=snap.rates;if(!R||v.cred==null||v.fat==null)r
 function nxt(v){const c=cashm(v,1/fr0());return c&&c.next!=null?`<div class="mut">Próximo patamar de TCO (${PAT[c.i+1]}%): +${eu(c.cr*(c.next-c.rate)*c.fat)} de cash</div>`:""}
 function premio(v){const c=cashm(v,1/fr0());if(!c)return `<div class="card"><div style="font-weight:700;font-size:12px">PRÉMIO</div><div class="big">${v.cash==null?"–":eu(v.cash)}</div><div class="mut">Base, antes de penalizações</div></div>`;
  return `<div class="card"><div style="font-weight:700;font-size:12px">PRÉMIO · CASH BASE</div><div class="big">${eu(c.cash)}</div><div class="mut">${Math.round(c.cr)} créditos × ${c.rate.toFixed(2).replace(".",",")} €${c.pe?" (TV abaixo do objetivo: −10%)":""} × ${c.fat}${c.port?" + "+eu(c.port)+" portab.":""}</div>${c.next!=null?`<div class="forte">Subir TCO para ${PAT[c.i+1]}%: +${eu(c.cr*(c.next-c.rate)*c.fat)}</div>`:'<div class="forte">Patamar máximo</div>'}</div>`}
+function ymid(s){const m=MNL.findIndex(x=>String(s.mes).startsWith(x)),y=+(String(s.mes).match(/\d{4}/)||[0])[0];return m>=0&&y?"m"+y+"-"+String(m+1).padStart(2,"0"):"atual"}
+function useSnap(){const x=mid&&CUR&&mid!==ymid(CUR)?H.find(z=>z.id===mid):null;snap=x?x.s:CUR;dd=null;sw=null}
 const MNL="Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split(" "),n1=x=>(Math.round(x*10)/10).toString().replace(".",","),CRU={"TV":38.99,"PPP":7.74,"Facturação":0.0168,"Meo Energia":0.0168};
 const PB={"TV":{pr:"propor TV ou pacote em todos os atendimentos elegíveis",pt:["Perguntar quantos ecrãs e que serviços têm em casa antes de propor.","Fechar a internet já com a proposta de TV no ecrã, em vez de deixar para depois."]},"Meo Energia":{pr:"pedir a fatura da luz em todos os contratos novos",pt:["Pedir a fatura da luz no fecho de cada contrato e mostrar a poupança estimada na hora.","Usar um argumento de 30 segundos centrado na poupança anual."]}};
 function simv(v,d){const c0=cashm(v,1);if(!c0||!v.pw||!v.k.TV)return null;let t=v.tco||0,cr=v.cred||0;
@@ -275,6 +277,7 @@ function render(){
   if(!snap){$("main").innerHTML='<div class="card">Ainda não há dados. Toca em “Atualizar com Excel” e escolhe o teu ficheiro.</div>';return}
   $("sub").textContent=`${snap.mes} · atualizado a ${new Date(snap.at).toLocaleString("pt-PT")}`+(msg?` · ${msg}`:"");
   if(view==="colab"&&!sel)sel=snap.vendedores[0].nome;
+  {const ids=[...new Set(H.map(x=>x.id).concat(CUR?[ymid(CUR)]:[]))].sort().reverse(),cu=CUR?ymid(CUR):"";$("msel").innerHTML=ids.map(i=>{const q=i===cu?CUR:(H.find(x=>x.id===i)||{}).s;return `<option value="${i}" ${(mid||cu)===i?"selected":""}>${esc(q?q.mes:i)}</option>`}).join("");$("msel").hidden=false}
   $("nav").hidden=false;document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
   $("chips").innerHTML=view==="colab"?`<select onchange="sel=this.value;wk=null;render()" style="width:auto;margin:6px 0">${snap.vendedores.map(v=>`<option ${v.nome===sel?"selected":""}>${esc(v.nome)}</option>`).join("")}</select>`:"";
   const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=view==="colab"&&v?colab(v):view==="diaria"?resumo():view==="hist"?histv():view==="semanal"?semanal():view==="apoio"?apoio():loja();
@@ -311,7 +314,10 @@ $("fx").onchange=async e=>{
     vend.forEach(v=>v.d=D[v.nome]);
     const RT={n:{},p:{}};for(const r of aoa("€crédito","A1:V16").slice(3,15)){const q=String(r[1]||"").trim();if(q){RT.n[q]=r.slice(2,9).map(x=>nv(x)||0);RT.p[q]=r.slice(14,21).map(x=>nv(x)||0)}}
     const MN="Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split(" "),dias=mon?new Date(mon[0],mon[1]+1,0).getDate():30;
-    const PL={mes:mon?MN[mon[1]]+" "+mon[0]:"Mês atual",store,vendedores:vend,dias,dia:last||dias,rates:RT,at:Date.now()};await db.doc("snap/current").set(PL);if(mon)await chk(sb.from("snap").upsert({id:"m"+mon[0]+"-"+String(mon[1]+1).padStart(2,"0"),data:PL}));await loadHist();msg="atualizado";
+    const PL={mes:mon?MN[mon[1]]+" "+mon[0]:"Mês atual",store,vendedores:vend,dias,dia:last||dias,rates:RT,at:Date.now()};const nid=mon?"m"+mon[0]+"-"+String(mon[1]+1).padStart(2,"0"):null;
+    if(nid)await chk(sb.from("snap").upsert({id:nid,data:PL}));
+    if(!CUR||!nid||nid>=ymid(CUR))await db.doc("snap/current").set(PL);
+    await loadHist();mid=nid&&CUR&&nid<ymid(CUR)?nid:null;useSnap();msg="atualizado";
   }catch(err){msg="Erro a ler o Excel: "+(err.message||err);render()}
   e.target.value="";};
 const SUPABASE_URL="https://nfpjwxezlrunruzqbhjn.supabase.co",SUPABASE_KEY="sb_publishable_Nf9n_q5rIe3t_dek7H0A9w_gloi0dEJ";
@@ -325,8 +331,8 @@ const mk=()=>({
  collection:()=>({add:async d=>{await chk(sb.from("notes").insert(d));await loadNotes()},
   doc:id=>({delete:async()=>{await chk(sb.from("notes").delete().eq("id",id));await loadNotes()}}),
   onSnapshot:cb=>{L.notes.push(cb);loadNotes()}})});
-async function entrar(){db=mk();loadHist().then(render);if(new Date().getDay()===1)view="semanal";$("nav").hidden=false;$("lg").hidden=true;$("out").hidden=false;$("up").hidden=false;db.doc().onSnapshot(s=>{snap=s.exists?s.data():null;render()});db.collection().onSnapshot(q=>{notes=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.ts-a.ts);render()})}
-function login(){db=null;$("nav").hidden=true;snap=null;$("lg").hidden=false;$("out").hidden=true;$("up").hidden=true;$("main").innerHTML="";$("chips").innerHTML="";$("sub").textContent="Acesso reservado"}
+async function entrar(){db=mk();loadHist().then(()=>{useSnap();render()});if(new Date().getDay()===1)view="semanal";$("nav").hidden=false;$("lg").hidden=true;$("out").hidden=false;$("up").hidden=false;db.doc().onSnapshot(s=>{CUR=s.exists?s.data():null;useSnap();render()});db.collection().onSnapshot(q=>{notes=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.ts-a.ts);render()})}
+function login(){db=null;$("nav").hidden=true;snap=null;CUR=null;mid=null;$("msel").hidden=true;$("lg").hidden=false;$("out").hidden=true;$("up").hidden=true;$("main").innerHTML="";$("chips").innerHTML="";$("sub").textContent="Acesso reservado"}
 $("li").onclick=async()=>{$("le").textContent="";const{error}=await sb.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error)$("le").textContent="Email ou palavra-passe incorretos.";else{$("pw").value="";entrar()}};
 $("out").onclick=async()=>{await sb.auth.signOut();login()};
 (async()=>{const{data}=await sb.auth.getSession();if(data.session)entrar();else login()})();
