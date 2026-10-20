@@ -29,10 +29,15 @@ textarea,select{width:100%;background:var(--bg);border:1px solid var(--bd);borde
 .note.f{border-color:var(--ok)}.note.c{border-color:var(--warn)}
 .x{float:right;background:none;border:0;color:var(--mut);cursor:pointer}
 ol{padding-left:20px;margin:6px 0}.app{display:flex;min-height:100vh}nav{display:flex;flex-direction:column;gap:6px;padding:14px 10px;width:190px;flex:none;background:var(--card);border-right:1px solid var(--bd)}nav[hidden]{display:none}nav b{font-size:16px;padding:6px 10px 14px}nav button{text-align:left;background:none;border:0;color:var(--mut);padding:10px 12px;border-radius:10px;cursor:pointer;font:inherit}nav button.on{background:var(--ac);color:#fff}.app>.w{flex:1;min-width:0;max-width:1100px;margin:0}@media(max-width:760px){.app{flex-direction:column}nav{width:auto;flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--bd)}nav b{display:none}nav button{white-space:nowrap}}.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:10px}.rw{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:14px}li{margin:6px 0}
+.w{padding:10px}h1{font-size:1.25em}h2{margin:10px 0 6px}.big{font-size:1.5em}.card{padding:8px 10px}th,td{padding:3px 6px}body{font-size:clamp(11px,1.65vh,15px)}
+.g2{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-top:10px}
+@media(max-width:899px){.g2{grid-template-columns:1fr}}
+@media(min-width:900px) and (min-height:600px){html,body{height:100%;overflow:hidden}.app{height:100vh}.app>.w{height:100vh;overflow:auto;max-width:1500px}}
+@media print{nav,.chips,#up,#out,select,button,.btn,label input{display:none!important}html,body{height:auto!important;overflow:visible!important;background:#fff!important}.app,.app>.w{display:block!important;height:auto!important;overflow:visible!important}.card{background:#fff!important;box-shadow:none!important;border:1px solid #888!important;break-inside:avoid}th{background:#ddd!important}*{color:#000!important}.forte{color:#0a7a3d!important}.crit{color:#c00!important}.fraco{color:#a60!important}}
 </style></head>
-<body><div class="app"><nav id="nav" hidden><b>TIPO LOJA</b><button data-v="geral">▦ Resumo loja</button><button data-v="diaria">◷ Vendas diárias</button><button data-v="colab">☺ Lojistas</button></nav><div class="w">
+<body><div class="app"><nav id="nav" hidden><b>TIPO LOJA</b><button data-v="geral">▦ Resumo loja</button><button data-v="diaria">◷ Vendas diárias</button><button data-v="colab">☺ Lojistas</button><button data-v="semanal">▤ Segunda-feira</button><button data-v="hist">📈 Histórico</button><button data-v="apoio">⚑ Apoio</button></nav><div class="w">
 <div class="top"><div><h1>Análise de Vendas da Loja</h1><div class="mut" id="sub">A carregar…</div></div>
-<div><input type="file" id="fx" accept=".xlsx" hidden><button class="btn g2" id="up">Atualizar com Excel</button> <button class="btn g2" id="out" hidden>Sair</button></div></div>
+<div><input type="file" id="fx" accept=".xlsx" hidden><button class="btn g2" id="up">Atualizar com Excel</button> <button class="btn g2" onclick="window.print()">Exportar PDF</button> <button class="btn g2" id="out" hidden>Sair</button></div></div>
 <div id="lg" class="card" style="max-width:360px;margin:40px auto" hidden><h1>Entrar</h1><input id="em" type="email" placeholder="Email" autocomplete="username" style="width:100%;margin:10px 0 4px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><input id="pw" type="password" placeholder="Palavra-passe" autocomplete="current-password" style="width:100%;margin:4px 0 10px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><button class="btn" id="li">Entrar</button><div class="mut" id="le" style="margin-top:8px"></div></div>
 <div class="chips" id="chips"></div><div id="main"></div></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -50,11 +55,11 @@ const TPL={"TV":"Treinar a abordagem de TV e pacotes: perguntas de qualificaçã
 "Div":"Aumentar a variedade de produtos por cliente (acessórios, seguros, serviços) em cada venda.",
 "Seg":"Propor seguro em todos os equipamentos e treinar o argumento de proteção."};
 const VS={"Liliana Cardoso":"Liliana","Rodolfo Correia":"Rodolfo","Adriana Marta":"Adriana","Adriano Machado":"Adriano","Ana Rosado":"Ana Dulcineia","Ana Santos":"Ana Margarida","Julio Benck":"Julio","Carla Costa":"Carla","Cristiana Santos":"Cristiana","Pedro Carvalho":"Pedro","Telma Maltez":"Telma","Tiago Vigario":"Tiago"};
-let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="",dd=null,ck="TV",view="geral",dv="";
+let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="",dd=null,ck="TV",view="geral",dv="",ct="desemp",sw=null,pf="",S0={"TV":0,"PPP":0,"Meo Energia":0,"Facturação":0},H=[];
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pc=x=>x==null?"–":Math.round(x*100)+"%";
-const nf=(n,k)=>n==null?"–":(k==="Facturação"?Math.round(n).toLocaleString("pt-PT")+" €":Math.round(n*10)/10);
+const nf=(n,k)=>n==null?"–":(k==="Facturação"?Math.round(n).toLocaleString("pt-PT")+" €":(Math.round(n*10)/10).toString().replace(".",","));
 const med=a=>{a=a.filter(x=>x!=null).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:null};
 const fr0=()=>(snap.dia||snap.dias||30)/(snap.dias||30);const pfo=d=>d.real/d.obj/fr0();
 function ana(v,all){
@@ -63,7 +68,7 @@ function ana(v,all){
     const cur=d.real/d.obj,pf=pfo(d),m=med(all.map(o=>o.k[k]&&o.k[k].obj?pfo(o.k[k]):null));
     let s="ok";if(pf<0.85)s="crit";else if(pf<1)s="fraco";else if(pf>=1.25&&pf>=m)s="forte";
     r.push({k,w,d,cur,pf,m,s,txt:`${nf(d.real,k)} / ${nf(d.obj,k)}`,gap:w*(1-Math.min(pf,1))});}
-  const n=v.k.NPS;if(n&&n.obj!=null&&n.real!=null)r.push({k:"NPS",w:1,d:n,cur:n.real/n.obj,pf:null,s:n.real<n.obj?(n.real<n.obj*0.7?"crit":"fraco"):"forte",txt:`${Math.round(n.real*100)}% / ${Math.round(n.obj*100)}%`,gap:n.real<n.obj?1-n.real/n.obj:0});
+  const n=v.k.NPS;if(n&&n.obj!=null&&n.real!=null)r.push({k:"NPS",w:1,d:n,cur:n.real/n.obj,pf:null,s:n.real<.3?"crit":n.real<.6?"fraco":"forte",txt:`${Math.round(n.real*100)}% / ${Math.round(n.obj*100)}%`,gap:n.real<n.obj?1-n.real/n.obj:0});
   if(v.funcao!=="GOE"&&v.div!=null){const sd=snap.store.Diversos;
     if(!(sd&&sd.pf>=1.6)&&v.div<1.6)r.push({k:"Div",w:1,s:"fraco",txt:`${v.div.toFixed(2)} / 1,60`,gap:(1.6-v.div)/1.6});
     const ss=snap.store.Seguros;if(!(ss&&ss.pf>=0.15)&&v.seg<0.15)r.push({k:"Seg",w:1,s:"fraco",txt:`${(v.seg*100).toFixed(1)}% / 15%`,gap:(0.15-v.seg)/0.15});}
@@ -72,9 +77,9 @@ const SL={forte:"Ponto forte",ok:"Em linha",fraco:"A melhorar",crit:"Crítico"};
 const KL={Div:"Diversidade",Seg:"Seguros",NPS:"NPS"};
 const nm=k=>KL[k]||lab(k);
 function peer(k,self){let b=null,bp=-1;for(const o of snap.vendedores){if(o.nome===self||!o.k[k]||!o.k[k].obj)continue;const p=pfo(o.k[k]);if(p>bp){bp=p;b=o.nome}}return b?`${b} (${pc(bp)})`:null}
-function perito(){
+function perito(ks){
  const V=snap.vendedores,rows=[],ins=[],SK={"Facturação":"Faturação","Refid's":"Refidelizações"};
- for(const[k]of KP){
+ for(const k of (ks||KP.map(x=>x[0]))){
   const a=V.map(v=>({n:v.nome,r:Math.max(0,(v.k[k]||{}).real||0)})).sort((x,y)=>y.r-x.r),t=a.reduce((s,x)=>s+x.r,0);if(!t)continue;
   const s1=a[0].r/t,s2=(a[0].r+a[1].r)/t;let c=0,n8=0;for(const x of a){c+=x.r;n8++;if(c>=.8*t)break}
   const m=med(a.map(x=>x.r)),op=a.filter(x=>x.r<m).reduce((s,x)=>s+m-x.r,0),ob=(snap.store[SK[k]||k]||{}).obj;
@@ -86,7 +91,7 @@ function perito(){
  return '<h2>Análise de especialista</h2><div class="card sc"><table><tr><th>Produto</th><th>Total</th><th>Líder (peso)</th><th>Top 2</th><th>Fazem 80%</th><th>Dependência</th><th>Potencial*</th><th>Mais fraco</th></tr>'+rows.join("")+'</table></div><div class="mut">*Unidades extra se quem está abaixo da mediana da equipa chegasse à mediana.</div><div class="card" style="margin-top:10px">'+(ins.slice(0,6).map(x=>`<p style="margin:6px 0">${x}</p>`).join("")||"Resultados bem distribuídos pela equipa.")+"</div>";}
 const CK={"TV":"#3b82f6","PPP":"#a855f7","Meo Energia":"#f5b301","Refid's":"#14b8a6","Facturação":"#4ade80"};
 function kcard(k,r,o,p,fl,fv){const c=CK[k];return `<div class="card" style="border-top:3px solid ${c}"><div style="color:${c};font-weight:700;font-size:12px">${lab(k).toUpperCase()}${k==="TV"||k==="Meo Energia"?" · CORE":""}</div><div class="big">${nf(r,k)}</div><div>Objetivo: ${nf(o,k)}${p!=null?" · "+pc(p):""}</div><div class="bar"><i style="width:${Math.min(100,(p||0)*100)}%;background:${c}"></i></div><div class="rw" style="border:0;padding:6px 0 0"><span class="mut">${fl}</span><b>${fv}</b></div></div>`}
-function km(k,o,r,p,pf,fd,t,f){const c=CK[k]||"#8fb8ff",F=f||(n=>nf(n,k));return `<div class="card" style="border-top:3px solid ${c}"><div style="color:${c};font-weight:700">${t||lab(k).toUpperCase()}${k==="TV"||k==="Meo Energia"?" · CORE":""}</div><div class="rw" style="border:0"><span class="mut">Objetivo</span><span class="mut">Realizado</span></div><div class="rw" style="border:0;padding:0;font-size:20px;font-weight:700"><span>${F(o)}</span><span>${F(r)}</span></div><div class="rw" style="border-top:1px solid var(--bd);margin-top:8px"><b style="color:${c}">${pc(p)}</b><b style="color:${pf==null?"inherit":pf>=1?"var(--ok)":"var(--bad)"}">${pc(pf)}</b></div><div class="rw" style="border:0;padding:0"><span class="mut">Realizado</span><span class="mut">Previsão</span></div><div class="rw" style="border-top:1px solid var(--bd);margin-top:8px;border-bottom:0"><span class="mut">Falta/dia</span><b>${fd}</b></div></div>`}
+function km(k,o,r,p,pf,fd,t,f){const c=CK[k]||"#8fb8ff",F=f||(n=>nf(n,k));return `<div class="card" style="border-top:3px solid ${c}"><div style="color:${c};font-weight:700;font-size:.85em">${t||lab(k).toUpperCase()}${k==="TV"||k==="Meo Energia"?" · CORE":""}</div><div><span class="big">${F(r)}</span> <span class="mut">/ ${F(o)}</span></div><div class="rw" style="border:0;padding:2px 0"><b style="color:${c}">${pc(p)}</b><span>prev. <b style="color:${pf==null?"inherit":pf>=1?"var(--ok)":"var(--bad)"}">${pc(pf)}</b></span><span class="mut">falta/dia <b style="color:var(--tx)">${fd}</b></span></div></div>`}
 function resumo(){
  const dias=snap.dias||30,V=dv?snap.vendedores.filter(x=>x.nome===dv):snap.vendedores;let d=Math.min(Math.max(1,dd||snap.dia||dias),dias);
  const SK={"Facturação":"Faturação","Refid's":"Refidelizações"},C={"TV":"#3b82f6","PPP":"#a855f7","Meo Energia":"#f5b301","Refid's":"#14b8a6","Facturação":"#4ade80"},S={},O={},T={};
@@ -98,33 +103,134 @@ function resumo(){
  let h=`<div class="card top"><div><div class="mut">LOJA · ACOMPANHAMENTO DO DIA</div><h1>Vendas Diárias</h1><div class="mut">Realizado, objetivo e contribuição da equipa</div></div><div><div class="mut">DATA DO RESUMO</div><select onchange="dd=+this.value;render()" style="width:auto">${Array.from({length:dias},(_,i)=>`<option value="${i+1}" ${i+1===d?"selected":""}>Dia ${i+1} · ${esc(snap.mes)}</option>`).join("")}</select></div><div><div class="mut">CONCRETIZAÇÃO DO DIA</div><div class="big" style="color:${st[1]}">${pc(cz)}</div><b style="color:${st[1]}">● ${st[0]}</b></div></div>`;
  h+='<div class="g" style="margin-top:12px">'+KP.map(([k])=>kcard(k,S[k][d-1],O[k],pr(k,d-1),"Falta hoje",nf(Math.max(0,O[k]-S[k][d-1]),k))).join("")+"</div>";
  const rows=snap.vendedores.map(v=>({n:v.nome,x:KP.map(([k])=>v.d&&v.d[k]?v.d[k][d-1]:0)})).filter(r=>dv?r.n===dv:(r.x[0]>0||r.x[1]>0)).sort((p,q)=>(q.x[0]+q.x[1])-(p.x[0]+p.x[1]));
- h+=`<div class="card" style="margin-top:12px"><div class="top"><b class="mut">COLABORADOR</b><select onchange="dv=this.value;render()" style="width:auto"><option value="">Todos os colaboradores</option>${snap.vendedores.map(v=>`<option ${v.nome===dv?"selected":""}>${esc(v.nome)}</option>`).join("")}</select></div><div class="sc"><table><tr><th>Colaborador</th>${KP.map(([k])=>`<th>${lab(k)}</th>`).join("")}</tr>${rows.map(r=>`<tr><td><b>${esc(r.n)}</b></td>${r.x.map((x,i)=>`<td>${nf(x,KP[i][0])}</td>`).join("")}</tr>`).join("")||'<tr><td colspan="6" class="mut">Sem vendas de TV ou Energia neste dia.</td></tr>'}</table></div><div class="mut">Só aparecem colaboradores com vendas de TV ou Energia nesse dia.</div></div>`;
- const f=S["Facturação"][d-1],pf=pr("Facturação",d-1);
- h+=`<div class="g3"><div class="card"><div class="mut">PREVISÃO TV</div>${ring(pv("TV"),C.TV)}<div class="mut">${nf(sm("TV",d),"TV")} / ${nf(T.TV,"TV")} no mês</div></div><div class="card" style="text-align:center;border-color:#1f6b45"><div class="mut">FATURAÇÃO DO DIA</div><div class="big" style="font-size:34px">${nf(f,"Facturação")}</div><div class="mut">Objetivo do dia: ${nf(O["Facturação"],"Facturação")}</div><div style="color:${pf>=1?"#22c55e":"#ef4444"};font-weight:700;margin-top:6px">${pc(pf)} ${pf>=1?"acima do objetivo":"abaixo do objetivo"}</div></div><div class="card"><div class="mut">PREVISÃO MEO ENERGIA</div>${ring(pv("Meo Energia"),C["Meo Energia"])}<div class="mut">${nf(sm("Meo Energia",d),"Meo Energia")} / ${nf(T["Meo Energia"],"Meo Energia")} no mês</div></div></div>`;
- const cum=[];let a=0;S[ck].slice(0,d).forEach(x=>{a+=x;cum.push(a)});
- const mx=Math.max(T[ck],a,1),X=i=>10+i*300/Math.max(1,dias-1),Y=v=>125-v/mx*110;
- h+=`<div class="g3"><div class="card"><div class="mut">EVOLUÇÃO DO MÊS (acumulado)</div><div class="chips" style="padding:6px 0">${KP.map(([k])=>`<button class="chip ${k===ck?"on":""}" data-k="${k}" onclick="ck=this.dataset.k;render()">${lab(k)}</button>`).join("")}</div><svg viewBox="0 0 320 140" style="width:100%"><polyline points="${X(0)},${Y(T[ck]/dias)} ${X(dias-1)},${Y(T[ck])}" fill="none" stroke="var(--mut)" stroke-dasharray="4 3"/><polyline points="${cum.map((v,i)=>X(i)+","+Y(v)).join(" ")}" fill="none" stroke="${C[ck]}" stroke-width="2.5"/></svg><div class="mut">Linha cheia: real · tracejado: objetivo (${nf(T[ck],ck)} no mês)</div></div>`;
- h+='<div class="card"><div class="mut">COMPARATIVO COM ONTEM</div>'+KP.map(([k])=>{const t=S[k][d-1],y=d>1?S[k][d-2]:null,df=y==null?null:t-y;return `<div class="rw"><span>${lab(k)}</span><span>${nf(t,k)}</span><span class="mut">Ontem ${y==null?"–":nf(y,k)}</span><b class="${df==null?"":df>=0?"forte":"crit"}">${df==null?"–":(df>=0?"▲ +":"▼ ")+nf(df,k)}</b></div>`}).join("")+"</div>";
- h+='<div class="card"><div class="mut">DESEMPENHO DO MÊS ATÉ AO DIA '+d+'</div>'+KP.map(([k])=>{const p=T[k]?sm(k,d)/T[k]:0;return `<div style="margin-top:8px"><div class="rw" style="border:0;padding:0"><span>${lab(k)}</span><b style="color:${C[k]}">${pc(p)}</b></div><div class="bar"><i style="width:${Math.min(100,p*100)}%;background:${C[k]}"></i></div></div>`}).join("")+"</div></div>";
+ const tbl=`<div class="card"><div class="top"><b class="mut">COLABORADOR</b><select onchange="dv=this.value;render()" style="width:auto"><option value="">Todos os colaboradores</option>${snap.vendedores.map(v=>`<option ${v.nome===dv?"selected":""}>${esc(v.nome)}</option>`).join("")}</select></div><div class="sc"><table><tr><th>Colaborador</th>${KP.map(([k])=>`<th>${lab(k)}</th>`).join("")}</tr>${rows.map(r=>`<tr><td><b>${esc(r.n)}</b></td>${r.x.map((x,i)=>`<td>${nf(x,KP[i][0])}</td>`).join("")}</tr>`).join("")||'<tr><td colspan="6" class="mut">Sem vendas de TV ou Energia neste dia.</td></tr>'}</table></div><div class="mut">Só aparecem colaboradores com vendas de TV ou Energia nesse dia.</div></div>`;
+ const cmp='<div class="card"><div class="mut">COMPARATIVO COM ONTEM</div>'+KP.map(([k])=>{const t=S[k][d-1],y=d>1?S[k][d-2]:null,df=y==null?null:t-y;return `<div class="rw"><span>${lab(k)}</span><span>${nf(t,k)}</span><span class="mut">Ontem ${y==null?"–":nf(y,k)}</span><b class="${df==null?"":df>=0?"forte":"crit"}">${df==null?"–":(df>=0?"▲ +":"▼ ")+nf(df,k)}</b></div>`}).join("")+"</div>";
+ h+=`<div class="g2">${tbl}${cmp}</div>`;return h;}
+const eu=n=>Math.round(n).toLocaleString("pt-PT")+" €",PAT=[0,70,80,90,100,110,120];
+function cashm(v,k){k=k||1;const R=snap.rates;if(!R||v.cred==null||v.fat==null)return null;const tv=v.k.TV,pe=!!(tv&&tv.obj&&tv.real*k<tv.obj),row=(pe?R.p:R.n)[v.funcao];if(!row)return null;const t=(v.tco||0)*k,i=t<.7?0:t<.8?1:t<.9?2:t<1?3:t<1.1?4:t<1.2?5:6;return{i,rate:row[i],cr:v.cred*k,fat:v.fat,pe,port:(v.port||0)*k*10,next:i<6?row[i+1]:null,cash:v.cred*k*row[i]*v.fat+(v.port||0)*k*10}}
+function nxt(v){const c=cashm(v,1/fr0());return c&&c.next!=null?`<div class="mut">Próximo patamar de TCO (${PAT[c.i+1]}%): +${eu(c.cr*(c.next-c.rate)*c.fat)} de cash</div>`:""}
+function premio(v){const c=cashm(v,1/fr0());if(!c)return `<div class="card"><div style="font-weight:700;font-size:12px">PRÉMIO</div><div class="big">${v.cash==null?"–":eu(v.cash)}</div><div class="mut">Base, antes de penalizações</div></div>`;
+ return `<div class="card"><div style="font-weight:700;font-size:12px">PRÉMIO · CASH BASE</div><div class="big">${eu(c.cash)}</div><div class="mut">${Math.round(c.cr)} créditos × ${c.rate.toFixed(2).replace(".",",")} €${c.pe?" (TV abaixo do objetivo: −10%)":""} × ${c.fat}${c.port?" + "+eu(c.port)+" portab.":""}</div>${c.next!=null?`<div class="forte">Subir TCO para ${PAT[c.i+1]}%: +${eu(c.cr*(c.next-c.rate)*c.fat)}</div>`:'<div class="forte">Patamar máximo</div>'}</div>`}
+const MNL="Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split(" "),n1=x=>(Math.round(x*10)/10).toString().replace(".",","),CRU={"TV":38.99,"PPP":7.74,"Facturação":0.0168,"Meo Energia":0.0168};
+const PB={"TV":{pr:"propor TV ou pacote em todos os atendimentos elegíveis",pt:["Perguntar quantos ecrãs e que serviços têm em casa antes de propor.","Fechar a internet já com a proposta de TV no ecrã, em vez de deixar para depois."]},"Meo Energia":{pr:"pedir a fatura da luz em todos os contratos novos",pt:["Pedir a fatura da luz no fecho de cada contrato e mostrar a poupança estimada na hora.","Usar um argumento de 30 segundos centrado na poupança anual."]}};
+function simv(v,d){const c0=cashm(v,1);if(!c0||!v.pw||!v.k.TV)return null;let t=v.tco||0,cr=v.cred||0;
+ for(const k of Object.keys(CRU)){const x=d[k]||0,o=v.k[k];if(!x||!o||!o.obj)continue;const cap=k==="Meo Energia"?1.5:99;t+=(v.pw[k]||0)*(Math.min((o.real+x)/o.obj,cap)-Math.min(o.real/o.obj,cap));cr+=x*CRU[k]}
+ const w=Object.assign({},v,{tco:t,cred:cr,k:Object.assign({},v.k,{TV:Object.assign({},v.k.TV,{real:v.k.TV.real+(d.TV||0)})})}),c1=cashm(w,1);return{t0:v.tco,t1:t,c0,c1,dc:c1.cash-c0.cash}}
+const marg=(v,k,u)=>{const s=simv(v,{[k]:u});return s?s.dc:null};
+function simUI(v){const d=S0,s=simv(v,d);if(!s)return '<div class="card">Simulador indisponível: faltam créditos ou pesos de TCO. Atualiza com o Excel.</div>';
+ const inp=(k,l,st)=>`<label class="mut">${l} <input type="number" min="0" step="${st}" value="${d[k]||0}" onchange="S0['${k}']=+this.value;render()" style="width:90px;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:4px"></label>`;
+ const tvp=(v.k.TV.real+(d.TV||0))/(v.k.TV.obj||1),sg=x=>(x>=0?"+":"")+eu(x),r2=x=>x.toFixed(2).replace(".",",")+" €";
+ let h='<h2>Simulador: e se este lojista vender mais?</h2><div class="card"><div class="g" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">'+inp("TV","+ TV",1)+inp("Meo Energia","+ Meo Energia",1)+inp("PPP","+ PPP",1)+inp("Facturação","+ Faturação (€)",100)+"</div></div>";
+ h+=`<div class="g2"><div class="card sc"><table><tr><th></th><th>Agora</th><th>Simulação</th><th>Diferença</th></tr><tr><td>TCO</td><td>${pc(s.t0)}</td><td>${pc(s.t1)}</td><td>${Math.round((s.t1-s.t0)*100)} p.p.</td></tr><tr><td>Patamar de TCO</td><td>≥${PAT[s.c0.i]}%</td><td>≥${PAT[s.c1.i]}%</td><td></td></tr><tr><td>€ por crédito</td><td>${r2(s.c0.rate)}</td><td>${r2(s.c1.rate)}</td><td></td></tr><tr><td>Créditos</td><td>${Math.round(s.c0.cr)}</td><td>${Math.round(s.c1.cr)}</td><td></td></tr><tr><td><b>Cash base</b></td><td>${eu(s.c0.cash)}</td><td><b>${eu(s.c1.cash)}</b></td><td class="${s.dc>=0?"forte":"crit"}"><b>${sg(s.dc)}</b></td></tr></table><div class="mut" style="margin-top:6px">${tvp<.7?'<b class="crit">TV abaixo de 70%: o variável do mês fica anulado.</b> ':tvp<1?"TV abaixo do objetivo: €/crédito com −10%. ":""}Próximo patamar: ${s.c1.i<6?"≥"+PAT[s.c1.i+1]+"% (faltam "+n1((PAT[s.c1.i+1]/100-s.t1)*100)+" p.p. de TCO). ":"já no patamar máximo. "}Os euros só sobem quando o TCO muda de patamar ou entram créditos novos. Não inclui penalizações nem NPS. Créditos por unidade como no simulador do Excel (TV 38,99; PPP 7,74).</div></div>`;
+ h+='<div class="card sc"><div class="mut">VALOR DE CADA UNIDADE ADICIONAL</div><table><tr><th>Produto</th><th>TCO</th><th>Cash base</th></tr>'+[["TV",1,"1 TV"],["Meo Energia",1,"1 Meo Energia"],["PPP",1,"1 PPP"],["Facturação",100,"100 € de faturação"]].map(([k,u,l])=>{const m=simv(v,{[k]:u});return `<tr><td>${l}</td><td>${m?"+"+n1((m.t1-m.t0)*100)+" p.p.":"–"}</td><td>${m?sg(m.dc):"–"}</td></tr>`}).join("")+"</table></div></div>";return h}
+function plano(v){
+ const dias=snap.dias||30,dia=snap.dia||dias,rest=dias-dia,W=semanas(),V=snap.vendedores,ps=pst(v),cb=(cashm(v,1/fr0())||{cash:v.cash||0}).cash,pr=[],sec=[];
+ const obs=notes.filter(x=>x.nome===v.nome&&x.tipo==="corrigir").slice(0,2);
+ for(const k of ["TV","Meo Energia"]){const o=v.k[k];if(!o||!o.obj)continue;const pf=pfo(o);if(pf>=1)continue;
+  const d=(v.d&&v.d[k]?v.d[k]:[]).slice(0,dia),tot=d.reduce((a,b)=>a+b,0),sd=d.filter(x=>x>0).length,fr=dia?sd/dia:0,sh=tot>0?[...d].sort((a,b)=>b-a).slice(0,3).reduce((a,b)=>a+b,0)/tot:0;
+  const need=Math.max(0,o.obj-o.real),n70=Math.max(0,.7*o.obj-o.real),dd=o.obj/dias,rd=rest>0?need/rest:null;
+  const wp=W.filter(w=>w[1]<=dia&&w[1]-w[0]>=3).map(w=>d.slice(w[0]-1,w[1]).reduce((a,b)=>a+b,0)/(dd*(w[1]-w[0]+1))),tr=wp.length>1?wp[wp.length-1]-wp[wp.length-2]:null;
+  const same=V.filter(x=>x.funcao===v.funcao&&x.k[k]&&x.k[k].obj),grp=same.length>2?same:V.filter(x=>x.k[k]&&x.k[k].obj),vals=grp.map(x=>pfo(x.k[k])).sort((a,b)=>a-b),med=vals[Math.floor(vals.length/2)],rk=V.filter(x=>x.k[k]&&x.k[k].obj&&pfo(x.k[k])>pf).length+1,pe=peer(k,v.nome);
+  const cause=fr<.5&&tot>0?"frequência: vende, mas em poucos dias, por isso falta hábito diário de proposta":tr!=null&&tr<=-.15?"quebra recente: o ritmo caiu nas últimas semanas, convém rever o que mudou (escala, ausências, mix de atendimento)":sh>=.6?"dependência de picos: poucos dias concentram o resultado e falta consistência":"conversão baixa de forma consistente: trabalhar a qualificação e a proposta";
+  const e1=marg(v,k,1),eg=marg(v,k,Math.max(1,Math.ceil(need))),gate=k==="TV"&&pf<.7;
+  pr.push({e:gate?cb:(eg||0),t:`${lab(k)}: ${eg>0?"chegar ao objetivo vale cerca de +"+eu(eg):"sem retorno direto em cash enquanto o TCO ("+pc(v.tco)+") estiver abaixo do 1.º patamar ("+PAT[1]+"%)"}${gate?` e sair da zona de corte protege ${eu(cb)} de cash base`:""}`});
+  sec.push(`<div class="mut" style="margin-top:8px">${lab(k).toUpperCase()}</div><ul style="margin:4px 0;padding-left:18px"><li><b>Dados:</b> ${nf(o.real,k)} de ${nf(o.obj,k)} (${pc(o.real/o.obj)}), previsão de fecho ${pc(pf)}. Vendeu em ${sd} de ${dia} dias (${pc(fr)}); os 3 melhores dias concentram ${pc(sh)} do total.${tr!=null?" Tendência: "+pc(wp[wp.length-2])+" → "+pc(wp[wp.length-1])+" da meta semanal.":""} Posição ${rk}.º de ${V.length}; mediana ${same.length>2?"da função":"da loja"}: ${pc(med)}.</li><li><b>Leitura:</b> ${cause}. <span class="mut">Sem dados de atendimentos e propostas não se separa volume de conversão: convém registar as propostas por turno.</span></li><li><b>Impacto:</b> cada ${lab(k)} adicional vale ${e1==null?"–":e1>0?"+"+eu(e1):"0 €"} de cash base${e1===0&&v.tco<.7?" (o TCO ainda está abaixo do 1.º patamar)":""}${gate?`. <b class="crit">Abaixo de 70% o variável fica anulado</b>: faltam ${nf(n70,k)} para sair da zona de corte`:""}.</li><li><b>Meta SMART:</b> ${rd!=null?`${nf(rd,k)} por dia (cerca de ${nf(rd*7,k)} por semana) nos ${rest} dias que restam; ${nf(need,k)} no total`:`cerca de ${nf(dd*7,k)} por semana no próximo ciclo (${nf(o.obj,k)} no mês)`}. <b>Indicador de processo:</b> ${PB[k].pr}.</li><li><b>70% no posto:</b> ${PB[k].pt.join(" ")}</li><li><b>20% com colegas:</b> ${pe?"acompanhar 2 atendimentos por dia com "+esc(pe)+" e pedir feedback de 5 minutos":"par de aprendizagem com o colega mais forte"}.</li></ul>`)}
+ const cb2=[];
+ const dv=ps.d[0]==="crit"?`<li><b>Diversidade:</b> ${pc(v.div)} contra 160% (faltam ${Math.round((1.6-v.div)*100)} p.p.); a penalização de −10% custa cerca de ${eu(cb*.1)}. ${TPL.Div}</li>`:"",sg=ps.g[0]==="crit"?`<li><b>Seguros:</b> ${ps.p1(v.seg)} contra 15%; a penalização de −10% custa cerca de ${eu(cb*.1)}. ${TPL.Seg}</li>`:"";
+ const n=v.k.NPS,nq=n&&n.real!=null&&ps.q[0]!=="forte"?`<li><b>NPS:</b> ${pc(n.real)} (${ps.q[1]}); faltam ${Math.round(((n.real<.3?.3:.6)-n.real)*100)} p.p. para o escalão seguinte, que vale +50 €. ${TPL.NPS}</li>`:"";
+ if(ps.d[0]==="crit")pr.push({e:cb*.1,t:`Diversidade: evitar −10% (cerca de ${eu(cb*.1)})`});if(ps.g[0]==="crit")pr.push({e:cb*.1,t:`Seguros: evitar −10% (cerca de ${eu(cb*.1)})`});if(nq)pr.push({e:50,t:"NPS: subir de escalão vale +50 €"});
+ const nT=v.k.TV&&v.k.TV.obj?Math.max(0,Math.ceil(v.k.TV.obj-v.k.TV.real)):0,nE=v.k["Meo Energia"]&&v.k["Meo Energia"].obj?Math.max(0,Math.ceil(v.k["Meo Energia"].obj-v.k["Meo Energia"].real)):0,cs=(nT||nE)?simv(v,{TV:nT,"Meo Energia":nE}):null;
+ if(cs&&cs.dc>0)pr.push({e:cs.dc,t:`Cenário: TV e Meo Energia no objetivo → TCO ${pc(cs.t1)}, patamar ≥${PAT[cs.c1.i]}%, cash base +${eu(cs.dc)}`});
+ pr.sort((a,b)=>b.e-a.e);
+ let h=`<div class="card" style="margin-top:8px"><b>${esc(v.nome)}</b> <span class="mut">${esc(v.funcao||"")} · TCO ${pc(v.tco)}</span>${nxt(v)}`;
+ if(!pr.length)return h+'<div class="forte" style="margin-top:6px">Sem desvios em TV, Meo Energia, Diversidade, Seguros e NPS. Sugestão: dar a este lojista o papel de tutor nos produtos em que lidera.</div></div>';
+ h+='<div class="mut" style="margin-top:8px">PRIORIDADES POR IMPACTO (€)</div><ol style="margin:4px 0">'+pr.map(x=>`<li>${x.t}</li>`).join("")+"</ol>"+sec.join("");
+ if(dv||sg||nq)h+='<div class="mut" style="margin-top:8px">PENALIZAÇÕES</div><ul style="margin:4px 0;padding-left:18px">'+dv+sg+nq+"</ul>";
+ h+='<div class="mut" style="margin-top:8px">10% FORMAL, CADÊNCIA E CRITÉRIOS</div><ul style="margin:4px 0;padding-left:18px"><li>Role-play de 10 minutos, 2 vezes por semana, com as 3 objeções mais frequentes.</li><li>Check-in de 2 minutos no início do turno com a meta do dia; checkpoint à quinta-feira (abaixo de 50% da meta semanal, rever a abordagem e ajustar a escala); revisão à segunda-feira.</li><li>Critério de saída: 2 semanas seguidas com 90% ou mais da meta semanal.</li></ul>';
+ if(obs.length)h+=`<div class="mut">Observado por ti: ${obs.map(o=>esc(o.texto)).join(" · ")}</div>`;
+ return h+"</div>"}
+function histv(){
+ const c=snap,m=MNL.findIndex(x=>String(c.mes).startsWith(x)),y=+(String(c.mes).match(/\d{4}/)||[0])[0],id=m>=0&&y?"m"+y+"-"+String(m+1).padStart(2,"0"):"atual";
+ const L=H.filter(x=>x.id!==id).concat([{id,s:c}]).sort((a,b)=>a.id<b.id?-1:1),lb=x=>x.s.mes+((x.s.dia||x.s.dias)<x.s.dias?" (até ao dia "+x.s.dia+")":"");
+ let h='<h2>Histórico mês a mês</h2>';if(L.length<2)h+='<div class="card">Só há 1 mês guardado. O histórico constrói-se sozinho: cada vez que atualizas com o Excel, o mês fica guardado.</div>';
+ const pcv=(s,key,tco)=>{const d=s.store[key];return d?(tco?d.real:d.obj?d.real/d.obj:null):null},dl=(a,b)=>a==null||b==null?"–":((a-b)>=0?"▲ +":"▼ ")+Math.round((a-b)*100)+" p.p.";
+ const K=[["TCO","TCO",1],["TV","TV"],["Meo Energia","Meo Energia"],["PPP","PPP"],["Refid’s","Refidelizações"],["Faturação","Faturação"]],sc=(a,b)=>a==null||b==null?"":a>=b?"forte":"crit";
+ h+='<div class="card sc"><div class="mut">LOJA</div><table><tr><th>Indicador</th>'+L.map(x=>`<th>${esc(lb(x))}</th>`).join("")+'<th>Δ último mês</th></tr>'+K.map(([n,k,t])=>{const vs=L.map(x=>pcv(x.s,k,t)),a=vs[vs.length-1],b=vs[vs.length-2];return `<tr><td><b>${n}</b></td>${vs.map(x=>`<td>${pc(x)}</td>`).join("")}<td class="${sc(a,b)}">${dl(a,b)}</td></tr>`}).join("")+`<tr><td><b>Cash base da loja</b></td>${L.map(x=>`<td>${eu(x.s.vendedores.reduce((a,v)=>a+(v.cash||0),0))}</td>`).join("")}<td></td></tr></table></div>`;
+ h+='<div class="card sc" style="margin-top:10px"><div class="mut">LOJISTAS · TCO E CASH BASE</div><table><tr><th>Lojista</th>'+L.map(x=>`<th>${esc(lb(x))}</th>`).join("")+'<th>Δ TCO</th></tr>'+snap.vendedores.map(v=>{const vs=L.map(x=>x.s.vendedores.find(z=>z.nome===v.nome)),a=vs[vs.length-1]&&vs[vs.length-1].tco,b=vs[vs.length-2]&&vs[vs.length-2].tco;return `<tr><td><b>${esc(v.nome)}</b></td>${vs.map(z=>`<td>${z?pc(z.tco)+" · "+eu(z.cash||0):"–"}</td>`).join("")}<td class="${sc(a,b)}">${dl(a,b)}</td></tr>`}).join("")+"</table></div>";
+ return h+'<div class="mut" style="margin-top:6px">Meses a meio (até ao dia indicado) não são comparáveis com meses completos.</div>'}
+function pst(v){const S=snap.store,sd=S.Diversos&&S.Diversos.pf,ss=S.Seguros&&S.Seguros.pf,goe=v.funcao==="GOE",n=v.k.NPS,p1=x=>(x*100).toFixed(1).replace(".",",")+"%",list=[];
+ const d=goe?["mut","Isento (GOE)"]:sd>=1.6?["forte","OK (a loja cumpre)"]:v.div==null?["mut","–"]:v.div>=1.6?["forte","OK"]:["crit","−10%"];
+ const g=goe?["mut","Isento (GOE)"]:ss>=.15?["forte","OK (a loja cumpre)"]:v.seg==null?["mut","–"]:v.seg>=.15?["forte","OK"]:["crit","−10%"];
+ const q=!n||n.real==null?["mut","–",0]:n.real>=.6?["forte","+75 €",75]:n.real>=.3?["fraco","+25 € · nota média",25]:["crit","−25 €",-25];
+ if(d[0]==="crit")list.push(`<p><b class="crit">Diversidade</b>: ${pc(v.div)} (mínimo 160%), penalização de −10%.</p><ol><li>${TPL.Div}</li></ol>`);
+ if(g[0]==="crit")list.push(`<p><b class="crit">Seguros</b>: ${p1(v.seg)} (mínimo 15%), penalização de −10%.</p><ol><li>${TPL.Seg}</li></ol>`);
+ if(q[0]==="fraco"||q[0]==="crit")list.push(`<p><b class="${q[0]}">NPS</b>: ${pc(n.real)} (${q[1]}). Para ganhar 75 € é preciso chegar a 60%.</p><ol><li>${TPL.NPS}</li></ol>`);
+ return{d,g,q,list,n:list.length,p1}}
+const pcell=v=>{const s=pst(v);return `<td class="${s.d[0]}">${s.d[1]}</td><td class="${s.g[0]}">${s.g[1]}</td><td class="${s.q[0]}">${s.q[1]}</td>`};
+function kpen(t,big,sub,st,c){return `<div class="card" style="border-top:3px solid ${c}"><div style="color:${c};font-weight:700;font-size:.85em">${t}</div><div class="big">${big}</div><div class="mut">${sub}</div><div class="${st[0]}" style="margin-top:4px">${st[1]}</div></div>`}
+function penrisk(v){const s=pst(v);return `<div class="card" style="margin-top:8px"><div class="mut">PENALIZAÇÕES · DIVERSIDADE, SEGUROS, NPS</div><div class="rw"><span>Diversidade</span><span>${v.div==null?"–":pc(v.div)} / 160%</span><b class="${s.d[0]}">${s.d[1]}</b></div><div class="rw"><span>Seguros</span><span>${v.seg==null?"–":s.p1(v.seg)} / 15%</span><b class="${s.g[0]}">${s.g[1]}</b></div><div class="rw"><span>NPS</span><span>${v.k.NPS&&v.k.NPS.real!=null?pc(v.k.NPS.real)+" / 60%":"–"}</span><b class="${s.q[0]}">${s.q[1]}</b></div></div>`}
+function penloja(){const S=snap.store,sd=S.Diversos&&S.Diversos.pf,ss=S.Seguros&&S.Seguros.pf,ns=snap.vendedores.map(v=>v.k.NPS).filter(n=>n&&n.real!=null),nr=ns.length?ns.reduce((x,n)=>x+n.real,0)/ns.length:null,no=ns.length?ns.reduce((x,n)=>x+(n.obj||0),0)/ns.length:null;
+ return `<div class="card" style="margin-top:8px"><div class="mut">PENALIZAÇÕES DA LOJA</div><div class="rw"><span>Diversidade</span><span>${pc(sd)} / 160%</span><b class="${sd>=1.6?"forte":"crit"}">${sd>=1.6?"Loja cumpre: ninguém é penalizado":"Loja abaixo: penaliza quem está abaixo de 160%"}</b></div><div class="rw"><span>Seguros</span><span>${ss==null?"–":(ss*100).toFixed(1).replace(".",",")+"%"} / 15%</span><b class="${ss>=.15?"forte":"crit"}">${ss>=.15?"Loja cumpre: ninguém é penalizado":"Loja abaixo: penaliza quem está abaixo de 15%"}</b></div><div class="rw"><span>NPS (média)</span><span>${pc(nr)} / 60%</span><b class="${nr==null?"":nr>=.6?"forte":nr>=.3?"fraco":"crit"}">${nr==null?"–":nr>=.6?"Escalão +75 €":nr>=.3?"Escalão +25 € (média)":"Escalão −25 €"}</b></div></div>`}
+function semanas(){const dias=snap.dias||30,m="Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split(" ").findIndex(n=>String(snap.mes).startsWith(n)),y=+(String(snap.mes).match(/\d{4}/)||[0])[0],W=[];
+ if(m<0||!y){for(let a=1;a<=dias;a+=7)W.push([a,Math.min(a+6,dias)]);return W}
+ let b=1+((7-new Date(y,m,1).getDay())%7);W.push([1,Math.min(b,dias)]);while(b<dias){W.push([b+1,Math.min(b+7,dias)]);b+=7}return W}
+function semanal(){
+ const V=snap.vendedores,dias=snap.dias||30,dia=snap.dia||dias,W=semanas(),SK={"Facturação":"Faturação","Refid's":"Refidelizações"},CORE=k=>k==="TV"||k==="Meo Energia";
+ const dn=W.map((w,j)=>w[1]<=dia?j:-1).filter(j=>j>=0),i=sw!=null?sw:(dn.length?dn[dn.length-1]:0),[a,bb]=W[i],b=Math.min(bb,dia),n=b-a+1,pw=i>0?W[i-1]:null,nx=W[i+1];
+ const sm=(v,k,x,y)=>v.d&&v.d[k]?v.d[k].slice(x-1,y).reduce((s,z)=>s+z,0):0,Ov=(v,k)=>(v.k[k]||{}).obj||0,To=k=>(snap.store[SK[k]||k]||{}).obj||0,tot=(k,x,y)=>V.reduce((s,v)=>s+sm(v,k,x,y),0);
+ const P=(r,m)=>m?r/m:null,cl=p=>p==null?"":p>=1?"forte":p>=.7?"fraco":"crit",f1=(x,k)=>nf(x,k),dl=(p,q)=>p==null||q==null?"–":((p-q)>=0?"▲ +":"▼ ")+Math.round((p-q)*100)+" p.p.";
+ let h=`<h2>Avaliação de segunda-feira <span class="mut">· semana ${i+1} (dias ${a}–${bb})${bb>dia?" · incompleta":""}</span></h2><div class="chips" style="padding-top:0">${W.map((w,j)=>`<button class="chip ${j===i?"on":""}" onclick="sw=${j};render()">S${j+1} · ${w[0]}–${w[1]}</button>`).join("")}</div>`;
+ if(a>dia)return h+'<div class="card">Ainda não há dados desta semana.</div>';
+ const rows=KP.map(([k])=>{const T=To(k),meta=T/dias*n,fe=tot(k,a,b),p=P(fe,meta),pm=pw&&T?P(tot(k,pw[0],pw[1]),T/dias*(pw[1]-pw[0]+1)):null,ac=tot(k,1,b),pf=T?ac/T/(b/dias):null;
+  const sh=V.map(v=>({n:v.nome,r:sm(v,k,a,b)})).sort((x,y)=>y.r-x.r),day=Array.from({length:n},(_,d)=>V.reduce((s,v)=>s+(v.d&&v.d[k]?v.d[k][a-1+d]:0),0));
+  return{k,T,meta,fe,p,pm,pf,lead:sh[0],ls:fe?sh[0].r/fe:0,top:sh.slice(0,2).map(x=>x.n),bd:day.indexOf(Math.max(...day))+a}});
+ h+='<div class="card sc"><div class="mut">LOJA · DESEMPENHO DA SEMANA</div><table><tr><th>Produto</th><th>Meta</th><th>Feito</th><th>%</th><th>vs semana ant.</th><th>Mês (previsão)</th><th>Líder (peso)</th><th>Melhor dia</th></tr>'+rows.map(r=>`<tr><td><b>${lab(r.k)}</b>${CORE(r.k)?" · core":""}</td><td>${f1(r.meta,r.k)}</td><td>${f1(r.fe,r.k)}</td><td class="${cl(r.p)}">${pc(r.p)}</td><td>${dl(r.p,r.pm)}</td><td class="${cl(r.pf)}">${pc(r.pf)}</td><td>${esc(r.lead.n)} (${pc(r.ls)})</td><td>Dia ${r.bd}</td></tr>`).join("")+"</table></div>";
+ const crit=rows.filter(r=>r.p!=null&&(CORE(r.k)&&(r.p<.7||(r.pf!=null&&r.pf<.85))));
+ h+=penloja();h+='<h2>Loja: desvios críticos e plano de alta performance</h2><div class="card">'+(crit.length?"":'<span class="forte">Sem desvios críticos esta semana.</span>');
+ for(const r of crit){const nt=nx?r.T/dias*(nx[1]-nx[0]+1)+Math.max(0,r.T/dias*bb-tot(r.k,1,bb)):null;
+  h+=`<p><b class="crit">${lab(r.k)}</b>: ${pc(r.p)} da meta da semana${r.pm!=null?" (semana anterior "+pc(r.pm)+")":""}, previsão de fecho do mês ${pc(r.pf)}.</p><ol><li>Meta da próxima semana: ${nt==null?"novo ciclo mensal":f1(nt,r.k)+" (cerca de "+f1(nt/(nx[1]-nx[0]+1),r.k)+" por dia, já com a recuperação do atraso)"}.</li><li>Huddle de 5 minutos no início de cada turno com a meta do dia de ${lab(r.k)}.</li><li>Campeões da semana: ${r.top.map(esc).join(" e ")} partilham a abordagem no huddle e fazem atendimento acompanhado.</li><li>Revisão a meio da semana (quinta-feira): abaixo de 50% da meta, redistribuir atendimentos para quem converte melhor e acompanhar de perto.</li></ol>`}
+ h+="</div>";
+ const L=V.map(v=>{const c=KP.filter(([k])=>CORE(k)).map(([k])=>{const o=Ov(v,k),m=o/dias*n,fe=sm(v,k,a,b),pm=pw&&o?P(sm(v,k,pw[0],pw[1]),o/dias*(pw[1]-pw[0]+1)):null;return{k,o,m,fe,p:m?fe/m:null,pm}}),w=c.filter(x=>x.p!=null),W8=x=>KP.find(y=>y[0]===x.k)[1],ts=w.reduce((s,x)=>s+W8(x)*Math.min(x.p,1.5),0),tw=w.reduce((s,x)=>s+W8(x),0);
+  return{v,c,sc:tw?ts/tw:null,cr:c.filter(x=>x.p!=null&&(CORE(x.k)?x.p<.7:x.p<.5))}}).sort((x,y)=>(y.cr.length-x.cr.length)||((x.sc==null?9:x.sc)-(y.sc==null?9:y.sc)));
+ h+='<h2>Lojistas</h2><div class="card sc"><table><tr><th>Lojista</th>'+KP.filter(([k])=>CORE(k)).map(([k])=>`<th>${lab(k)}</th>`).join("")+'<th>Diversidade</th><th>Seguros</th><th>NPS</th><th>Ritmo</th><th>Estado</th></tr>'+L.map(l=>`<tr><td><b>${esc(l.v.nome)}</b></td>${l.c.map(x=>`<td class="${cl(x.p)}">${x.m?f1(x.fe,x.k)+" / "+f1(x.m,x.k)+" · "+pc(x.p):"–"}</td>`).join("")}${pcell(l.v)}<td class="${cl(l.sc)}"><b>${pc(l.sc)}</b></td><td class="${l.cr.length?"crit":l.sc!=null&&l.sc<1?"fraco":"forte"}">${l.cr.length?"Crítico":l.sc!=null&&l.sc<1?"Atenção":"Em linha"}</td></tr>`).join("")+"</table></div>";
+ const pl=L.filter(l=>l.cr.length||pst(l.v).n>0);h+='<h2>Plano de alta performance por lojista</h2><select onchange="pf=this.value;render()" style="width:auto;margin-bottom:6px"><option value="">Todos</option>'+pl.map(l=>`<option ${l.v.nome===pf?"selected":""}>${esc(l.v.nome)}</option>`).join("")+'</select>'+(pl.length?"":'<div class="card forte">Nenhum lojista com desvio crítico nesta semana.</div>');
+ for(const l of pl.filter(l=>!pf||l.v.nome===pf))h+=plano(l.v);
  return h;}
+function pen(){
+ const S=snap.store,sd=S.Diversos&&S.Diversos.pf,ss=S.Seguros&&S.Seguros.pf,pp=x=>Math.round(x*100)+"%";
+ const R=snap.vendedores.map(v=>{const goe=v.funcao==="GOE",tv=v.k.TV,en=v.k["Meo Energia"],ns=v.k["Net Segura"];
+  const ptv=tv&&tv.obj?pfo(tv):null,pe=en&&en.obj?pfo(en):null,gate=ptv!=null&&ptv<.7;
+  const a=gate||ptv==null||ptv>=1?0:-.1,b=pe==null?0:pe<.7?-.2:pe<1?-.1:0,c=goe||v.div==null||sd>=1.6?0:v.div<1.6?-.1:0,d=goe||v.seg==null||ss>=.15?0:v.seg<.15?-.1:0,e=ns&&ns.obj&&pfo(ns)<1?-.1:0,t=gate?-1:a+b+c+d+e;
+  const cb=(cashm(v,1/fr0())||{cash:v.cash||0}).cash;return{v,ptv,pe,a,b,c,d,e,t,gate,goe,base:cb,nv:pst(v).q[2]||0,fin:gate?0:cb*(1+t)+(pst(v).q[2]||0)}}).sort((x,y)=>x.t-y.t);
+ const cl=p=>p<0?"crit":"forte",c1=(x,p)=>`<td class="${cl(p)}">${x==null?"":pc(x)+" · "}${p<0?pp(p):"OK"}</td>`,c2=(p,iso)=>`<td class="${iso?"mut":cl(p)}">${iso?"isento":p<0?pp(p):"OK"}</td>`,eu=n=>Math.round(n).toLocaleString("pt-PT")+" €";
+ let h='<h2>Penalizações <span class="mut">· estimativa pela previsão de fecho do mês</span></h2><div class="card sc"><table><tr><th>Colaborador</th><th>TV</th><th>Meo Energia</th><th>Diversidade</th><th>Seguros</th><th>Net Segura</th><th>NPS (€)</th><th>Total %</th><th>Cash base</th><th>Cash estimado</th></tr>';
+ for(const r of R)h+=`<tr><td><b>${esc(r.v.nome)}</b></td>${r.ptv==null?"<td>–</td>":c1(r.ptv,r.gate?-1:r.a)}${r.pe==null?"<td>–</td>":c1(r.pe,r.b)}${c2(r.c,r.goe)}${c2(r.d,r.goe)}${c2(r.e,false)}<td class="${r.gate||r.nv<0?"crit":r.nv>=75?"forte":"fraco"}">${r.gate?"anulado":r.v.k.NPS&&r.v.k.NPS.real!=null?(r.nv>0?"+":"")+r.nv+" €":"–"}</td><td class="${cl(r.t)}"><b>${r.gate?"SEM CASH":pp(r.t)}</b></td><td>${eu(r.base)}</td><td class="${cl(r.t)}"><b>${eu(r.fin)}</b></td></tr>`;
+ const B=R.reduce((x,r)=>x+r.base,0),F=R.reduce((x,r)=>x+r.fin,0);
+ return h+`</table></div><div class="mut" style="margin-top:4px">Cash base da loja ${eu(B)} · estimado após penalizações ${eu(F)} (${pp(F/B-1)}). Cash base = créditos × €/crédito do patamar de TCO × fator da loja + portabilidades × 10 €. Regras: TV abaixo de 70% anula o cash; TV 70–100% −10%; Energia abaixo de 70% −20% e 70–100% −10%; Diversidade abaixo de 160% e Seguros abaixo de 15% −10% (isentos GOE e se a loja cumprir); Net Segura abaixo do objetivo −10%. NPS em euros, somado depois das penalizações: 60% ou mais +75 €, 30–60% +25 €, abaixo de 30% −25 €. Se a TV anula o cash, toda a remuneração variável é anulada, incluindo o NPS.</div>`;}
+function apoio(){
+ const V=snap.vendedores,dias=snap.dias||30,rest=Math.max(1,dias-(snap.dia||dias)),CORE=["TV","Meo Energia"],R=[];
+ for(const v of V){let sc=0,gate=false;const cells=[],parts=[];
+  for(const k of CORE){const d=v.k[k];if(!d||!d.obj){cells.push("–");continue}
+   const p=pfo(d);if(k==="TV"&&p<.7)gate=true;
+   cells.push(`<span class="${p<.85?"crit":p<1?"fraco":"forte"}">${nf(d.real,k)} / ${nf(d.obj,k)} · prev. ${pc(p)}</span>`);
+   if(p<1){const need=Math.max(0,d.obj-d.real),pe=peer(k,v.nome);sc+=3*(1-p);parts.push(`<b>${lab(k)}:</b> faltam ${nf(need,k)}${dias-(snap.dia||dias)>0?` (cerca de ${nf(need/rest,k)} por dia nos ${rest} dias que restam)`:" para chegar ao objetivo"}. ${TPL[k]}${pe?" Acompanhar o atendimento de "+esc(pe)+".":""}`)}}
+  if(parts.length)R.push({v,cells,gate,parts,sc:sc+(gate?10:0)})}
+ R.sort((a,b)=>b.sc-a.sc);
+ let h='<h2>Quem precisa de apoio <span class="mut">· foco em TV e Meo Energia</span></h2><div class="card sc"><table><tr><th>Colaborador</th><th>TV</th><th>Meo Energia</th><th>Alerta</th><th>Sugestão de acompanhamento</th></tr>';
+ for(const r of R)h+=`<tr><td><b>${esc(r.v.nome)}</b><div class="mut">${esc(r.v.funcao||"")}</div></td><td>${r.cells[0]}</td><td>${r.cells[1]}</td><td>${r.gate?'<b class="crit">Risco de corte de cash (TV abaixo de 70%)</b>':'<span class="fraco">Abaixo do objetivo</span>'}</td><td style="white-space:normal;min-width:320px">${r.parts.join("<br>")}</td></tr>`;
+ if(!R.length)h+='<tr><td colspan="5" class="mut">Sem colaboradores abaixo do objetivo em TV e Meo Energia.</td></tr>';
+ return h+"</table></div>"+perito(CORE);}
 function loja(){
   const S=snap.store,dia=snap.dia||snap.dias,rest=Math.max(1,snap.dias-dia),tco=S.TCO;
   const card=(k,key)=>{const d=S[key];if(!d)return"";const p=d.obj?d.real/d.obj:null;return km(k,d.obj,d.real,p,p==null?null:p/fr0(),d.obj?nf(Math.max(0,d.obj-d.real)/rest,k):"–")};
   const ns=snap.vendedores.map(v=>v.k.NPS).filter(n=>n&&n.real!=null),nr=ns.length?ns.reduce((x,n)=>x+n.real,0)/ns.length:null,no=ns.length?ns.reduce((x,n)=>x+(n.obj||0),0)/ns.length:null,nl=nr==null?["–","#888"]:nr>=no?["Bom","#3ddc97"]:nr>=.7*no?["Médio","#e6c200"]:["Baixo","#ff6b7b"];
   let h=`<div class="card top"><div><div class="mut">TIPO DE LOJA</div><h1>Tipo loja III</h1></div><div><div class="mut">DATA</div><b style="font-size:20px">Dia ${dia} · ${esc(snap.mes)}</b><div class="mut">ACUMULADO MENSAL</div></div><div><div class="mut">TCO</div><div class="big" style="color:var(--ok)">${tco?pc(tco.real):"–"}</div><div class="mut">Previsão de TCO: ${tco?pc(tco.real/fr0()):"–"} · Objetivo: 100%</div></div></div><div class="g" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-top:12px">`+card("TV","TV")+card("PPP","PPP")+card("Net Segura Casa","Net Segura Casa")+card("Meo Energia","Meo Energia")+card("Refid's","Refidelizações")+card("Facturação","Faturação")+(tco?km("TCO",1,tco.real,tco.real,tco.real/fr0(),"–","TCO",pc):"")+`<div class="card"><div style="font-weight:700">NPS</div><div class="big" style="font-size:34px">${pc(nr)}</div><div style="margin:8px 0;padding:6px;border-radius:8px;text-align:center;color:#111;font-weight:700;background:${nl[1]}">${nl[0]}</div><div class="mut">Objetivo médio: ${pc(no)}</div></div>`;
-  h+='</div>'+perito()+'<h2>Quem precisa de apoio primeiro</h2><div class="card sc"><table><tr><th>Colaborador</th><th>Função</th><th>TCO</th>'+KP.map(x=>`<th>${lab(x[0])}</th>`).join("")+"<th>Fraquezas</th></tr>";
-  const rows=snap.vendedores.map(v=>({v,a:ana(v,snap.vendedores)}));
-  rows.forEach(r=>r.sc=r.a.reduce((t,x)=>t+(x.s==="fraco"||x.s==="crit"?x.gap:0),0));rows.sort((a,b)=>b.sc-a.sc);
-  for(const{v,a}of rows){h+=`<tr><td><b>${esc(v.nome)}</b></td><td>${esc(v.funcao||"")}</td><td>${pc(v.tco)}</td>`;
-    for(const[k]of KP){const x=a.find(y=>y.k===k);h+=x?`<td class="${x.s}">${pc(x.pf)}</td>`:"<td>–</td>"}
-    h+=`<td>${a.filter(x=>x.s==="fraco"||x.s==="crit").map(x=>nm(x.k)).join(", ")||"–"}</td></tr>`}
-  return h+'</table></div><div class="mut">Cores pela previsão de fecho do mês. Toque num colaborador acima para ver o perfil e o plano.</div>';}
+  h+='</div>'+pen();return h;}
 function sem(v){
- if(!v.d)return"";const dias=snap.dias||30,dia=snap.dia||dias,W=[];
- for(let a=1;a<=dias;a+=7)W.push([a,Math.min(a+6,dias)]);
+ if(!v.d)return"";const dias=snap.dias||30,dia=snap.dia||dias,W=semanas();
  const cu=W.findIndex(([a,b])=>dia>=a&&dia<=b),i=wk==null?cu:wk,[a,b]=W[i],r=b-Math.min(b,dia),ev=dia>=b?"fechada":"em curso";
  const sm=(k,x,y)=>v.d[k].slice(x,y).reduce((s,z)=>s+z,0),P=[];
- for(const[k,w]of KP){const o=v.k[k];if(!o||!o.obj)continue;
+ for(const[k,w]of KP){if(k!=="TV"&&k!=="Meo Energia")continue;const o=v.k[k];if(!o||!o.obj)continue;
   const base=o.obj/dias*(b-a+1),atraso=Math.max(0,o.obj/dias*(a-1)-sm(k,0,a-1)),meta=base+atraso,feito=sm(k,a-1,Math.min(b,dia)),falta=Math.max(0,meta-feito);
   P.push({k,w,base,atraso,meta,feito,falta,sc:w*falta/meta})}
  P.sort((x,y)=>y.sc-x.sc);
@@ -135,7 +241,7 @@ function sem(v){
  return h;}
 function evol(v){
  if(!v.d)return"";const dias=snap.dias||30,dia=snap.dia||dias,ks=KP.filter(([k])=>v.k[k]&&v.k[k].obj),S=[];TR="";
- for(let a=1;a<=dia;a+=7){const b=Math.min(a+6,dia),e=b-a+1;let ts=0,tw=0;const c=[];
+ for(const[a,bb]of semanas()){if(a>dia)break;const b=Math.min(bb,dia),e=b-a+1;let ts=0,tw=0;const c=[];
   for(const[k,w]of ks){const o=v.k[k].obj/dias*e,r=v.d[k].slice(a-1,b).reduce((x,y)=>x+y,0),p=o?r/o:0;c.push([k,r,o,p]);ts+=w*Math.min(p,1.5);tw+=w}
   S.push({a,b,c,s:tw?ts/tw:0})}
  const cl=p=>p>=1?"forte":p>=.7?"fraco":"crit";
@@ -150,22 +256,19 @@ function evol(v){
 function colab(v){
   const a=ana(v,snap.vendedores),fr=a.filter(x=>x.s==="fraco"||x.s==="crit").sort((x,y)=>y.gap-x.gap),fo=a.filter(x=>x.s==="forte");
   const my=notes.filter(n=>n.nome===v.nome);
-  const dia=snap.dia||snap.dias,rest=Math.max(0,snap.dias-dia),foco=fr.slice(0,3).map(x=>nm(x.k)).join(" · ")||"Manter o ritmo";
-  let h=`<div class="card top"><div><div class="mut">DESEMPENHO INDIVIDUAL</div><h1>${esc(v.nome)}</h1><div class="mut">${esc(v.funcao||"")} · ${esc(snap.mes)} · até ao dia ${dia} · ${rest} dias restantes</div></div><div><div class="mut">FOCO DO MÊS</div><b>${foco}</b></div><button class="btn" onclick="view='geral';render()">← Resumo loja</button></div>`;
-  h+='<div class="g" style="margin-top:12px">'+KP.map(([k])=>{const d=v.k[k];if(!d)return"";return kcard(k,d.real,d.obj,d.obj?d.real/d.obj:null,"Falta/dia",d.obj&&rest?nf(Math.max(0,d.obj-d.real)/rest,k):"–")}).join("")+`<div class="card"><div style="font-weight:700;font-size:12px">TCO</div><div class="big">${pc(v.tco)}</div><div>Previsão final: ${v.tco!=null?pc(v.tco/fr0()):"–"}</div></div><div class="card"><div style="font-weight:700;font-size:12px">PRÉMIO</div><div class="big">${v.cash==null?"–":Math.round(v.cash)+" €"}</div><div class="mut">Base, antes de penalizações</div></div></div><div class="card" style="margin-top:12px;background:linear-gradient(90deg,#c0189e,#8a1fc9)"><b>GANHA-ME ISTO</b> · ligação ao Excel por fazer</div>`;
-  h+=sem(v)+'<h2>Resultados por objetivo</h2><div class="card sc"><table><tr><th>Indicador</th><th>Objetivo</th><th>Real</th><th>%</th><th>Falta</th><th>Prev. mês</th><th>Média loja</th><th>Estado</th></tr>';
+  const dia=snap.dia||snap.dias,rest=Math.max(0,snap.dias-dia),foco=fr.filter(x=>["TV","Meo Energia","Div","Seg","NPS"].includes(x.k)).slice(0,3).map(x=>nm(x.k)).join(" · ")||"Manter o ritmo";
+  let h=`<div class="card top"><div><div class="mut">DESEMPENHO INDIVIDUAL</div><h1>${esc(v.nome)}</h1><div class="mut">${esc(v.funcao||"")} · ${esc(snap.mes)} · até ao dia ${dia} · ${rest} dias restantes</div></div><div><div class="mut">FOCO DO MÊS</div><b>${foco}</b></div><div><button class="chip ${ct==='desemp'?'on':''}" onclick="ct='desemp';render()">Desempenho</button> <button class="chip ${ct==='plano'?'on':''}" onclick="ct='plano';render()">Evolução, plano e observações</button> <button class="chip ${ct==='sim'?'on':''}" onclick="ct='sim';render()">Simulador</button> <button class="btn" onclick="view='geral';render()">← Resumo loja</button></div></div>`;
+  const hd=h,ps=pst(v),nn=v.k.NPS,fc=KP.filter(([k])=>k==="TV"||k==="Meo Energia").map(([k])=>{const d=v.k[k];return d?kcard(k,d.real,d.obj,d.obj?d.real/d.obj:null,"Falta/dia",d.obj&&rest?nf(Math.max(0,d.obj-d.real)/rest,k):"–"):""}).join("");
+  const mini=KP.filter(([k])=>k!=="TV"&&k!=="Meo Energia").map(([k])=>{const d=v.k[k];return `<div class="card" style="padding:5px 10px"><span class="mut">${lab(k)}</span> <b>${d?nf(d.real,k):"–"}</b> <span class="mut">/ ${d?nf(d.obj,k):"–"}</span> <b style="color:${CK[k]}">${d&&d.obj?pc(d.real/d.obj):"–"}</b></div>`}).join("");
+  h+='<div class="g" style="margin-top:12px">'+fc+kpen("DIVERSIDADE",v.div==null?"–":pc(v.div),"Mínimo 160%",ps.d,"#ff8bd1")+kpen("SEGUROS",v.seg==null?"–":ps.p1(v.seg),"Mínimo 15%",ps.g,"#7dd3fc")+kpen("NPS",nn&&nn.real!=null?pc(nn.real):"–","60%+: +75 € · 30–60%: +25 € · abaixo de 30%: −25 €",ps.q,"#fcd34d")+`<div class="card"><div style="font-weight:700;font-size:12px">TCO</div><div class="big">${pc(v.tco)}</div><div>Previsão final: ${v.tco!=null?pc(v.tco/fr0()):"–"}</div></div>${premio(v)}</div><div class="g" style="margin-top:8px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">${mini}</div>`;
+  h+='<div class="g2"><div><h2>Resultados por objetivo</h2><div class="card sc"><table><tr><th>Indicador</th><th>Objetivo</th><th>Real</th><th>%</th><th>Falta</th><th>Prev. mês</th><th>Média loja</th><th>Estado</th></tr>';
   for(const x of a){const d=x.d&&x.d.obj&&x.k!=="NPS"?x.d:null;h+=`<tr><td>${nm(x.k)}</td><td>${d?nf(d.obj,x.k):"–"}</td><td>${d?nf(d.real,x.k):x.txt}</td><td>${x.cur!=null?pc(x.cur):"–"}</td><td>${d?nf(Math.max(0,d.obj-d.real),x.k):"–"}</td><td>${d?nf(d.real/fr0(),x.k):"–"}</td><td>${pc(x.m)}</td><td class="${x.s}">${SL[x.s]}</td></tr>`}
-  h+=`</table></div>${evol(v)}<h2>Pontos fortes e a melhorar (dados)</h2><div class="g"><div class="card"><b class="forte">Pontos fortes</b><br>${fo.map(x=>nm(x.k)+" ("+x.txt+")").join("<br>")||'<span class="mut">Nenhum acima do padrão este mês.</span>'}</div><div class="card"><b class="fraco">A melhorar</b><br>${fr.map(x=>nm(x.k)+" ("+x.txt+")").join("<br>")||'<span class="mut">Sem fraquezas.</span>'}</div></div>`;
+  if(ct==="sim")return hd+simUI(v);
+  if(ct==="desemp")return h+"</table></div></div><div>"+sem(v)+penrisk(v)+"</div></div>";
+  h=hd+`${evol(v)}<h2>Pontos fortes e a melhorar (dados)</h2><div class="g"><div class="card"><b class="forte">Pontos fortes</b><br>${fo.map(x=>nm(x.k)+" ("+x.txt+")").join("<br>")||'<span class="mut">Nenhum acima do padrão este mês.</span>'}</div><div class="card"><b class="fraco">A melhorar</b><br>${fr.map(x=>nm(x.k)+" ("+x.txt+")").join("<br>")||'<span class="mut">Sem fraquezas.</span>'}</div></div>`;
   h+=`<h2>Observações</h2><div class="card"><select id="nt"><option value="forte">Ponto forte observado</option><option value="corrigir">A corrigir</option></select><textarea id="nx" rows="2" placeholder="O que observaste hoje?"></textarea><button class="btn" id="na">Guardar observação</button>`;
   for(const n of my)h+=`<div class="note ${n.tipo==="forte"?"f":"c"}"><button class="x" data-d="${n.id}">✕</button><b>${n.tipo==="forte"?"Ponto forte":"A corrigir"}</b> · <span class="mut">${new Date(n.ts).toLocaleDateString("pt-PT")}</span><br>${esc(n.texto)}</div>`;
-  h+='</div><h2>Plano de desenvolvimento</h2><div class="card">';
-  const items=fr.slice(0,2),cor=my.filter(n=>n.tipo==="corrigir").slice(0,3);
-  if(!items.length&&!cor.length)h+='<span class="mut">Sem prioridades de desenvolvimento neste momento. Sugestão: dar a este colaborador o papel de tutor nos indicadores fortes.</span>';
-  else{h+=(TR==="a piorar"?'<div class="fraco">O ritmo desceu na última semana completa: convém rever já a abordagem em vez de esperar pelo fim do mês.</div>':"")+"<ol>";for(const x of items){const p=peer(x.k,v.nome),d=x.d,f=d&&d.obj?` Faltam ${nf(Math.max(0,d.obj-d.real),x.k)} para o objetivo.`:"";
-    h+=`<li><b>${nm(x.k)}</b> (${x.txt}, previsão ${pc(x.pf)}).${f}<br>${TPL[x.k]}${p?`<br>Acompanhar o atendimento de ${esc(p)}, o melhor da loja neste indicador.`:""}</li>`}
-    for(const n of cor)h+=`<li><b>Observado:</b> ${esc(n.texto)}</li>`;
-    h+="</ol><div class=\"mut\">Acompanhamento: conversa semanal de 10 minutos com o responsável; reavaliar os números ao fim de 3 semanas.</div>"}
-  return h+"</div>";}
+  h+='</div><h2>Plano de alta performance</h2>'+plano(v);return h;}
 function render(){
   $("up").style.display="";
   if(!db){$("main").innerHTML='<div class="card">Sem acesso aos dados. Inicia sessão para ver os dados.</div>';return}
@@ -173,8 +276,8 @@ function render(){
   $("sub").textContent=`${snap.mes} · atualizado a ${new Date(snap.at).toLocaleString("pt-PT")}`+(msg?` · ${msg}`:"");
   if(view==="colab"&&!sel)sel=snap.vendedores[0].nome;
   $("nav").hidden=false;document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
-  $("chips").innerHTML=view==="colab"?snap.vendedores.map(v=>`<button class="chip ${sel===v.nome?"on":""}" data-s="${esc(v.nome)}">${esc(v.nome)}</button>`).join(""):"";
-  const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=view==="colab"&&v?colab(v):view==="diaria"?resumo():loja();
+  $("chips").innerHTML=view==="colab"?`<select onchange="sel=this.value;wk=null;render()" style="width:auto;margin:6px 0">${snap.vendedores.map(v=>`<option ${v.nome===sel?"selected":""}>${esc(v.nome)}</option>`).join("")}</select>`:"";
+  const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=view==="colab"&&v?colab(v):view==="diaria"?resumo():view==="hist"?histv():view==="semanal"?semanal():view==="apoio"?apoio():loja();
   if(view==="geral")document.querySelectorAll("#main tbody tr td:first-child b").forEach(b=>{b.style.cursor="pointer";b.onclick=()=>{sel=b.textContent;view="colab";render()}});}
 document.addEventListener("click",async e=>{
   const t=e.target;
@@ -187,16 +290,18 @@ document.addEventListener("click",async e=>{
 const nv=x=>{if(x===null||x===undefined||x==="")return null;x=Number(x);return isFinite(x)?Math.round(x*1e4)/1e4:null};
 $("fx").onchange=async e=>{
   const fl=e.target.files[0];if(!fl)return;msg="a ler o Excel…";render();
-  try{const wb=XLSX.read(await fl.arrayBuffer(),{type:"array",sheets:["Resumo Loja","inputRGUs","inputFaturação",...Object.keys(VS)],cellDates:true,cellFormula:false,cellStyles:false});
+  try{const wb=XLSX.read(await fl.arrayBuffer(),{type:"array",sheets:["Resumo Loja","inputRGUs","inputFaturação","€crédito",...Object.keys(VS)],cellDates:true,cellFormula:false,cellStyles:false});
     const aoa=(n,rg)=>XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,range:rg,raw:true,defval:null});
     const rl=aoa("Resumo Loja","B11:Y23"),store={},rat={};
     for(const r of rl.slice(1)){if(r[0])store[r[0]]={obj:nv(r[1]),real:nv(r[2]),pf:nv(r[8])};const k=String(r[11]||"").trim();if(k)rat[k]={div:nv(r[17]),seg:nv(r[18])}}
     const vend=[];
-    for(const[sh,short]of Object.entries(VS)){const rows=aoa(sh,"A1:M30"),k={};
-      for(const r of rows.slice(12)){const l=String(r[3]||"").trim();
+    for(const[sh,short]of Object.entries(VS)){const rows=aoa(sh,"A1:M135"),k={};
+      for(const r of rows.slice(12,30)){const l=String(r[3]||"").trim();
         if(["TV","PPP","Meo Energia","Refid's","Facturação","Net Segura"].includes(l)&&!k[l])k[l]={obj:nv(r[4]),real:nv(r[5]),pf:nv(r[11])};
         if(l==="NPS")k.NPS={obj:nv(r[4]),real:nv(r[5])}}
-      const v={nome:short,funcao:rows[11][0],tco:nv(rows[3][5]),tcoPrev:nv(rows[3][6]),cash:nv(rows[3][9]),k};
+      const lb=(a,z,l)=>{for(let i=a;i<z&&i<rows.length;i++)if(String(rows[i][3]||"").trim()===l)return i;return -1},ic=lb(12,30,"Cash"),it=lb(100,rows.length,"Total Créditos"),ip=lb(100,rows.length,"Portabilidades"),sf=rows.slice(8,12).map(r=>r[0]).find(x=>typeof x==="number"),fn=rows[11][0],ih=lb(100,rows.length,"Taxa Realização Global"),PW={};
+      if(ih>=0)for(const r of rows.slice(ih+1,ih+5)){const l=String(r[3]||"").trim(),kk=l.startsWith("TV")?"TV":l==="PPP"?"PPP":l.startsWith("Fact")?"Facturação":l.startsWith("Meo")?"Meo Energia":null;if(kk)PW[kk]=nv(r[4])||0}
+      const v={pw:PW,nome:short,funcao:fn,tco:nv(rows[3][5]),tcoPrev:nv(rows[3][6]),cash:ic>=0?nv(rows[ic][5]):nv(rows[3][9]),cred:it>=0?nv(rows[it][4]):null,port:ip>=0?nv(rows[ip][4]):null,fat:(fn==="GOE"||fn==="Smart")?1:(sf==null?null:sf),k};
       const rr=rat[short]||rat[short.split(" ")[0]];if(rr){v.div=rr.div;v.seg=rr.seg}vend.push(v)}
     const nomes=vend.map(v=>v.nome),who=s=>{s=String(s||"").trim().toLowerCase();return nomes.find(n=>s.startsWith(n.trim().toLowerCase()))},N=x=>Number(x)||0,D={};
     vend.forEach(v=>{D[v.nome]={"TV":Array(31).fill(0),"PPP":Array(31).fill(0),"Meo Energia":Array(31).fill(0),"Refid's":Array(31).fill(0),"Facturação":Array(31).fill(0)}});
@@ -204,21 +309,23 @@ $("fx").onchange=async e=>{
     for(const r of aoa("inputRGUs","A2:AK4000")){const d=r[1];if(!(d instanceof Date))continue;const st=String(r[36]||"").trim();if(!st||st==="Não Instalado")continue;const n=who(r[2]);if(!n)continue;const i=d.getDate()-1,o=D[n];mon=[d.getFullYear(),d.getMonth()];last=Math.max(last,d.getDate());o.TV[i]+=N(r[9]);o.PPP[i]+=N(r[12])+N(r[13])+N(r[14]);o["Meo Energia"][i]+=N(r[20]);o["Refid's"][i]+=N(r[19])}
     for(const r of aoa("inputFaturação","A2:G4000")){const d=r[0];if(!(d instanceof Date))continue;const n=who(r[6]);if(!n)continue;D[n]["Facturação"][d.getDate()-1]+=N(r[5]);last=Math.max(last,d.getDate())}
     vend.forEach(v=>v.d=D[v.nome]);
+    const RT={n:{},p:{}};for(const r of aoa("€crédito","A1:V16").slice(3,15)){const q=String(r[1]||"").trim();if(q){RT.n[q]=r.slice(2,9).map(x=>nv(x)||0);RT.p[q]=r.slice(14,21).map(x=>nv(x)||0)}}
     const MN="Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split(" "),dias=mon?new Date(mon[0],mon[1]+1,0).getDate():30;
-    await db.doc("snap/current").set({mes:mon?MN[mon[1]]+" "+mon[0]:"Mês atual",store,vendedores:vend,dias,dia:last||dias,at:Date.now()});msg="atualizado";
+    const PL={mes:mon?MN[mon[1]]+" "+mon[0]:"Mês atual",store,vendedores:vend,dias,dia:last||dias,rates:RT,at:Date.now()};await db.doc("snap/current").set(PL);if(mon)await chk(sb.from("snap").upsert({id:"m"+mon[0]+"-"+String(mon[1]+1).padStart(2,"0"),data:PL}));await loadHist();msg="atualizado";
   }catch(err){msg="Erro a ler o Excel: "+(err.message||err);render()}
   e.target.value="";};
 const SUPABASE_URL="https://nfpjwxezlrunruzqbhjn.supabase.co",SUPABASE_KEY="sb_publishable_Nf9n_q5rIe3t_dek7H0A9w_gloi0dEJ";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY),L={snap:[],notes:[]};
 const loadSnap=async()=>{const{data}=await sb.from("snap").select("data").eq("id","current").maybeSingle();L.snap.forEach(cb=>cb({exists:!!data,data:()=>data&&data.data}))};
 const loadNotes=async()=>{const{data}=await sb.from("notes").select("*");L.notes.forEach(cb=>cb({docs:(data||[]).map(r=>({id:r.id,data:()=>({nome:r.nome,tipo:r.tipo,texto:r.texto,ts:Number(r.ts)})}))}))};
+const loadHist=async()=>{const{data}=await sb.from("snap").select("id,data").like("id","m%");H=(data||[]).map(r=>({id:r.id,s:r.data})).sort((a,b)=>a.id<b.id?-1:1)};
 const chk=async p=>{const{error}=await p;if(error)throw error};
 const mk=()=>({
  doc:()=>({set:async d=>{await chk(sb.from("snap").upsert({id:"current",data:d}));await loadSnap()},onSnapshot:cb=>{L.snap.push(cb);loadSnap()}}),
  collection:()=>({add:async d=>{await chk(sb.from("notes").insert(d));await loadNotes()},
   doc:id=>({delete:async()=>{await chk(sb.from("notes").delete().eq("id",id));await loadNotes()}}),
   onSnapshot:cb=>{L.notes.push(cb);loadNotes()}})});
-async function entrar(){db=mk();$("nav").hidden=false;$("lg").hidden=true;$("out").hidden=false;$("up").hidden=false;db.doc().onSnapshot(s=>{snap=s.exists?s.data():null;render()});db.collection().onSnapshot(q=>{notes=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.ts-a.ts);render()})}
+async function entrar(){db=mk();loadHist().then(render);if(new Date().getDay()===1)view="semanal";$("nav").hidden=false;$("lg").hidden=true;$("out").hidden=false;$("up").hidden=false;db.doc().onSnapshot(s=>{snap=s.exists?s.data():null;render()});db.collection().onSnapshot(q=>{notes=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.ts-a.ts);render()})}
 function login(){db=null;$("nav").hidden=true;snap=null;$("lg").hidden=false;$("out").hidden=true;$("up").hidden=true;$("main").innerHTML="";$("chips").innerHTML="";$("sub").textContent="Acesso reservado"}
 $("li").onclick=async()=>{$("le").textContent="";const{error}=await sb.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error)$("le").textContent="Email ou palavra-passe incorretos.";else{$("pw").value="";entrar()}};
 $("out").onclick=async()=>{await sb.auth.signOut();login()};
