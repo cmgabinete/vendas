@@ -63,7 +63,9 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const pc=x=>x==null?"–":Math.round(x*100)+"%";
 const nf=(n,k)=>n==null?"–":(k==="Facturação"?Math.round(n).toLocaleString("pt-PT")+" €":(Math.round(n*10)/10).toString().replace(".",","));
 const med=a=>{a=a.filter(x=>x!=null).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:null};
-const fr0=()=>(snap.dia||snap.dias||30)/(snap.dias||30);const pfo=d=>d.real/d.obj/fr0();
+function diaEf(){const dias=snap.dias||30,dia=snap.dia||dias,t=new Date(),m=MNL.findIndex(x=>String(snap.mes).startsWith(x)),y=+(String(snap.mes).match(/\d{4}/)||[0])[0];return m>=0&&y&&t.getFullYear()===y&&t.getMonth()===m?Math.min(dias,Math.max(dia,t.getDate()-1)):dia}
+function stale(){if(view==="hor")return"";const dias=snap.dias||30,dia=snap.dia||dias,e=diaEf();if(e<=dia)return"";return `<div class="card" style="border-color:var(--warn);margin-bottom:8px"><b class="fraco">Dados até ao dia ${dia}; hoje é dia ${e+1}.</b> As previsões já contam os ${e-dia} dia(s) que passaram, mas as vendas desses dias não estão incluídas. Atualiza o Excel para as previsões refletirem tudo.</div>`}
+const fr0=()=>diaEf()/(snap.dias||30);const pfo=d=>d.real/d.obj/fr0();
 function ana(v,all){
   const r=[];
   for(const[k,w]of KP){const d=v.k[k];if(!d||!d.obj)continue;
@@ -139,7 +141,7 @@ function manter(v,inner){const dias=snap.dias||30,dia=snap.dia||dias,V=snap.vend
  const tut=V.filter(x=>x.nome!==v.nome&&x.k.TV&&x.k.TV.obj&&pfo(x.k.TV)<1).sort((a,b)=>pfo(a.k.TV)-pfo(b.k.TV)).slice(0,2).map(x=>esc(x.nome)),pn=[ps.d[0]==="crit"?"Diversidade":"",ps.g[0]==="crit"?"Seguros":"",ps.q[0]==="crit"||ps.q[0]==="fraco"?"NPS":""].filter(Boolean);
  return `<div${inner?"":' class="card" style="margin-top:8px"'}><b>${esc(v.nome)}</b> <span class="mut">${esc(v.funcao||"")} · TCO ${pc(v.tco)}</span>${nxt(v)}${avl(v)}<div class="forte" style="margin-top:6px">Em linha: TV, Meo Energia e TCO com previsão igual ou acima de 100%. Não precisa de plano; manter o ritmo.</div><ul style="margin:4px 0;padding-left:18px">${li}${tut.length?`<li><b>Partilhar:</b> pode acompanhar ${tut.join(" e ")} em TV.</li>`:""}${pn.length?`<li><b>Atenção:</b> penalizações em risco (${pn.join(", ")}).</li>`:""}</ul></div>`}
 function plano(v,inner){
- const dias=snap.dias||30,dia=snap.dia||dias,rest=dias-dia,W=semanas(),V=snap.vendedores,ps=pst(v),cb=(cashm(v,1/fr0())||{cash:v.cash||0}).cash,pr=[],sec=[];
+ const dias=snap.dias||30,dia=snap.dia||dias,rest=dias-diaEf(),W=semanas(),V=snap.vendedores,ps=pst(v),cb=(cashm(v,1/fr0())||{cash:v.cash||0}).cash,pr=[],sec=[];
  const obs=notes.filter(x=>x.nome===v.nome&&x.tipo==="corrigir").slice(0,2);
  const np=precisa(v);if(!np.any)return manter(v,inner);
  for(const k of ["TV","Meo Energia"]){const o=v.k[k];if(!o||!o.obj)continue;const pf=pfo(o);if(pf>=1)continue;
@@ -290,7 +292,7 @@ function pen(){
  const B=R.reduce((x,r)=>x+r.base,0),F=R.reduce((x,r)=>x+r.fin,0);
  return h+`</table></div><div class="mut" style="margin-top:4px">Cash base da loja ${eu(B)} · estimado após penalizações ${eu(F)} (${pp(F/B-1)}). Cash base = créditos × €/crédito do patamar de TCO × fator da loja + portabilidades × 10 €. Regras: TV abaixo de 70% anula o cash; TV 70–100% −10%; Energia abaixo de 70% −20% e 70–100% −10%; Diversidade abaixo de 160% e Seguros abaixo de 15% −10% (isentos GOE e se a loja cumprir); Net Segura abaixo do objetivo −10%. NPS em euros, somado depois das penalizações: 60% ou mais +75 €, 30–60% +25 €, abaixo de 30% −25 €. Se a TV anula o cash, toda a remuneração variável é anulada, incluindo o NPS (o resultado do NPS aparece na mesma, mas não conta).</div>`;}
 function apoio(){
- const V=snap.vendedores,dias=snap.dias||30,rest=Math.max(1,dias-(snap.dia||dias)),CORE=["TV","Meo Energia"],R=[];
+ const V=snap.vendedores,dias=snap.dias||30,rest=Math.max(1,dias-diaEf()),CORE=["TV","Meo Energia"],R=[];
  for(const v of V){let sc=0,gate=false;const cells=[],parts=[];
   for(const k of CORE){const d=v.k[k];if(!d||!d.obj){cells.push("–");continue}
    const p=pfo(d);if(k==="TV"&&p<.7)gate=true;
@@ -303,14 +305,14 @@ function apoio(){
  if(!R.length)h+='<tr><td colspan="5" class="mut">Sem colaboradores abaixo do objetivo em TV e Meo Energia.</td></tr>';
  return h+"</table></div>"+perito(CORE);}
 function loja(){
-  const S=snap.store,dia=snap.dia||snap.dias,rest=Math.max(1,snap.dias-dia),tco=S.TCO;
+  const S=snap.store,dia=snap.dia||snap.dias,rest=Math.max(1,snap.dias-diaEf()),tco=S.TCO;
   const card=(k,key)=>{const d=S[key];if(!d)return"";const p=d.obj?d.real/d.obj:null;return km(k,d.obj,d.real,p,p==null?null:p/fr0(),d.obj?nf(Math.max(0,d.obj-d.real)/rest,k):"–")};
   const ns=snap.vendedores.map(v=>v.k.NPS).filter(n=>n&&n.real!=null),nr=snap.npsLoja!=null?snap.npsLoja:(ns.length?ns.reduce((x,n)=>x+n.real,0)/ns.length:null),nl=nr==null?["–","#888"]:nr>=.6?["Bom · +75 €","#3ddc97"]:nr>=.3?["Médio · +25 €","#e6c200"]:["Baixo · −25 €","#ff6b7b"];
   let h=`<div class="card top"><div><div class="mut">TIPO DE LOJA</div><h1>Tipo loja III</h1></div><div><div class="mut">DATA</div><b style="font-size:20px">Dia ${dia} · ${esc(snap.mes)}</b><div class="mut">ACUMULADO MENSAL</div></div><div><div class="mut">TCO</div><div class="big" style="color:var(--ok)">${tco?pc(tco.real):"–"}</div><div class="mut">Previsão de TCO: ${tco?pc(tco.real/fr0()):"–"} · Objetivo: 100%</div></div></div><div class="g" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-top:12px">`+card("TV","TV")+card("PPP","PPP")+card("Net Segura Casa","Net Segura Casa")+card("Meo Energia","Meo Energia")+card("Refid's","Refidelizações")+card("Facturação","Faturação")+(tco?km("TCO",1,tco.real,tco.real,tco.real/fr0(),"–","TCO",pc):"")+`<div class="card"><div style="font-weight:700">NPS</div><div class="big" style="font-size:34px">${pc(nr)}</div><div style="margin:8px 0;padding:6px;border-radius:8px;text-align:center;color:#111;font-weight:700;background:${nl[1]}">${nl[0]}</div><div class="mut">60% ou mais: +75 € · 30–60%: +25 € · abaixo de 30%: −25 €</div><div class="mut">${snap.npsLoja!=null?"Valor da folha Cash (F37)":"Sem a F37: média dos lojistas. Volta a carregar o Excel."}</div></div>`;
   h+='</div>'+pen();return h;}
 function sem(v){
  if(!v.d)return"";const dias=snap.dias||30,dia=snap.dia||dias,W=semanas();
- const cu=W.findIndex(([a,b])=>dia>=a&&dia<=b),i=wk==null?cu:wk,[a,b]=W[i],r=b-Math.min(b,dia),ev=dia>=b?"fechada":"em curso";
+ const cu=W.findIndex(([a,b])=>dia>=a&&dia<=b),i=wk==null?cu:wk,[a,b]=W[i],r=b-Math.min(b,diaEf()),ev=dia>=b?"fechada":"em curso";
  const sm=(k,x,y)=>v.d[k].slice(x,y).reduce((s,z)=>s+z,0),P=[];
  for(const[k,w]of KP){if(k!=="TV"&&k!=="Meo Energia")continue;const o=v.k[k];if(!o||!o.obj)continue;
   const base=o.obj/dias*(b-a+1),atraso=Math.max(0,o.obj/dias*(a-1)-sm(k,0,a-1)),meta=base+atraso,feito=sm(k,a-1,Math.min(b,dia)),falta=Math.max(0,meta-feito);
@@ -338,7 +340,7 @@ function evol(v){
 function colab(v){
   const a=ana(v,snap.vendedores),fr=a.filter(x=>x.s==="fraco"||x.s==="crit").sort((x,y)=>y.gap-x.gap),fo=a.filter(x=>x.s==="forte");
   const my=notes.filter(n=>n.nome===v.nome);
-  const dia=snap.dia||snap.dias,rest=Math.max(0,snap.dias-dia),foco=fr.filter(x=>["TV","Meo Energia","Div","Seg","NPS"].includes(x.k)).slice(0,3).map(x=>nm(x.k)).join(" · ")||"Manter o ritmo";
+  const dia=snap.dia||snap.dias,rest=Math.max(0,snap.dias-diaEf()),foco=fr.filter(x=>["TV","Meo Energia","Div","Seg","NPS"].includes(x.k)).slice(0,3).map(x=>nm(x.k)).join(" · ")||"Manter o ritmo";
   let h=`<div class="card top"><div><div class="mut">DESEMPENHO INDIVIDUAL</div><h1>${esc(v.nome)}</h1><div class="mut">${esc(v.funcao||"")} · ${esc(snap.mes)} · até ao dia ${dia} · ${rest} dias restantes</div></div><div><div class="mut">FOCO DO MÊS</div><b>${foco}</b></div><div><button class="chip ${ct==='desemp'?'on':''}" onclick="ct='desemp';render()">Desempenho</button> <button class="chip ${ct==='plano'?'on':''}" onclick="ct='plano';render()">Evolução, plano e observações</button> <button class="chip ${ct==='sim'?'on':''}" onclick="ct='sim';render()">Simulador</button> <button class="btn" onclick="view='geral';render()">← Resumo loja</button></div></div>`;
   const hd=h,ps=pst(v),nn=v.k.NPS,fc=KP.filter(([k])=>k==="TV"||k==="Meo Energia").map(([k])=>{const d=v.k[k];return d?kcard(k,d.real,d.obj,d.obj?d.real/d.obj:null,"Falta/dia",d.obj&&rest?nf(Math.max(0,d.obj-d.real)/rest,k):"–"):""}).join("");
   const mini=KP.filter(([k])=>k!=="TV"&&k!=="Meo Energia").map(([k])=>{const d=v.k[k];return `<div class="card" style="padding:5px 10px"><span class="mut">${lab(k)}</span> <b>${d?nf(d.real,k):"–"}</b> <span class="mut">/ ${d?nf(d.obj,k):"–"}</span> <b style="color:${CK[k]}">${d&&d.obj?pc(d.real/d.obj):"–"}</b></div>`}).join("");
@@ -360,7 +362,7 @@ function render(){
   {const ids=[...new Set(H.map(x=>x.id).concat(CUR?[ymid(CUR)]:[]))].sort().reverse(),cu=CUR?ymid(CUR):"";$("msel").innerHTML=ids.map(i=>{const q=i===cu?CUR:(H.find(x=>x.id===i)||{}).s;return `<option value="${i}" ${(mid||cu)===i?"selected":""}>${esc(q?q.mes:i)}</option>`}).join("");$("msel").hidden=false}
   $("nav").hidden=false;document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
   $("chips").innerHTML=view==="colab"?`<select onchange="sel=this.value;wk=null;render()" style="width:auto;margin:6px 0">${snap.vendedores.map(v=>`<option ${v.nome===sel?"selected":""}>${esc(v.nome)}</option>`).join("")}</select>`:"";
-  const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=view==="colab"&&v?colab(v):view==="diaria"?resumo():view==="fecho"?fechov():view==="hor"?horv():view==="hist"?histv():view==="semanal"?semanal():view==="apoio"?apoio():loja();
+  const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=stale()+(view==="colab"&&v?colab(v):view==="diaria"?resumo():view==="fecho"?fechov():view==="hor"?horv():view==="hist"?histv():view==="semanal"?semanal():view==="apoio"?apoio():loja());
   if(view==="geral")document.querySelectorAll("#main tbody tr td:first-child b").forEach(b=>{b.style.cursor="pointer";b.onclick=()=>{sel=b.textContent;view="colab";render()}});}
 document.addEventListener("click",async e=>{
   const t=e.target;
