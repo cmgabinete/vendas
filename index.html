@@ -461,13 +461,14 @@ document.addEventListener("click",async e=>{
 const nv=x=>{if(x===null||x===undefined||x==="")return null;x=Number(x);return isFinite(x)?Math.round(x*1e4)/1e4:null};
 $("fx").onchange=async e=>{
   const fl=e.target.files[0];if(!fl)return;msg="a ler o Excel…";render();
-  try{const buf=await fl.arrayBuffer(),nm0=XLSX.read(buf,{type:"array",bookSheets:true}).SheetNames,NZ=x=>String(x).normalize("NFC").trim().toLowerCase(),real=w=>nm0.find(n=>NZ(n)===NZ(w)),want=["Resumo Loja","inputRGUs","inputFaturação","€crédito","Cash","avaliaçao",...Object.keys(VS)];
+  let etapa="a abrir o ficheiro";try{const buf=await fl.arrayBuffer(),nm0=XLSX.read(buf,{type:"array",bookSheets:true}).SheetNames,NZ=x=>String(x).normalize("NFC").trim().toLowerCase(),real=w=>nm0.find(n=>NZ(n)===NZ(w)),want=["Resumo Loja","inputRGUs","inputFaturação","€crédito","Cash","avaliaçao",...Object.keys(VS)];
     const wb=XLSX.read(buf,{type:"array",sheets:want.map(real).filter(Boolean),cellDates:true,cellFormula:false,cellStyles:false});
     const aoa=(n,rg)=>XLSX.utils.sheet_to_json(wb.Sheets[real(n)],{header:1,range:rg,raw:true,defval:null}),aoaS=(n,rg)=>{try{return aoa(n,rg)}catch(e){return []}};
+    etapa="folha Resumo Loja";for(const n of ["Resumo Loja","inputRGUs","inputFaturação"])if(!real(n))throw new Error("a folha \""+n+"\" não foi encontrada no ficheiro");
     const rl=aoa("Resumo Loja","B11:Y23"),store={},rat={};
     for(const r of rl.slice(1)){if(r[0])store[r[0]]={obj:nv(r[1]),real:nv(r[2]),pf:nv(r[8])};const k=String(r[11]||"").trim();if(k)rat[k]={div:nv(r[17]),seg:nv(r[18])}}
-    const vend=[];
-    for(const[sh,short]of Object.entries(VS)){const rows=aoa(sh,"A1:M135"),k={};
+    const vend=[],bad=[];etapa="folhas dos lojistas";
+    for(const[sh,short]of Object.entries(VS)){if(!real(sh))continue;etapa="folha "+sh;const rows=aoa(sh,"A1:M135"),k={};if(rows.length<13){bad.push(sh);continue}
       for(const r of rows.slice(12,30)){const l=String(r[3]||"").trim();
         if(["TV","PPP","Meo Energia","Refid's","Facturação","Net Segura"].includes(l)&&!k[l])k[l]={obj:nv(r[4]),real:nv(r[5]),pf:nv(r[11])};
         if(l==="NPS")k.NPS={obj:nv(r[4]),real:nv(r[5])}}
@@ -475,25 +476,26 @@ $("fx").onchange=async e=>{
       if(ih>=0)for(const r of rows.slice(ih+1,ih+5)){const l=String(r[3]||"").trim(),kk=l.startsWith("TV")?"TV":l==="PPP"?"PPP":l.startsWith("Fact")?"Facturação":l.startsWith("Meo")?"Meo Energia":null;if(kk)PW[kk]=nv(r[4])||0}
       const v={pw:PW,nome:short,funcao:fn,tco:nv(rows[3][5]),tcoPrev:nv(rows[3][6]),cash:ic>=0?nv(rows[ic][5]):nv(rows[3][9]),cred:it>=0?nv(rows[it][4]):null,port:ip>=0?nv(rows[ip][4]):null,fat:(fn==="GOE"||fn==="Smart")?1:(sf==null?null:sf),k};
       const rr=rat[short]||rat[short.split(" ")[0]];if(rr){v.div=rr.div;v.seg=rr.seg}vend.push(v)}
-    const AV=aoaS("avaliaçao","A1:AK15");
+    if(!vend.length)throw new Error("não encontrei nenhuma folha de lojista (esperava nomes como "+Object.keys(VS).slice(0,3).join(", ")+")");
+    etapa="avaliação";const AV=aoaS("avaliaçao","A1:AK15");
     for(const v of vend){const r=AV.find(x=>String(x[28]||"").trim().toLowerCase().startsWith(v.nome.toLowerCase()));if(r)v.av={n:{"TV":nv(r[29]),"PPP":nv(r[30]),"Facturação":nv(r[31]),"NPS":nv(r[32]),"Refid's":nv(r[33]),"Meo Energia":nv(r[34]),"Net Segura":nv(r[35])},f:nv(r[36])}}
     const nomes=vend.map(v=>v.nome),who=s=>{s=String(s||"").trim().toLowerCase();return nomes.find(n=>s.startsWith(n.trim().toLowerCase()))},N=x=>Number(x)||0,D={};
     vend.forEach(v=>{D[v.nome]={"TV":Array(31).fill(0),"PPP":Array(31).fill(0),"Meo Energia":Array(31).fill(0),"Refid's":Array(31).fill(0),"Facturação":Array(31).fill(0)}});
-    const unk={};let last=0,mon=null;
-    for(const r of aoa("inputRGUs","A2:AK4000")){const d=r[1];if(!(d instanceof Date))continue;const st=String(r[36]||"").trim();if(!st||st==="Não Instalado")continue;const n=who(r[2]);if(!n){const q=String(r[2]||"").trim();if(q)unk[q]=(unk[q]||0)+1;continue}const i=d.getDate()-1,o=D[n];mon=[d.getFullYear(),d.getMonth()];last=Math.max(last,d.getDate());o.TV[i]+=N(r[9]);o.PPP[i]+=N(r[12])+N(r[13])+N(r[14]);o["Meo Energia"][i]+=N(r[20]);o["Refid's"][i]+=N(r[19])}
-    for(const r of aoa("inputFaturação","A2:G4000")){const d=r[0];if(!(d instanceof Date))continue;const n=who(r[6]);if(!n){const q=String(r[6]||"").trim();if(q)unk[q]=(unk[q]||0)+1;continue}D[n]["Facturação"][d.getDate()-1]+=N(r[5]);last=Math.max(last,d.getDate())}
+    etapa="vendas (inputRGUs)";const unk={};let last=0,mon=null;
+    for(const r of aoa("inputRGUs","A2:AK10000")){const d=r[1];if(!(d instanceof Date))continue;const st=String(r[36]||"").trim();if(!st||st==="Não Instalado")continue;const n=who(r[2]);if(!n){const q=String(r[2]||"").trim();if(q)unk[q]=(unk[q]||0)+1;continue}const i=d.getDate()-1,o=D[n];mon=[d.getFullYear(),d.getMonth()];last=Math.max(last,d.getDate());o.TV[i]+=N(r[9]);o.PPP[i]+=N(r[12])+N(r[13])+N(r[14]);o["Meo Energia"][i]+=N(r[20]);o["Refid's"][i]+=N(r[19])}
+    etapa="vendas (inputFaturação)";for(const r of aoa("inputFaturação","A2:G10000")){const d=r[0];if(!(d instanceof Date))continue;const n=who(r[6]);if(!n){const q=String(r[6]||"").trim();if(q)unk[q]=(unk[q]||0)+1;continue}D[n]["Facturação"][d.getDate()-1]+=N(r[5]);last=Math.max(last,d.getDate())}
     vend.forEach(v=>v.d=D[v.nome]);
-    let npsL=null;{const cs=wb.Sheets[real("Cash")],ff=x=>{if(typeof x==="number")return x;if(typeof x==="string"){const t=parseFloat(x.replace(",",".").replace("%",""));return isFinite(t)?(x.includes("%")?t/100:t):null}return null};
+    etapa="NPS da loja";let npsL=null;{const cs=wb.Sheets[real("Cash")],ff=x=>{if(typeof x==="number")return x;if(typeof x==="string"){const t=parseFloat(x.replace(",",".").replace("%",""));return isFinite(t)?(x.includes("%")?t/100:t):null}return null};
     if(cs&&cs["F37"])npsL=ff(cs["F37"].v);
     if(npsL==null)for(const r of aoaS("Cash","A1:G92")){if(String(r[0]||"").trim().toLowerCase()==="loja"){npsL=ff(r[5]);break}}
     if(npsL!=null&&npsL>1.5)npsL=npsL/100}
-    const RT={n:{},p:{}};for(const r of aoaS("€crédito","A1:V16").slice(3,15)){const q=String(r[1]||"").trim();if(q){RT.n[q]=r.slice(2,9).map(x=>nv(x)||0);RT.p[q]=r.slice(14,21).map(x=>nv(x)||0)}}
+    etapa="tabelas de €/crédito";const RT={n:{},p:{}};for(const r of aoaS("€crédito","A1:V16").slice(3,15)){const q=String(r[1]||"").trim();if(q){RT.n[q]=r.slice(2,9).map(x=>nv(x)||0);RT.p[q]=r.slice(14,21).map(x=>nv(x)||0)}}
     const MN="Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split(" "),dias=mon?new Date(mon[0],mon[1]+1,0).getDate():30;
-    const PL={mes:mon?MN[mon[1]]+" "+mon[0]:"Mês atual",store,vendedores:vend,dias,dia:last||dias,rates:RT,npsLoja:npsL,rel:buildRel({vend,store,RT,npsL,mon,last,dias,unk,miss:want.filter(w=>!real(w))}),at:Date.now()};const nid=mon?"m"+mon[0]+"-"+String(mon[1]+1).padStart(2,"0"):null;
+    etapa="gravar os dados";const PL={mes:mon?MN[mon[1]]+" "+mon[0]:"Mês atual",store,vendedores:vend,dias,dia:last||dias,rates:RT,npsLoja:npsL,rel:buildRel({vend,store,RT,npsL,mon,last,dias,unk,miss:want.filter(w=>!real(w)).concat(bad.map(b=>b+" (vazia)"))}),at:Date.now()};const nid=mon?"m"+mon[0]+"-"+String(mon[1]+1).padStart(2,"0"):null;
     if(nid)await chk(sb.from("snap").upsert({id:nid,data:PL}));
     if(!CUR||!nid||nid>=ymid(CUR))await db.doc("snap/current").set(PL);
     await loadHist();mid=nid&&CUR&&nid<ymid(CUR)?nid:null;useSnap();{const na=(PL.rel||[]).filter(x=>x[0]==="av").length;msg="atualizado"+(na?" · "+na+" aviso(s), ver Resumo loja":"")}
-  }catch(err){msg="Erro a ler o Excel: "+(err.message||err);render()}
+  }catch(err){msg="Erro a ler o Excel (etapa: "+etapa+"): "+(err.message||err);render()}
   e.target.value="";};
 const SUPABASE_URL="https://nfpjwxezlrunruzqbhjn.supabase.co",SUPABASE_KEY="sb_publishable_Nf9n_q5rIe3t_dek7H0A9w_gloi0dEJ";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY),L={snap:[],notes:[]};
