@@ -4,8 +4,8 @@
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Vendas Loja"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#020812">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#060a4d;--card:#10179f;--cardbg:linear-gradient(160deg,#1a22c4,#0f1590);--tx:#fff;--mut:#b8c4ff;--ac:#2f80ff;--acx:#fff;--bd:#4a86f0;--ok:#5dffb0;--bad:#ff8a9a;--warn:#ffd24a;--th:#0a6bff;--thc:#fff;--we:#4b3a1c;--wec:#ffd78a;--rowhl:#1f3a66;--bodybg:radial-gradient(circle at 20% 0,#1a1fd0 0,#060a4d 55%) fixed;--shadow:0 0 14px rgba(70,130,255,.25);--cap:#0a0f80;--navbg:#10179f;--navtx:#b8c4ff;--navon:#2f80ff;--navonx:#fff;color-scheme:dark}
-:root[data-tema="lilas"]{--bg:#ebe9f2;--card:#ffffff;--cardbg:#ffffff;--tx:#17151f;--mut:#6b6880;--ac:#6a4fd8;--acx:#fff;--bd:#e3dff0;--ok:#1b8a5a;--bad:#d43a55;--warn:#b7791f;--th:#d8ccf6;--thc:#2a2150;--we:#efe9fb;--wec:#5b3fc9;--rowhl:#e4dcfa;--bodybg:#ebe9f2;--shadow:0 2px 12px rgba(70,50,130,.09);--cap:#ebe9f2;--navbg:#14131a;--navtx:#c9c6d8;--navon:#cdbff3;--navonx:#2a2150;color-scheme:light}
-:root[data-tema="grafite"]{--bg:#0d0f12;--card:#171a1f;--cardbg:#171a1f;--tx:#f1f3f6;--mut:#98a2b3;--ac:#2dd4bf;--acx:#04201d;--bd:#2a3038;--ok:#4ade80;--bad:#fb7185;--warn:#fbbf24;--th:#232a33;--thc:#e9eef5;--we:#2b2616;--wec:#f4c46b;--rowhl:#1f3b38;--bodybg:#0d0f12;--shadow:none;--cap:#0d0f12;--navbg:#171a1f;--navtx:#98a2b3;--navon:#2dd4bf;--navonx:#04201d;color-scheme:dark}
+:root[data-tema="claro"]{--bg:#f1f5fc;--card:#ffffff;--cardbg:#ffffff;--tx:#0f1b33;--mut:#5d6b88;--ac:#1d6fe8;--acx:#fff;--bd:#dbe4f3;--ok:#14855a;--bad:#d43a55;--warn:#b7791f;--th:#dbe8ff;--thc:#0b2a66;--we:#eaf1ff;--wec:#1d6fe8;--rowhl:#dbe8ff;--bodybg:#f1f5fc;--shadow:0 2px 12px rgba(20,70,160,.10);--cap:#f1f5fc;--navbg:#0b2a66;--navtx:#c4d4f5;--navon:#ffffff;--navonx:#0b2a66;color-scheme:light}
+:root[data-tema="vidro"]{--bg:#070b14;--card:rgba(255,255,255,.06);--cardbg:linear-gradient(150deg,rgba(255,255,255,.10),rgba(255,255,255,.03));--tx:#f4f7ff;--mut:#a9b6cf;--ac:#3b8bff;--acx:#fff;--bd:rgba(255,255,255,.14);--ok:#5ee6a8;--bad:#ff8fa3;--warn:#ffc96b;--th:rgba(255,255,255,.08);--thc:#e8efff;--we:rgba(255,170,80,.14);--wec:#ffcf94;--rowhl:rgba(59,139,255,.25);--bodybg:radial-gradient(ellipse at 100% 100%,rgba(214,120,40,.55) 0,transparent 45%),radial-gradient(ellipse at 85% 10%,rgba(150,90,40,.35) 0,transparent 35%),radial-gradient(ellipse at 0% 30%,rgba(40,90,190,.40) 0,transparent 40%),linear-gradient(160deg,#0a1020,#0b0f1a 60%,#120d0a) fixed;--shadow:0 10px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.18);--blur:blur(28px) saturate(150%);--cap:#070b14;--navbg:rgba(255,255,255,.06);--navtx:#dbe5fa;--navon:linear-gradient(90deg,#2f7bff,#4f9bff);--navonx:#fff;color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 -apple-system,system-ui,"Segoe UI",sans-serif}
 .w{max-width:980px;margin:0 auto;padding:14px}
@@ -43,14 +43,30 @@ details>summary{cursor:pointer;list-style:none}details>summary::-webkit-details-
 .lvg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}.lvs{display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0}.lvb{border:0;border-radius:8px;font-weight:600;font-size:.8em;padding:8px 10px;min-width:40px;flex:none;cursor:pointer;white-space:nowrap}.lvb.p{background:var(--ac);color:var(--acx)}.lvb.m{background:transparent;color:var(--mut);border:1px solid var(--bd)}.lvn{font-size:1.5em;font-weight:500;flex:none;min-width:30px;text-align:center;line-height:1}.lvi{font-size:.78em;white-space:nowrap;text-align:center}.lvh{text-align:center;font-weight:700;font-size:1.1em;letter-spacing:.02em}
 .cr{display:grid;grid-template-columns:1.3fr .9fr .9fr 1fr;gap:6px;padding:5px 0;border-bottom:1px solid var(--bd);align-items:center}.cr>span:not(:first-child),.cr>b{text-align:right}th.n,td.n{text-align:right}
 .btn.g2{padding:5px 10px;font-size:.85em}#ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}.tdot{width:22px;height:22px;border-radius:50%;border:2px solid var(--bd);padding:0;cursor:pointer}.tdot.on{outline:2px solid var(--tx);outline-offset:1px}
-:root[data-tema="lilas"] .card.top{background:linear-gradient(120deg,#cdbff3,#e8e0fb);border-color:#d8ccf6}
-:root[data-tema="lilas"] nav{width:64px;margin:12px 0 12px 12px;border-radius:30px;border:0;align-items:center;padding:16px 8px;gap:8px;height:calc(100vh - 24px);position:sticky;top:12px}
-:root[data-tema="lilas"] nav b{display:none}:root[data-tema="lilas"] nav button{width:44px;height:44px;padding:0;text-align:center;border-radius:50%;font-size:18px}:root[data-tema="lilas"] nav .nt{display:none}
-@media(max-width:760px){:root[data-tema="lilas"] nav{width:auto;height:auto;flex-direction:row;border-radius:24px;margin:8px;position:static;overflow-x:auto;padding:8px 10px}}
+.card.top{}:root[data-tema="claro"] .card.top{background:linear-gradient(120deg,#dbe8ff,#f0f6ff);border-color:#c9dbfa}
+:root[data-tema="vidro"] .card,:root[data-tema="vidro"] nav{-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}:root[data-tema="vidro"] nav{border:1px solid var(--bd);border-radius:26px;margin:12px 0 12px 12px;height:calc(100vh - 24px);position:sticky;top:12px;box-shadow:var(--shadow)}:root[data-tema="vidro"] .card{border-radius:22px}:root[data-tema="vidro"] nav button{border-radius:12px}:root[data-tema="vidro"] nav button.on{box-shadow:0 0 18px rgba(59,139,255,.5)}:root[data-tema="vidro"] .chip.on{box-shadow:0 0 14px rgba(59,139,255,.45)}:root[data-tema="vidro"] .card.top{background:linear-gradient(130deg,rgba(255,255,255,.14),rgba(255,255,255,.04))}:root[data-tema="vidro"] th{background:rgba(255,255,255,.07)}
+#navt{margin-top:auto;text-align:center!important;opacity:.8}
+html[data-nav="c"] nav{width:64px;margin:12px 0 12px 12px;border-radius:30px;border:0;align-items:center;padding:16px 8px;gap:8px;height:calc(100vh - 24px);position:sticky;top:12px}
+html[data-nav="c"] nav b{display:none}html[data-nav="c"] nav button{width:44px;height:44px;padding:0;text-align:center;border-radius:50%;font-size:18px}html[data-nav="c"] nav .nt{display:none}
+@media(max-width:760px){html[data-nav="c"] nav,html[data-nav="e"] nav{width:auto;height:auto;flex-direction:row;border-radius:24px;margin:8px;position:static;overflow-x:auto;padding:8px 10px}#navt{display:none}}
+
+@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.28) rotate(-6deg)}100%{transform:scale(1)}}
+@keyframes drawx{from{opacity:0;transform:scaleX(.2)}to{opacity:1;transform:none}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(59,139,255,0)}50%{box-shadow:0 0 16px rgba(59,139,255,.55)}}
+nav{transition:width .3s ease,padding .3s ease}nav button{transition:background .25s,color .25s,transform .2s,box-shadow .25s}nav button i{display:inline-block;font-style:normal;transition:transform .25s}
+nav button:hover{transform:translateX(4px)}html[data-nav="c"] nav button:hover{transform:scale(1.12)}nav button:hover i{animation:pop .5s}nav button:active{transform:scale(.94)}nav button.on{animation:glow 2.8s ease-in-out infinite}
+.card{transition:transform .25s ease,box-shadow .25s ease}.card:hover{transform:translateY(-3px)}
+.chip,.btn,.tdot,.lvb{transition:transform .15s,background .2s,box-shadow .2s}.chip:hover,.btn:hover,.tdot:hover{transform:translateY(-2px)}.chip:active,.btn:active,.lvb:active,.tdot:active{transform:scale(.93)}
+#main.in>*,#main.in .g>.card,#main.in .g2>.card{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+#main.in .g>.card:nth-child(2),#main.in>*:nth-child(2){animation-delay:.06s}#main.in .g>.card:nth-child(3),#main.in>*:nth-child(3){animation-delay:.12s}#main.in .g>.card:nth-child(4),#main.in>*:nth-child(4){animation-delay:.18s}#main.in .g>.card:nth-child(5),#main.in>*:nth-child(5){animation-delay:.24s}#main.in .g>.card:nth-child(n+6),#main.in>*:nth-child(n+6){animation-delay:.3s}
+#main.in svg rect,#main.in svg circle{transform-box:fill-box;transform-origin:left center;animation:drawx .7s ease-out both}
+#main.in svg path{animation:rise .8s ease-out both}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head>
-<body><div class="app"><nav id="nav" hidden><b id="nvn">TIPO LOJA</b><button data-v="geral" title="Resumo loja"><i>▦</i><span class="nt">Resumo loja</span></button><button data-v="diaria" title="Vendas diárias"><i>◷</i><span class="nt">Vendas diárias</span></button><button data-v="colab" title="Lojistas"><i>☺</i><span class="nt">Lojistas</span></button><button data-v="graf" title="Gráficos"><i>📊</i><span class="nt">Gráficos</span></button><button data-v="semanal" title="Avaliação semanal"><i>▤</i><span class="nt">Avaliação semanal</span></button><button data-v="hist" title="Histórico"><i>📈</i><span class="nt">Histórico</span></button><button data-v="cen" title="Cenários"><i>🔮</i><span class="nt">Cenários</span></button><button data-v="fecho" title="Fecho do mês"><i>✔</i><span class="nt">Fecho do mês</span></button><button data-v="aval" title="Avaliações"><i>📝</i><span class="nt">Avaliações</span></button><button data-v="hor" title="Horário"><i>🗓</i><span class="nt">Horário</span></button><button data-v="apoio" title="Apoio"><i>⚑</i><span class="nt">Apoio</span></button></nav><div class="w">
+<body><div class="app"><nav id="nav" hidden><b id="nvn">TIPO LOJA</b><button data-v="geral" title="Resumo loja"><i>▦</i><span class="nt">Resumo loja</span></button><button data-v="diaria" title="Vendas diárias"><i>◷</i><span class="nt">Vendas diárias</span></button><button data-v="colab" title="Lojistas"><i>☺</i><span class="nt">Lojistas</span></button><button data-v="obj" title="Objetivos"><i>🎯</i><span class="nt">Objetivos</span></button><button data-v="graf" title="Gráficos"><i>📊</i><span class="nt">Gráficos</span></button><button data-v="semanal" title="Avaliação semanal"><i>▤</i><span class="nt">Avaliação semanal</span></button><button data-v="hist" title="Histórico"><i>📈</i><span class="nt">Histórico</span></button><button data-v="cen" title="Cenários"><i>🔮</i><span class="nt">Cenários</span></button><button data-v="fecho" title="Fecho do mês"><i>✔</i><span class="nt">Fecho do mês</span></button><button data-v="aval" title="Avaliações"><i>📝</i><span class="nt">Avaliações</span></button><button data-v="hor" title="Horário"><i>🗓</i><span class="nt">Horário</span></button><button data-v="apoio" title="Apoio"><i>⚑</i><span class="nt">Apoio</span></button><button id="navt" title="Expandir/encolher menu"><i>«</i><span class="nt">Encolher</span></button></nav><div class="w">
 <div class="top"><div><h1>Análise de Vendas da Loja</h1><div class="mut" id="sub">A carregar…</div></div>
-<div id="ctl"><span id="temas"><button class="tdot" data-t="azul" title="Azul MEO" style="background:#2f80ff"></button> <button class="tdot" data-t="lilas" title="Claro lilás" style="background:#cdbff3"></button> <button class="tdot" data-t="grafite" title="Grafite" style="background:#2dd4bf"></button></span> <input type="file" id="fx" accept=".xlsx" hidden><input type="file" id="fh" accept=".xlsx" hidden><input type="file" id="fb" accept=".json" hidden><select id="msel" hidden onchange="mid=this.value||null;useSnap();render()" style="width:auto;margin:0 6px 0 0"></select><button class="btn g2" id="up">Atualizar com Excel</button> <button class="btn g2" onclick="window.print()">Exportar PDF</button> <button class="btn g2" id="out" hidden>Sair</button></div></div>
+<div id="ctl"><span id="temas"><button class="tdot" data-t="azul" title="Azul MEO" style="background:#2f80ff"></button> <button class="tdot" data-t="claro" title="Claro azul" style="background:#fff;border-color:#1d6fe8"></button> <button class="tdot" data-t="vidro" title="Liquid Glass" style="background:linear-gradient(135deg,#7cc4ff,#b06bff)"></button></span> <input type="file" id="fx" accept=".xlsx" hidden><input type="file" id="fh" accept=".xlsx" hidden><input type="file" id="fb" accept=".json" hidden><select id="msel" hidden onchange="mid=this.value||null;useSnap();render()" style="width:auto;margin:0 6px 0 0"></select><button class="btn g2" id="up">Atualizar com Excel</button> <button class="btn g2" onclick="window.print()">Exportar PDF</button> <button class="btn g2" id="out" hidden>Sair</button></div></div>
 <div id="lg" class="card" style="max-width:360px;margin:40px auto" hidden><h1>Entrar</h1><input id="em" type="email" placeholder="Email" autocomplete="username" style="width:100%;margin:10px 0 4px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><input id="pw" type="password" placeholder="Palavra-passe" autocomplete="current-password" style="width:100%;margin:4px 0 10px;padding:9px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);box-sizing:border-box"><button class="btn" id="li">Entrar</button><div class="mut" id="le" style="margin-top:8px"></div></div>
 <div class="chips" id="chips"></div><div id="main"></div></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -69,7 +85,7 @@ const TPL={"TV":"Treinar a abordagem de TV e pacotes: perguntas de qualificaçã
 "Div":"Aumentar a variedade de produtos por cliente (acessórios, seguros, serviços) em cada venda.",
 "Seg":"Propor seguro em todos os equipamentos e treinar o argumento de proteção."};
 const VS={"Liliana Cardoso":"Liliana","Rodolfo Correia":"Rodolfo","Adriana Marta":"Adriana","Adriano Machado":"Adriano","Ana Rosado":"Ana Dulcineia","Ana Santos":"Ana Margarida","Julio Benck":"Julio","Carla Costa":"Carla","Cristiana Santos":"Cristiana","Pedro Carvalho":"Pedro","Telma Maltez":"Telma","Tiago Vigario":"Tiago"};
-let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="",dd=null,ck="TV",view="geral",dv="",ct="desemp",sw=null,pf="",CUR=null,mid=null,S0={"TV":0,"PPP":0,"Meo Energia":0,"Facturação":0},H=[],HOR=null,hm=null,hsel=null,hv="grade",hP="",hD=0,hMode="filtrar",CFG={loja:"Tipo loja III"},ACO={},LIVE=[],LIVE_OK=true,lvN=0,lvK="TV",hl="",gK="TV",gS="",AVS={},avE="",AVL=[];
+let db=null,snap=null,notes=[],sel="",msg="",wk=null,TR="",dd=null,ck="TV",view="geral",dv="",ct="desemp",sw=null,pf="",CUR=null,mid=null,S0={"TV":0,"PPP":0,"Meo Energia":0,"Facturação":0},H=[],HOR=null,hm=null,hsel=null,hv="grade",hP="",hD=0,hMode="filtrar",CFG={loja:"Tipo loja III",saiu:{"Telma":"2026-11"}},ACO={},LIVE=[],LIVE_OK=true,lvN=0,lvK="TV",hl="",gK="TV",gS="",AVS={},avE="",AVL=[];
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pc=x=>x==null?"–":Math.round(x*100)+"%";
@@ -128,8 +144,11 @@ function cashm(v,k){k=k||1;const R=snap.rates;if(!R||v.cred==null||v.fat==null)r
 function nxt(v){const c=cashm(v,1/frV(v));return c&&c.next!=null?`<div class="mut">Próximo patamar de TCO (${PAT[c.i+1]}%): +${eu(c.cr*(c.next-c.rate)*c.fat)} de cash</div>`:""}
 function premio(v){const c=cashm(v,1/frV(v));if(!c)return `<div class="card"><div style="font-weight:700;font-size:12px">PRÉMIO</div><div class="big">${v.cash==null?"–":eu(v.cash)}</div><div class="mut">Base, antes de penalizações</div></div>`;
  return `<div class="card"><div style="font-weight:700;font-size:12px">PRÉMIO · CASH BASE</div><div class="big">${eu(c.cash)}</div><div class="mut">${Math.round(c.cr)} créditos × ${c.rate.toFixed(2).replace(".",",")} €${c.pe?" (TV abaixo do objetivo: −10%)":""} × ${c.fat}${c.port?" + "+eu(c.port)+" portab.":""}</div>${c.next!=null?`<div class="forte">Subir TCO para ${PAT[c.i+1]}%: +${eu(c.cr*(c.next-c.rate)*c.fat)}</div>`:'<div class="forte">Patamar máximo</div>'}</div>`}
+const SAI=()=>Object.assign({"Telma":"2026-11"},(CFG&&CFG.saiu)||{});
+function saiuEm(nome,ym){const e=SAI(),k=Object.keys(e).find(x=>String(nome).toLowerCase().split(" ")[0]===x.toLowerCase().split(" ")[0]);return !!k&&ym>=e[k]}
+function hStrip(){if(!HOR||!HOR.meses)return;for(const n of Object.keys(HOR.meses)){const M=HOR.meses[n],ym=M.ano+"-"+String(M.m+1).padStart(2,"0");M.pessoas=M.pessoas.filter(p=>!saiuEm(p.n,ym))}}
 function ymid(s){const m=MNL.findIndex(x=>String(s.mes).startsWith(x)),y=+(String(s.mes).match(/\d{4}/)||[0])[0];return m>=0&&y?"m"+y+"-"+String(m+1).padStart(2,"0"):"atual"}
-function useSnap(){const x=mid&&CUR&&mid!==ymid(CUR)?H.find(z=>z.id===mid):null,b=x?x.s:CUR;snap=b?applyLive(b):null;dd=null;sw=null}
+function useSnap(){const x=mid&&CUR&&mid!==ymid(CUR)?H.find(z=>z.id===mid):null,b=x?x.s:CUR;snap=b?applyLive(b):null;if(snap&&snap.vendedores){const id=ymid(snap).slice(1);if(snap.vendedores.some(v=>saiuEm(v.nome,id)))snap=Object.assign({},snap,{vendedores:snap.vendedores.filter(v=>!saiuEm(v.nome,id))})}dd=null;sw=null}
 const MNL="Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split(" "),n1=x=>(Math.round(x*10)/10).toString().replace(".",","),CRU={"TV":38.99,"PPP":7.74,"Facturação":0.0168,"Meo Energia":0.0168};
 const PB={"TV":{pr:"propor TV ou pacote em todos os atendimentos elegíveis",pt:["Perguntar quantos ecrãs e que serviços têm em casa antes de propor.","Fechar a internet já com a proposta de TV no ecrã, em vez de deixar para depois."]},"Meo Energia":{pr:"pedir a fatura da luz em todos os contratos novos",pt:["Pedir a fatura da luz no fecho de cada contrato e mostrar a poupança estimada na hora.","Usar um argumento de 30 segundos centrado na poupança anual."]}};
 function simv(v,d){const c0=cashm(v,1);if(!c0||!v.pw||!v.k.TV)return null;let t=v.tco||0,cr=v.cred||0;
@@ -303,11 +322,11 @@ function livev(){
  h+='<div class="g" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:10px">'+V.map((v,i)=>{const c=k=>{const o=v.k[k]||{};return `<div class="lvc"><div class="lvh" style="color:${CK[k]}">${lab(k).toUpperCase()}</div><div class="lvs"><button class="lvb m" onclick="liveAdd(${i},'${k}',-1)">−1</button><span class="lvn">${day(v,k)}</span><button class="lvb p" onclick="liveAdd(${i},'${k}',1)">+1</button></div><div class="mut lvi">dia ${nf((o.obj||0)/dias,k)} · mês ${nf(o.real||0,k)}/${nf(o.obj||0,k)}</div></div>`};return `<div class="card"><div class="top"><b>${esc(v.nome)}</b><span class="mut">${esc(v.funcao||"")}</span></div><div class="lvg">${c("TV")}${c("Meo Energia")}</div></div>`}).join("")+"</div>";
  const ev=LIVE.slice(-6).reverse();
  h+=`<div class="card" style="margin-top:10px"><div class="mut">ÚLTIMOS REGISTOS</div>${ev.length?ev.map(e=>`<div class="rw"><span>${new Date(+e.ts).toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"})}</span><span>${esc(e.nome)}</span><span>${lab(e.produto)}</span><b class="${e.delta>0?"forte":"crit"}">${e.delta>0?"+":""}${e.delta}</b></div>`).join(""):'<div class="mut">Ainda sem registos.</div>'}</div><div class="mut" style="margin-top:6px">Quando carregares o Excel, os dias que já vêm no ficheiro substituem estes registos.</div>`;return h}
-function wdc(v){const h=hp(v);if(!h)return null;const c=h.p.c;return{c,n:c.filter(isW).length}}
+function wdc(v){const h=hp(v);if(!h)return null;const M=h.M,c=h.p.c.map((x,i)=>{x=cod(x);if(x!=="")return x;const w=new Date(M.ano,M.m,i+1).getDay();return w===0||w===6?"FO":"9"});return{c,n:c.filter(isW).length}}
 function wdIn(v,a,b){const w=wdc(v);if(!w||!w.n)return null;let n=0;for(let i=Math.max(1,a);i<=Math.min(b,w.c.length);i++)if(isW(w.c[i-1]))n++;return n}
 function frac(v,a,b){if(b<a)return 0;const w=wdc(v);if(!w||!w.n)return(b-a+1)/(snap.dias||30);return wdIn(v,a,b)/w.n}
 function restW(v){const w=wdc(v);if(!w||!w.n)return null;return wdIn(v,diaEf()+1,snap.dias||30)}
-function frV(v){const w=wdc(v);if(!w||!w.n)return fr0();let e=wdIn(v,1,diaEf());if(snap.liveHoje){const t=new Date().getDate();if(isW(w.c[t-1]||""))e+=hojeFrac()}return Math.max(e,.0001)/w.n}
+function frV(v){const w=wdc(v);if(!w||!w.n)return fr0();let e=wdIn(v,1,diaEf());if(snap.liveHoje){const t=new Date().getDate();if(isW(w.c[t-1]||""))e+=hojeFrac()}v.poucos=e<4&&(e===0||diaEf()>=8);return Math.max(e,v.poucos?4:.0001)/w.n}
 function objDia(v,k,d){const o=v.k[k];if(!o||!o.obj)return 0;const w=wdc(v);if(!w||!w.n)return o.obj/(snap.dias||30);return isW(w.c[d-1]||"")?o.obj/w.n:0}
 function setFr(){if(!snap)return;for(const v of snap.vendedores){const f=frV(v);for(const k in v.k)if(v.k[k]&&typeof v.k[k]==="object")v.k[k].fr=f}}
 function buildRel(o){const{vend,store,RT,npsL,mon,last,dias,unk,miss}=o,r=[],ok=t=>r.push(["ok",t]),av=t=>r.push(["av",t]);
@@ -351,19 +370,23 @@ function cenv(){const V=snap.vendedores,L=V.map(v=>({v,c:cenV(v)}));if(!L.some(x
  let h=`<h2>Cenários de fecho <span class="mut">· ${esc(snap.mes)}</span></h2><div class="g">${SC.map(([w,n])=>{const t=tot(w);return `<div class="card"><div class="mut">${n.toUpperCase()}</div><div class="big">${eu(t.cash)}</div><div class="mut">cash estimado da loja</div><div style="margin-top:4px">TV ${pc(t.tv)} · Energia ${pc(t.en)}</div>${t.sem?`<div class="crit">${t.sem} sem cash (TV abaixo de 70%)</div>`:""}</div>`}).join("")}</div>`;
  h+='<div class="card sc" style="margin-top:10px"><table><tr><th>Lojista</th><th>Dias de trabalho que faltam</th>'+SC.map(([w,n])=>`<th>${n}<div class="mut" style="font-weight:400">TV / Energia · cash</div></th>`).join("")+"</tr>"+L.map(x=>`<tr><td><b>${esc(x.v.nome)}</b></td><td>${x.c?x.c.rem:"–"}</td>${SC.map(([w])=>{const c=get(x,w);return `<td class="${c.gate?"crit":c.fin>=0&&c.tvP>=1&&c.enP>=1?"forte":""}">${pc(c.tvP)} / ${pc(c.enP)} · ${c.gate?"SEM CASH":eu(c.fin)}</td>`}).join("")}</tr>`).join("")+"</table></div>";
  return h+'<div class="mut" style="margin-top:6px">Cenários a partir do ritmo por dia de trabalho de cada lojista: esperado = ritmo médio do mês; pior e melhor = pior e melhor semana completa (se houver menos de 2 semanas, 70% e 130% do ritmo). Cash após penalizações e NPS, como no Resumo loja.</div>'}
-function avLinhas(v){const mes=String(snap.mes).split(" ")[0],f=v.av&&v.av.f!=null?v.av.f:null,ps=pst(v),F=x=>x.toFixed(2).replace(".",","),L2={"Facturação":"Faturação","Refid's":"Refid’s"},
- P=k=>{const o=v.k[k];return o&&o.obj?pfo(o):null},U=k=>{const o=v.k[k];return o&&o.obj?" ("+nf(o.real,k)+" de "+nf(o.obj,k)+")":""},tcoF=v.tco!=null?v.tco/frV(v):null,st=[],wk=[];
- for(const[k,w]of[["TV",3],["Meo Energia",3],["PPP",1],["Refid's",1],["Facturação",1]]){const o=v.k[k];if(!o||!o.obj)continue;const p=pfo(o),n=Math.max(0,Math.ceil(o.obj-o.real)),nm=L2[k]||k;
-  if(p>=1)st.push({w:w+(p-1),t:`${nm} a ${pc(p)} do objetivo`});else wk.push({w:w*(1-p)+(w>1?1.5:0)+((k==="TV"||RG().enGate&&k==="Meo Energia")&&p<.7?2:0),n:nm,t:`${nm} a ${pc(p)} (${nf(n,k)} em falta)${(k==="TV"||RG().enGate&&k==="Meo Energia")&&p<.7?", com o variável anulado":""}`})}
- const nn=v.k.NPS&&v.k.NPS.real!=null?v.k.NPS.real:null;if(nn!=null){if(nn>=RG().hi)st.push({w:2,t:`NPS de ${pc(nn)}`});else wk.push({w:1.5+(nn<RG().lo?1:0),n:"NPS",t:`NPS de ${pc(nn)} (${ps.q[1]})`})}
- if(ps.d[0]==="crit")wk.push({w:1,n:"Diversidade",t:`Diversidade a ${pc(v.div)} (mínimo 160%)`});if(ps.g[0]==="crit")wk.push({w:1,n:"Seguros",t:`Seguros a ${ps.p1(v.seg)} (mínimo 15%)`});
- const nsn=v.av&&v.av.n["Net Segura"];if(nsn!=null){if(nsn>=4)st.push({w:.8,t:`Net Segura com nota ${nsn}`});else if(nsn<=1)wk.push({w:.8,n:"Net Segura",t:`Net Segura com nota ${nsn}`})}
- if(tcoF!=null&&tcoF>=1.1)st.push({w:2,t:`TCO de ${pc(tcoF)}`});
- st.sort((a,b)=>b.w-a.w);wk.sort((a,b)=>b.w-a.w);const fo=wk.slice(0,2).map(x=>x.n).join(" e ");
- return[`${mes}: TCO ${pc(tcoF)}, TV ${pc(P("TV"))}${U("TV")} e Meo Energia ${pc(P("Meo Energia"))}${U("Meo Energia")}.${f!=null?" Avaliação "+F(f)+"/5.":""}`,
-  st.length?`Pontos fortes: ${st.slice(0,2).map(x=>x.t).join("; ")}.`:"Sem pontos fortes claros neste mês.",
-  wk.length?`A melhorar: ${wk.slice(0,3).map(x=>x.t).join("; ")}.`:"Sem pontos fracos relevantes neste mês.",
-  f!=null&&f<2.5?`Nota abaixo do mínimo de 2,5: aplica-se plano de desenvolvimento individual${fo?", com foco em "+fo:""}.`:f!=null?`Nota acima do mínimo de 2,5. Foco no próximo mês: ${fo||"manter o ritmo"}.`:`Sem nota na folha de avaliação. Foco no próximo mês: ${fo||"manter o ritmo"}.`]}
+const FEM_N=new Set(["rodolfo","adriano","julio","pedro","tiago"]);
+function avGen(v){const g=CFG.genero&&CFG.genero[v.nome],pn=String(v.nome).split(" ")[0].toLowerCase();return g?g==="m":FEM_N.has(pn)}
+function avLinhas(v){const f=v.av&&v.av.f!=null?v.av.f:null,ps=pst(v),m=avGen(v),AN={"TV":"TV","Meo Energia":"MEO Energia","PPP":"PPP","Refid's":"refidelizações","Facturação":"faturação"},st=[],wk=[],gate=k=>k==="TV"||RG().enGate&&k==="Meo Energia";
+ for(const[k,w]of[["TV",3],["Meo Energia",3],["PPP",1],["Refid's",1],["Facturação",1]]){const o=v.k[k];if(!o||!o.obj)continue;const p=pfo(o);if(p>=1)st.push({w:w+(p-1),n:AN[k]});else wk.push({w:w*(1-p)+(w>1?1.5:0)+(gate(k)&&p<.7?2:0),n:AN[k],g:gate(k)&&p<.7})}
+ const nn=v.k.NPS&&v.k.NPS.real!=null?v.k.NPS.real:null;if(nn!=null){if(nn>=RG().hi)st.push({w:2,n:"NPS"});else wk.push({w:1.5+(nn<RG().lo?1:0),n:"NPS"})}
+ if(ps.d[0]==="crit")wk.push({w:1,n:"Diversidade"});if(ps.g[0]==="crit")wk.push({w:1,n:"Seguros"});
+ const nsn=v.av&&v.av.n["Net Segura"];if(nsn!=null){if(nsn>=4)st.push({w:.8,n:"Net Segura"});else if(nsn<=1)wk.push({w:.8,n:"Net Segura"})}
+ const tcoF=v.tco!=null?v.tco/frV(v):null;if(tcoF!=null&&tcoF>=1.1)st.push({w:2,n:"TCO"});
+ st.sort((a,b)=>b.w-a.w);wk.sort((a,b)=>b.w-a.w);
+ const J=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" e "+a[a.length-1],S=st.slice(0,3).map(x=>x.n),W=wk.slice(0,3).map(x=>x.n),A=m?"O colaborador":"A colaboradora",o=m?"o":"a";
+ let t1;if(st.length>=3)t1=`${A} demonstra consistência nos resultados alcançados ao longo do mês, destacando-se especialmente no desempenho em ${J(S)}. Mantém uma boa capacidade de concretização dos objetivos nestas áreas e contribui positivamente para os resultados da equipa.`;
+ else if(st.length)t1=`${A} apresenta resultados positivos ao longo do mês, destacando-se no desempenho em ${J(S)}, onde cumpre os objetivos e contribui para os resultados da equipa.`;
+ else t1=`${A} teve um mês abaixo do esperado, sem conseguir atingir os objetivos nas principais áreas, o que limita a sua contribuição para os resultados da equipa.`;
+ let t2;if(W.length){const g=wk.some(x=>x.g);t2=`Como oportunidade de desenvolvimento, deverá reforçar a atenção dada a ${J(W)}, procurando uma abordagem mais consistente ${W.length>1?"nestes temas":"neste tema"} para alcançar um desempenho ainda mais completo e equilibrado.`+(g?" É prioritário recuperar os produtos core, dado o impacto direto na remuneração variável.":"")}
+ else t2="Como foco para o próximo mês, deverá manter o ritmo e a consistência alcançados, procurando superar os objetivos de forma equilibrada em todos os indicadores.";
+ const L=[t1,t2];if(f!=null&&f<2.5)L.push(`A nota da avaliação (${f.toFixed(2).replace(".",",")}/5) fica abaixo do mínimo de 2,5, pelo que será definido um plano de desenvolvimento individual${W.length?", com foco em "+J(W.slice(0,2)):""}.`);
+ return[L.join(" ")]}
 async function avSet(key,patch){AVS=Object.assign({},AVS,{[key]:Object.assign({},AVS[key]||{},patch)});try{await chk(sb.from("snap").upsert({id:"avals",data:AVS}))}catch(e){msg="Não foi possível guardar a avaliação."}avE="";render()}
 function avSave(key){const el=document.getElementById("avt"),t=el?el.value.trim():"";return avSet(key,{t:t||null})}
 async function avCopy(i){const t=i<0?AVL.join("\n\n"):AVL[i];try{await navigator.clipboard.writeText(t);msg="texto copiado"}catch(e){prompt("Copia o texto:",t)}render()}
@@ -413,7 +436,9 @@ function grafv(){const V=snap.vendedores,dias=snap.dias||30,dia=Math.min(snap.di
  <div class="g2"><div class="card"><div class="mut">${lab(k).toUpperCase()} POR DIA</div>${sCols(daily.filter(x=>x!=null),dia?tot/dia:0,col)}</div><div class="card"><div class="mut">SEMANA A SEMANA · % DA META</div>${sHBar(wr,[{v:1,c:"#22c55e",t:"100%"}])}</div></div>
  <div class="g2"><div class="card"><div class="mut">RANKING DOS LOJISTAS · % DO OBJETIVO DE ${lab(k).toUpperCase()} (PREVISÃO)</div>${sHBar(rk,refs)}</div><div class="card"><div class="mut">QUEM VENDE O QUÊ · ${lab(k).toUpperCase()}</div>${sDonut(V.map((v,i)=>({n:v.nome,v:Math.max(0,(v.k[k]||{}).real||0),c:GP[i%GP.length]})))}</div></div>
  <div class="card" style="margin-top:10px"><div class="mut">TCO POR LOJISTA (PREVISÃO)</div>${sHBar(tc,refs)}</div>`}
-function setTema(t){try{document.documentElement.dataset.tema=t;localStorage.setItem("tema",t)}catch(e){}document.querySelectorAll(".tdot").forEach(b=>b.classList.toggle("on",b.dataset.t===t))}
+function animMain(){const m=document.getElementById("main");if(!m)return;m.classList.remove("in");void m.offsetWidth;m.classList.add("in")}
+function setNav(c){document.documentElement.dataset.nav=c;try{localStorage.setItem("nav",c)}catch(e){}const b=document.querySelector("#navt");if(b){b.querySelector("i").textContent=c==="c"?"»":"«";b.querySelector(".nt").textContent="Encolher"}}
+function setTema(t){try{document.documentElement.dataset.tema=t;localStorage.setItem("tema",t);if(!localStorage.getItem("navuser"))setNav(t==="claro"?"c":"e")}catch(e){}document.querySelectorAll(".tdot").forEach(b=>b.classList.toggle("on",b.dataset.t===t))}
 function pst(v){const S=snap.store,sd=S.Diversos&&S.Diversos.pf,ss=S.Seguros&&S.Seguros.pf,goe=v.funcao==="GOE",n=v.k.NPS,p1=x=>(x*100).toFixed(1).replace(".",",")+"%",list=[];
  const d=goe?["mut","Isento (GOE)"]:sd>=1.6?["forte","OK (a loja cumpre)"]:v.div==null?["mut","–"]:v.div>=1.6?["forte","OK"]:["crit","−10%"];
  const g=goe?["mut","Isento (GOE)"]:ss>=.15?["forte","OK (a loja cumpre)"]:v.seg==null?["mut","–"]:v.seg>=.15?["forte","OK"]:["crit","−10%"];
@@ -455,7 +480,48 @@ function semanal(){
  const pl=L.filter(l=>precisa(l.v).any);h+='<h2>Quem precisa de apoio esta semana</h2><select onchange="pf=this.value;render()" style="width:auto;margin-bottom:6px"><option value="">Todos</option>'+pl.map(l=>`<option ${l.v.nome===pf?"selected":""}>${esc(l.v.nome)}</option>`).join("")+'</select>'+(pl.length?"":'<div class="card forte">Nenhum lojista com previsão abaixo de 100% em TV, Meo Energia ou TCO.</div>');
  const tg=l=>{const p=precisa(l.v),t=[];if(p.tv)t.push(`<span class="crit">TV prev. ${pc(pfo(l.v.k.TV))}</span>`);if(p.en)t.push(`<span class="crit">Energia prev. ${pc(pfo(l.v.k["Meo Energia"]))}</span>`);if(p.tco)t.push(`<span class="fraco">TCO prev. ${pc(l.v.tco/frV(l.v))}</span>`);if(p.av)t.push(`<span class="crit">Avaliação ${l.v.av.f.toFixed(2).replace(".",",")}/5</span>`);return t.join(" · ")};
  h+='<div class="g" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">'+pl.filter(l=>!pf||l.v.nome===pf).map(l=>`<details class="card"><summary><b>${esc(l.v.nome)}</b><div>${tg(l)}</div></summary>${plano(l.v,1)}</details>`).join("")+"</div>";
- return h;}
+ return h+psSec(i,W);}
+
+let oK="TV",PSL=[];
+function wkData(v,k,i,W){const dias=snap.dias||30,dia=snap.dia||dias,[a,bb]=W[i],b=Math.min(bb,dia),o=(v.k[k]||{}).obj||0,sm=(x,y)=>v.d&&v.d[k]?v.d[k].slice(x-1,y).reduce((s,z)=>s+z,0):0;return{a,bb,b,meta:o*frac(v,a,bb),metaB:o*frac(v,a,Math.max(a,b)),fe:b>=a?sm(a,b):0,done:b>=bb,started:a<=dia}}
+function objv(){
+ const V=snap.vendedores,W=semanas(),dias=snap.dias||30,dia=snap.dia||dias,cl=p=>p==null?"":p>=1?"forte":p>=.7?"fraco":"crit";
+ let h=`<h2>Objetivos por semana <span class="mut">· ${esc(snap.mes)} · semanas reais (segunda a domingo), distribuídas pelos dias de trabalho de cada lojista</span></h2><div class="chips" style="padding-top:0">${KP.map(([k])=>`<button class="chip ${k===oK?"on":""}" onclick="oK='${k}';render()">${lab(k)}</button>`).join("")}</div>`;
+ const rows=V.map(v=>({v,ws:W.map((_,i)=>wkData(v,oK,i,W)),o:(v.k[oK]||{}).obj||0,r:(v.k[oK]||{}).real||0}));
+ h+='<div class="card sc"><table><tr><th>Lojista</th>'+W.map((w,i)=>`<th>S${i+1}<div class="mut" style="font-weight:400">${w[0]}–${w[1]}</div></th>`).join("")+'<th>Mês</th></tr>';
+ for(const r of rows){h+=`<tr><td><b>${esc(r.v.nome)}</b></td>`+r.ws.map(x=>{if(!r.o)return"<td>–</td>";const p=x.started&&x.metaB?x.fe/x.metaB:null;return `<td class="${x.started?cl(p):"mut"}">${x.started?nf(x.fe,oK)+" / ":""}<b>${nf(x.meta,oK)}</b></td>`}).join("")+`<td class="${cl(r.o?pfo(r.v.k[oK]):null)}">${nf(r.r,oK)} / <b>${nf(r.o,oK)}</b></td></tr>`}
+ const tot=W.map((_,i)=>rows.reduce((q,r)=>({m:q.m+r.ws[i].meta,f:q.f+r.ws[i].fe,s:q.s||r.ws[i].started}),{m:0,f:0,s:false}));
+ h+='<tr style="border-top:2px solid var(--bd)"><td><b>Loja</b></td>'+tot.map(t=>`<td>${t.s?nf(t.f,oK)+" / ":""}<b>${nf(t.m,oK)}</b></td>`).join("")+`<td><b>${nf(rows.reduce((q,r)=>q+r.r,0),oK)} / ${nf(rows.reduce((q,r)=>q+r.o,0),oK)}</b></td></tr></table></div>`;
+ return h+'<div class="mut" style="margin-top:6px">Cada célula mostra feito / meta da semana. A meta de cada semana é o objetivo do mês repartido pelos dias de trabalho do horário (férias e folgas não contam). Dias do horário por preencher contam como dias normais de segunda a sexta.</div>'}
+function psMsg(v,i,W){
+ const dias=snap.dias||30,dia=snap.dia||dias,[a,bb]=W[i],nx=W[i+1],first=String(v.nome).split(" ")[0],sg=x=>(x>=0?"+":"−")+nf(Math.abs(x)),core=["TV","Meo Energia"],L=[];
+ const D=core.map(k=>({k,...wkData(v,k,i,W),o:(v.k[k]||{}).obj||0,real:(v.k[k]||{}).real||0,nx:nx?((v.k[k]||{}).obj||0)*frac(v,nx[0],nx[1]):null})),Dk=D.filter(x=>x.o);
+ const nm=k=>k==="TV"?"TV":"Energia",fim=Math.min(bb,dia);
+ L.push(`Olá ${first}! Ponto de situação da semana ${i+1} (dias ${a} a ${bb} de ${snap.mes}).`,"");
+ const q=x=>String(Math.round(x.meta)),qb=x=>x.done?Math.round(x.meta):x.metaB,sem0=!Dk.some(x=>x.meta>.05);
+ L.push(sem0?"🎯 Esta semana não tinhas objetivo (folgas/férias no horário).":"🎯 Objetivo da semana: "+(Dk.map(x=>q(x)+" "+nm(x.k)).join(" e ")||"sem objetivo definido")+".");
+ if(a<=dia){L.push("✅ O que fizeste"+(fim<bb?` até ao dia ${fim}`:"")+": "+Dk.map(x=>`${nf(x.fe,x.k)} ${nm(x.k)}`).join(" e ")+".");
+  for(const x of Dk){if(sem0)continue;const mb=qb(x),d=x.fe-mb;L.push(`   • ${nm(x.k)}: ${nf(x.fe,x.k)} de ${nf(mb,x.k)} (${mb?pc(x.fe/mb):"–"}) · desvio ${sg(d)}${d>=0?" ✔":""}`)}}
+ L.push("");
+ const rest=restW(v),rd=rest==null?Math.max(1,dias-diaEf()):Math.max(rest,0);
+ L.push("📆 O mês até agora:");
+ for(const x of Dk){const o=v.k[x.k],p=pfo(o),f=Math.max(0,x.o-x.real);L.push(`   • ${nm(x.k)}: ${nf(x.real,x.k)} de ${nf(x.o,x.k)} · previsão de fecho ${pc(p)}${f>0?` · faltam ${nf(f,x.k)}${rd>0?` (≈ ${nf(f/rd,x.k)} por dia de trabalho, ${rd} dias)`:""}`:" · objetivo já cumprido 🎉"}`)}
+ const al=[],S=snap.store,sd=S.Diversos&&S.Diversos.pf,ss=S.Seguros&&S.Seguros.pf,goe=v.funcao==="GOE",R_=RG();
+ for(const x of Dk){const p=pfo(v.k[x.k]);if(x.k==="TV"&&p<.7)al.push("TV abaixo de 70% de previsão: anula o cash e toda a remuneração variável");else if(x.k==="Meo Energia"&&R_.enGate&&p<.7)al.push("Energia abaixo de 70% de previsão: anula o cash, como a TV");else if(p<1)al.push(`${nm(x.k)} abaixo de 100%: penalização de 10% no cash`)}
+ if(!goe&&!(sd>=1.6)&&v.div!=null&&v.div<1.6)al.push(`Diversidade em ${pc(v.div)} (mínimo 160%): −10%`);
+ if(!goe&&!(ss>=.15)&&v.seg!=null&&v.seg<.15)al.push(`Seguros em ${pc(v.seg)} (mínimo 15%): −10%`);
+ const n=v.k.NPS;if(n&&n.real!=null&&n.real<R_.lo)al.push(`NPS em ${pc(n.real)}: abaixo de ${pc(R_.lo)} penaliza 25 €`);
+ if(al.length){L.push("","⚠ Atenção:");al.forEach(t=>L.push("   • "+t))}
+ if(nx&&Dk.length){L.push("","➡ Próxima semana (dias "+nx[0]+" a "+nx[1]+"): "+Dk.map(x=>{const def=Math.max(0,x.o*frac(v,1,fim)-x.real);return `${x.done||true?(Math.round((x.nx+def)*10)/10).toString().replace(".",","):""} ${nm(x.k)}`+(def>.05?` (inclui ${nf(def,x.k)} em atraso)`:"")}).join(" e ")+".")}
+ else if(!nx&&Dk.length)L.push("","➡ Última semana do mês: foco em fechar o que falta.");
+ const win=Dk.filter(x=>qb(x)&&x.fe>=qb(x));
+ L.push("",win.length?`👏 Destaque: bom trabalho em ${win.map(x=>nm(x.k)).join(" e ")}! Vamos manter o ritmo.`:"💪 Vamos juntos: diz-me onde precisas de apoio que ajusto o plano contigo.");
+ return L.join("\n")}
+function psSec(i,W){
+ const V=snap.vendedores;PSL=V.map(v=>psMsg(v,i,W));
+ return `<h2>Ponto de situação semanal <span class="mut">· semana ${i+1} · para enviar a cada lojista</span></h2><div class="g" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">`+V.map((v,j)=>`<details class="card"><summary><b>${esc(v.nome)}</b></summary><textarea readonly rows="16" style="width:100%;box-sizing:border-box;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px;font:inherit;font-size:.9em">${esc(PSL[j])}</textarea><div style="display:flex;gap:8px;margin-top:6px"><button class="btn" onclick="psCopy(${j})">Copiar</button><button class="btn g2" onclick="psWa(${j})">WhatsApp</button></div></details>`).join("")+"</div>"}
+function psCopy(j){const t=PSL[j];try{navigator.clipboard.writeText(t);msg="mensagem copiada"}catch(e){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}}
+function psWa(j){window.open("https://wa.me/?text="+encodeURIComponent(PSL[j]),"_blank")}
 function pen(){
  const S=snap.store,sd=S.Diversos&&S.Diversos.pf,ss=S.Seguros&&S.Seguros.pf,pp=x=>Math.round(x*100)+"%";
  const R=snap.vendedores.map(v=>{const goe=v.funcao==="GOE",tv=v.k.TV,en=v.k["Meo Energia"],ns=v.k["Net Segura"];
@@ -513,7 +579,8 @@ function evol(v){
   TR=t<=-.1?"a piorar":"";
   h+=`<div class="mut" style="margin-top:6px">Cada célula: real / esperado na semana (objetivo mensal repartido pelos dias) · %. Melhor semana: dias ${best.a}–${best.b} (${pc(best.s)}); pior: ${worst.a}–${worst.b} (${pc(worst.s)}). Última semana completa vs anterior: <b class="${t>=.1?"forte":t<=-.1?"crit":"fraco"}">${t>=.1?"a melhorar":t<=-.1?"a piorar":"estável"}</b> (${pc(p)} → ${pc(l)}).</div>`}
  return h;}
-function colab(v){
+function colab(v){return (v.poucos?'<div class="card" style="border-left:4px solid var(--warn);margin-bottom:8px">⚠ Poucos dias de trabalho registados neste mês (férias ou horário por preencher). A previsão usa um mínimo de 4 dias e deve ser lida com cuidado.</div>':"")+colab0(v)}
+function colab0(v){
   const a=ana(v,snap.vendedores),fr=a.filter(x=>x.s==="fraco"||x.s==="crit").sort((x,y)=>y.gap-x.gap),fo=a.filter(x=>x.s==="forte");
   const my=notes.filter(n=>n.nome===v.nome);
   const dia=snap.dia||snap.dias,rest=Math.max(0,snap.dias-diaEf()),foco=fr.filter(x=>["TV","Meo Energia","Div","Seg","NPS"].includes(x.k)).slice(0,3).map(x=>nm(x.k)).join(" · ")||"Manter o ritmo";
@@ -538,10 +605,11 @@ function render(){
   {const ids=[...new Set(H.map(x=>x.id).concat(CUR?[ymid(CUR)]:[]))].sort().reverse(),cu=CUR?ymid(CUR):"";$("msel").innerHTML=ids.map(i=>{const q=i===cu?CUR:(H.find(x=>x.id===i)||{}).s;return `<option value="${i}" ${(mid||cu)===i?"selected":""}>${esc(q?q.mes:i)}</option>`}).join("");$("msel").hidden=false}
   $("nav").hidden=false;document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
   $("chips").innerHTML=view==="colab"?`<select onchange="sel=this.value;wk=null;render()" style="width:auto;margin:6px 0">${snap.vendedores.map(v=>`<option ${v.nome===sel?"selected":""}>${esc(v.nome)}</option>`).join("")}</select>`:"";
-  const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=stale()+avBanner()+(view==="colab"&&v?colab(v):view==="diaria"?resumo():view==="graf"?grafv():view==="aval"?avalv():view==="cen"?cenv():view==="fecho"?fechov():view==="hor"?horv():view==="hist"?histv():view==="semanal"?semanal():view==="apoio"?apoio():loja());
+  const v=snap.vendedores.find(x=>x.nome===sel);$("main").innerHTML=stale()+avBanner()+(view==="colab"&&v?colab(v):view==="diaria"?resumo():view==="obj"?objv():view==="graf"?grafv():view==="aval"?avalv():view==="cen"?cenv():view==="fecho"?fechov():view==="hor"?horv():view==="hist"?histv():view==="semanal"?semanal():view==="apoio"?apoio():loja());
   if(view==="geral")document.querySelectorAll("#main tbody tr td:first-child b").forEach(b=>{b.style.cursor="pointer";b.onclick=()=>{sel=b.textContent;view="colab";render()}});}
 document.addEventListener("click",async e=>{
-  const t=e.target;const nb=t.closest&&t.closest("#nav button");if(nb&&nb.dataset.v){view=nb.dataset.v;render();return}
+  const t=e.target;const nb=t.closest&&t.closest("#nav button");if(nb&&nb.dataset.v){view=nb.dataset.v;render();animMain();return}
+  const nt=t.closest&&t.closest("#navt");if(nt){setNav(document.documentElement.dataset.nav==="c"?"e":"c");try{localStorage.setItem("navuser","1")}catch(e){}return}
   if(t.dataset&&t.dataset.t){setTema(t.dataset.t);return}
   if(t.dataset&&t.dataset.s!==undefined&&t.classList.contains("chip")){sel=t.dataset.s;wk=null;render()}
   if(t.id==="na"){const tx=$("nx").value.trim();if(!tx)return;try{await db.collection("notes").add({nome:sel,tipo:$("nt").value,texto:tx,ts:Date.now()})}catch(err){msg="Não foi possível guardar."}}
@@ -595,10 +663,10 @@ const loadNotes=async()=>{const{data}=await sb.from("notes").select("*");L.notes
 const loadHist=async()=>{const{data}=await sb.from("snap").select("id,data").like("id","m%");H=(data||[]).map(r=>({id:r.id,s:r.data})).sort((a,b)=>a.id<b.id?-1:1)};
 const loadLive=async()=>{try{const t=new Date(),p=t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-01",{data,error}=await sb.from("live").select("*").gte("dia",p).order("ts");if(error)throw error;LIVE=data||[];LIVE_OK=true}catch(e){LIVE=[];LIVE_OK=false}};
 const refreshLive=async()=>{await loadLive();const k=[dd,sw];useSnap();dd=k[0];sw=k[1];render()};
-const loadCfg=async()=>{const{data}=await sb.from("snap").select("data").eq("id","config").maybeSingle();if(data&&data.data&&data.data.loja)CFG=data.data};
+const loadCfg=async()=>{const{data}=await sb.from("snap").select("data").eq("id","config").maybeSingle();if(data&&data.data&&data.data.loja)CFG=data.data;useSnap&&snap&&(hStrip(),useSnap())};
 const loadAco=async()=>{const{data}=await sb.from("snap").select("data").eq("id","acoes").maybeSingle();ACO=data&&data.data?data.data:{}};
 const loadAvs=async()=>{const{data}=await sb.from("snap").select("data").eq("id","avals").maybeSingle();AVS=data&&data.data?data.data:{}};
-const loadHor=async()=>{const{data}=await sb.from("snap").select("data").eq("id","horario").maybeSingle();HOR=data?data.data:null};const saveHor=async()=>{HOR.at=Date.now();await chk(sb.from("snap").upsert({id:"horario",data:HOR}))};
+const loadHor=async()=>{const{data}=await sb.from("snap").select("data").eq("id","horario").maybeSingle();HOR=data?data.data:null;hStrip()};const saveHor=async()=>{HOR.at=Date.now();await chk(sb.from("snap").upsert({id:"horario",data:HOR}))};
 const chk=async p=>{const{error}=await p;if(error)throw error};
 const mk=()=>({
  doc:()=>({set:async d=>{await chk(sb.from("snap").upsert({id:"current",data:d}));await loadSnap()},onSnapshot:cb=>{L.snap.push(cb);loadSnap()}}),
@@ -615,10 +683,10 @@ $("fb").onchange=async e=>{const fl=e.target.files[0];if(!fl)return;
    await loadSnap();await loadNotes();await loadHist();await loadHor();await loadLive();useSnap();msg="cópia restaurada"}catch(err){msg=err.message==="cancelado"?"":"Erro ao restaurar: "+(err.message||err)}e.target.value="";render()};
 $("fh").onchange=async e=>{const fl=e.target.files[0];if(!fl)return;
   try{const wb=XLSX.read(await fl.arrayBuffer(),{type:"array",cellDates:true,cellFormula:false,cellStyles:false}),nw=parseHor(wb),k=Object.keys(nw);if(!k.length)throw new Error("não encontrei folhas com nomes de meses");
-   HOR={meses:Object.assign({},HOR&&HOR.meses,nw),at:Date.now()};const cm=MNL[new Date().getMonth()];hm=k.includes(cm)?cm:k[0];hsel=null;await saveHor();msg="horário carregado ("+k.length+" meses)"}catch(err){msg="Erro a ler o horário: "+(err.message||err)}
+   HOR={meses:Object.assign({},HOR&&HOR.meses,nw),at:Date.now()};hStrip();const cm=MNL[new Date().getMonth()];hm=k.includes(cm)?cm:k[0];hsel=null;await saveHor();msg="horário carregado ("+k.length+" meses)"}catch(err){msg="Erro a ler o horário: "+(err.message||err)}
   e.target.value="";render()};
 setInterval(()=>{if(db&&view==="diaria"&&!(document.activeElement&&document.activeElement.tagName==="SELECT"))refreshLive()},20000);
-try{setTema(localStorage.getItem("tema")||"azul")}catch(e){}
+try{let tt=localStorage.getItem("tema")||"azul";if(tt==="lilas")tt="claro";if(tt==="grafite")tt="vidro";const nu=localStorage.getItem("nav");setTema(tt);if(nu&&localStorage.getItem("navuser"))setNav(nu)}catch(e){}
 window.addEventListener("beforeprint",()=>document.querySelectorAll("details").forEach(d=>d.open=true));
 (async()=>{const{data}=await sb.auth.getSession();if(data.session)entrar();else login()})();
 </script></body></html>
