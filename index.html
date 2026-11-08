@@ -50,7 +50,7 @@ html[data-nav="c"] nav{width:64px;margin:12px 0 12px 12px;border-radius:30px;bor
 html[data-nav="c"] nav b{display:none}html[data-nav="c"] nav button{width:44px;height:44px;padding:0;text-align:center;border-radius:50%;font-size:18px}html[data-nav="c"] nav .nt{display:none}
 @media(max-width:760px){html[data-nav="c"] nav,html[data-nav="e"] nav{width:auto;height:auto;flex-direction:row;border-radius:24px;margin:8px;position:static;overflow-x:auto;padding:8px 10px}#navt{display:none}}
 
-/*navctl*/html[data-nav="e"]:has(.nctl) nav{width:250px}.nrow>button{min-width:0;overflow:hidden;text-overflow:ellipsis}.nrow{display:flex;align-items:center;gap:2px}.nrow>button{flex:1}.nrow.nhid>button{opacity:.4}.nctl{display:flex;gap:2px;flex:none}.nctl a{cursor:pointer;padding:4px 5px;border-radius:6px;font-size:.8em;background:rgba(255,255,255,.12);color:inherit;user-select:none}.nctl a:hover{background:rgba(255,255,255,.3)}#nave{margin-top:auto;opacity:.8}#nave+#navt{margin-top:0}
+/*navctl*/.ndrag{cursor:grab;touch-action:none;padding:6px 6px;font-size:1.1em;opacity:.7;user-select:none;flex:none}.nrow.ndragging{opacity:.75;background:rgba(255,255,255,.18);border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.35)}html[data-nav="e"]:has(.nctl) nav{width:250px}.nrow>button{min-width:0;overflow:hidden;text-overflow:ellipsis}.nrow{display:flex;align-items:center;gap:2px}.nrow>button{flex:1}.nrow.nhid>button{opacity:.4}.nctl{display:flex;gap:2px;flex:none}.nctl a{cursor:pointer;padding:4px 5px;border-radius:6px;font-size:.8em;background:rgba(255,255,255,.12);color:inherit;user-select:none}.nctl a:hover{background:rgba(255,255,255,.3)}#nave{margin-top:auto;opacity:.8}#nave+#navt{margin-top:0}
 html[data-nav="c"] .nctl{display:none}html[data-nav="c"] .nrow{justify-content:center}
 @keyframes rise{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.28) rotate(-6deg)}100%{transform:scale(1)}}
@@ -564,10 +564,16 @@ const NAVI0=[["geral","▦","Resumo loja"],["diaria","◷","Vendas diárias"],["
 let navEd=false;
 function menuCfg(){const m=CFG.menu||{},o=(m.o||[]).filter(k=>NAVI.some(x=>x[0]===k));NAVI.forEach(x=>{if(!o.includes(x[0]))o.push(x[0])});return{o,h:m.h||[]}}
 function buildNav(){const n=document.getElementById("nav");if(!n)return;const nv=document.getElementById("nvn"),t=nv?nv.textContent:"TIPO LOJA",{o,h}=menuCfg();
- let x=`<b id="nvn">${esc(t)}</b>`;o.forEach((k,i)=>{const it=NAVI.find(z=>z[0]===k),hid=h.includes(k);if(hid&&!navEd)return;x+=`<div class="nrow ${hid?"nhid":""}"><button data-v="${k}" title="${it[2]}"><i>${it[1]}</i><span class="nt">${it[2]}</span></button>${navEd?`<span class="nctl"><a data-nm="${i}" data-d="-1">▲</a><a data-nm="${i}" data-d="1">▼</a><a data-nh="${k}">${hid?"👁":"🚫"}</a></span>`:""}</div>`});
+ let x=`<b id="nvn">${esc(t)}</b>`;o.forEach((k,i)=>{const it=NAVI.find(z=>z[0]===k),hid=h.includes(k);if(hid&&!navEd)return;x+=`<div class="nrow ${hid?"nhid":""}" data-k="${k}">${navEd?`<a class="ndrag" data-ng="${k}" title="Arrasta para mudar de lugar">⠿</a>`:""}<button data-v="${k}" title="${it[2]}"><i>${it[1]}</i><span class="nt">${it[2]}</span></button>${navEd?`<span class="nctl"><a data-nh="${k}" title="${hid?"Mostrar":"Esconder"}">${hid?"👁":"🚫"}</a></span>`:""}</div>`});
  x+=`${navEd?`<button id="navaz" title="Ordem alfabética"><i>🔤</i><span class="nt">Ordenar A–Z</span></button>`:""}<button id="nave" title="Personalizar o menu"><i>${navEd?"✔":"⚙"}</i><span class="nt">${navEd?"Concluir":"Personalizar"}</span></button><button id="navt" title="Expandir/encolher menu"><i>${document.documentElement.dataset.nav==="c"?"»":"«"}</i><span class="nt">Encolher</span></button>`;n.innerHTML=x;
  const a=GRP[view]||view;n.querySelectorAll("button[data-v]").forEach(b=>b.classList.toggle("on",b.dataset.v===a))}
 function tabsFor(v){const g=GRP[v]||v,T=TABS[g];return T?`<div class="chips" style="padding:0 0 8px">${T.map(([k,l])=>`<button class="chip ${k===v?"on":""}" onclick="view='${k}';render();animMain()">${l}</button>`).join("")}</div>`:""}
+
+let navPrev=null,dragK=null;
+document.addEventListener("pointerdown",e=>{const g=e.target.closest&&e.target.closest(".ndrag");if(!g)return;e.preventDefault();dragK=g.dataset.ng;const row=g.closest(".nrow");row.classList.add("ndragging");
+ const mv=ev=>{const n=document.getElementById("nav"),el=document.elementFromPoint(ev.clientX,ev.clientY),r=el&&el.closest&&el.closest(".nrow");if(!r||r===row||!n.contains(r))return;const rb=r.getBoundingClientRect(),after=ev.clientY>rb.top+rb.height/2;n.insertBefore(row,after?r.nextSibling:r)},
+ up=()=>{removeEventListener("pointermove",mv);removeEventListener("pointerup",up);removeEventListener("pointercancel",up);row.classList.remove("ndragging");const o=[...document.querySelectorAll("#nav .nrow")].map(x=>x.dataset.k),{h}=menuCfg();dragK=null;saveCfg({menu:{o,h}});buildNav()};
+ addEventListener("pointermove",mv);addEventListener("pointerup",up);addEventListener("pointercancel",up)});
 function navAZ(){const{h}=menuCfg();saveCfg({menu:{o:NAVI.map(x=>x[0]),h}});buildNav()}
 function navMove(i,d){const{o,h}=menuCfg(),j=i+d;if(j<0||j>=o.length)return;[o[i],o[j]]=[o[j],o[i]];saveCfg({menu:{o,h}});buildNav()}
 function navHide(k){const{o,h}=menuCfg(),n=h.includes(k)?h.filter(x=>x!==k):h.concat(k);if(n.length>=o.length)return;saveCfg({menu:{o,h:n}});buildNav()}
@@ -659,7 +665,7 @@ function render(){
 document.addEventListener("click",async e=>{
   const t=e.target;const nb=t.closest&&t.closest("#nav button");if(nb&&nb.dataset.v){view=nb.dataset.v;render();animMain();return}
   if(t.closest&&t.closest("#navaz")){navAZ();return}
-  const ne=t.closest&&t.closest("#nave");if(ne){navEd=!navEd;buildNav();return}
+  const ne=t.closest&&t.closest("#nave");if(ne){navEd=!navEd;if(navEd){navPrev=document.documentElement.dataset.nav;if(navPrev==="c")document.documentElement.dataset.nav="e"}else if(navPrev==="c")document.documentElement.dataset.nav="c";buildNav();return}
   const nm=t.dataset&&t.dataset.nm;if(nm!==undefined){navMove(+nm,+t.dataset.d);return}if(t.dataset&&t.dataset.nh){navHide(t.dataset.nh);return}
   const nt=t.closest&&t.closest("#navt");if(nt){setNav(document.documentElement.dataset.nav==="c"?"e":"c");try{localStorage.setItem("navuser","1")}catch(e){}return}
   if(t.dataset&&t.dataset.t){setTema(t.dataset.t);return}
