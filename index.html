@@ -216,7 +216,7 @@ function km(k,o,r,p,pf,fd,t,f,ft){const c=CK[k]||"var(--ac)",F=f||(n=>nf(n,k));r
 function resumo(){
  const dias=snap.dias||30,V=dv?snap.vendedores.filter(x=>x.nome===dv):snap.vendedores;let d=Math.min(Math.max(1,dd||(snap.live&&snap.live.dia)||snap.dia||dias),dias);
  const SK={"Facturação":"Faturação","Refid's":"Refidelizações"},C={"TV":"#3b82f6","PPP":"#a855f7","Meo Energia":"#f5b301","Refid's":"#14b8a6","Facturação":"#4ade80"},S={},O={},T={};
- for(const[k]of KP){S[k]=Array(dias).fill(0);for(const v of V)if(v.d&&v.d[k])v.d[k].forEach((x,i)=>{if(i<dias)S[k][i]+=x});T[k]=dv&&V[0]?(V[0].k[k]||{}).obj||0:(snap.store[SK[k]||k]||{}).obj||0;O[k]=V.reduce((a,v)=>a+objDia(v,k,d),0)}
+ for(const[k]of KP){S[k]=Array(dias).fill(0);for(const v of V)if(v.d&&v.d[k])v.d[k].forEach((x,i)=>{if(i<dias)S[k][i]+=x});if(!dv&&snap.ind&&snap.ind[k])snap.ind[k].forEach((x,i)=>{if(i<dias)S[k][i]+=x});T[k]=dv&&V[0]?(V[0].k[k]||{}).obj||0:(snap.store[SK[k]||k]||{}).obj||0;O[k]=V.reduce((a,v)=>a+objDia(v,k,d),0)}
  const pr=(k,i)=>O[k]&&i>=0?S[k][i]/O[k]:null,sm=(k,n)=>S[k].slice(0,n).reduce((a,b)=>a+b,0),pv=k=>T[k]?sm(k,d)/T[k]/(d/dias):0;
  let ts=0,tw=0;for(const[k,w]of KP){const p=pr(k,d-1);if(p!=null){ts+=w*Math.min(p,1.5);tw+=w}}
  const cz=tw?ts/tw:0,st=cz>=1?["No rumo certo","#22c55e"]:cz>=.7?["Atenção","#f5b301"]:["Em risco","#ef4444"];
@@ -427,7 +427,7 @@ function buildRel(o){const{vend,store,RT,npsL,mon,last,dias,unk,miss}=o,r=[],ok=
   if(RT&&RT.n&&Object.keys(RT.n).length&&!RT.n[v.funcao])av(`${v.nome}: a função "${v.funcao}" não existe na folha €crédito.`);if(!v.k.NPS||v.k.NPS.real==null)av(`${v.nome}: sem NPS.`)});
  if(!RT||!RT.n||!Object.keys(RT.n).length)av("Tabelas de €/crédito não lidas (folha €crédito): o cash usa o valor do Excel.");
  if(npsL==null)av("NPS da loja (folha Cash, F37) não encontrado: usa-se a média dos lojistas.");else ok(`NPS da loja: ${Math.round(npsL*100)}% (Cash, F37).`);
- Object.entries(unk).forEach(([q,c])=>av(`Vendas de "${q}" (${c} linhas) ignoradas: nome não reconhecido.`));
+ Object.entries(unk).forEach(([q,c])=>ok(`${c} linhas de "${q}" (sem lojista) somadas ao total da loja.`));
  for(const k of ["TV","Meo Energia"]){const t=store[k]&&store[k].obj,s=vend.reduce((a,v)=>a+((v.k[k]||{}).obj||0),0);if(t&&Math.abs(t-s)>1)av(`${k}: o objetivo da loja (${Math.round(t)}) difere da soma dos lojistas (${Math.round(s)}).`)}
  return r}
 function relCard(){const r=snap.rel;if(!r)return"";const a=r.filter(x=>x[0]==="av"),o=r.filter(x=>x[0]==="ok");return `<details class="card" style="margin-bottom:8px;${a.length?"border-color:var(--warn)":""}"><summary>Leitura do Excel: ${a.length?a.length+" aviso(s)":"tudo OK"}</summary>${a.map(x=>`<div class="fraco">• ${esc(x[1])}</div>`).join("")}${o.map(x=>`<div class="mut">✓ ${esc(x[1])}</div>`).join("")}</details>`}
@@ -509,10 +509,10 @@ function sDonut(parts){const P=parts.filter(p=>p.v>0),tot=P.reduce((a,p)=>a+p.v,
  const arcs=P.length===1?`<circle cx="${cx}" cy="${cy}" r="${(R+r)/2}" fill="none" stroke="${P[0].c}" stroke-width="${R-r}"/>`:P.map(p=>{const a1=a0+2*Math.PI*p.v/tot,l=a1-a0>Math.PI?1:0,pt=(q,a)=>[(cx+q*Math.cos(a)).toFixed(2),(cy+q*Math.sin(a)).toFixed(2)],[x0,y0]=pt(R,a0),[x1,y1]=pt(R,a1),[x2,y2]=pt(r,a1),[x3,y3]=pt(r,a0);a0=a1;return `<path d="M${x0} ${y0}A${R} ${R} 0 ${l} 1 ${x1} ${y1}L${x2} ${y2}A${r} ${r} 0 ${l} 0 ${x3} ${y3}Z" fill="${p.c}"/>`}).join("");
  return `<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 160 160" style="width:150px;height:150px">${arcs}<text x="80" y="86" text-anchor="middle" font-size="20" font-weight="700" style="fill:var(--tx)">${nfx(tot)}</text></svg><div style="font-size:.85em">${[...P].sort((a,b)=>b.v-a.v).map(p=>`<div><span style="color:${p.c}">●</span> ${esc(p.n)} <b>${nfx(p.v)}</b> <span class="mut">(${Math.round(p.v/tot*100)}%)</span></div>`).join("")}</div></div>`}
 function grafv(){const V=snap.vendedores,dias=snap.dias||30,dia=Math.min(snap.dia||dias,dias),k=gK,sc=gS&&V.some(v=>v.nome===gS)?gS:"",VS=sc?V.filter(v=>v.nome===sc):V,col=CK[k],ob=v=>(v.k[k]||{}).obj||0,dv=(v,i)=>(v.d&&v.d[k]?v.d[k][i]:0)||0;
- const daily=Array.from({length:dias},(_,i)=>i<dia?VS.reduce((a,v)=>a+dv(v,i),0):null),cum=[];let c=0;daily.forEach(x=>{if(x==null)cum.push(null);else{c+=x;cum.push(c)}});
+ const IK=!sc&&snap.ind&&snap.ind[k]?snap.ind[k]:null,daily=Array.from({length:dias},(_,i)=>i<dia?VS.reduce((a,v)=>a+dv(v,i),0)+(IK?IK[i]||0:0):null),cum=[];let c=0;daily.forEach(x=>{if(x==null)cum.push(null);else{c+=x;cum.push(c)}});
  const exp=Array.from({length:dias},(_,i)=>VS.reduce((a,v)=>a+ob(v)*frac(v,1,i+1),0)),proj=Array(dias).fill(null);
  {let p=cum[dia-1]||0;proj[dia-1]=p;for(let i=dia;i<dias;i++){p+=VS.reduce((a,v)=>{const o=v.k[k];if(!o||!o.obj)return a;const w=wdc(v),el=w&&w.n?wdIn(v,1,dia):dia,rate=el>0?o.real/el:0;return a+rate*(w&&w.n?(isW(w.c[i]||"")?1:0):1)},0);proj[i]=p}}
- const tot=VS.reduce((a,v)=>a+((v.k[k]||{}).real||0),0),obj=VS.reduce((a,v)=>a+ob(v),0),pj=proj[dias-1],W=semanas().filter(w=>w[0]<=dia),
+ const tot=VS.reduce((a,v)=>a+((v.k[k]||{}).real||0),0)+(IK?IK.slice(0,dia).reduce((a,b)=>a+b,0):0),obj=VS.reduce((a,v)=>a+ob(v),0),pj=proj[dias-1],W=semanas().filter(w=>w[0]<=dia),
  wr=W.map(w=>{const b=Math.min(w[1],dia),act=VS.reduce((a,v)=>{let s=0;for(let i=w[0]-1;i<b;i++)s+=dv(v,i);return a+s},0),meta=VS.reduce((a,v)=>a+ob(v)*frac(v,w[0],b),0),p=meta>0?act/meta:null;return{n:"Sem. "+w[0]+"–"+w[1]+(w[1]>dia?" (em curso)":""),v:p||0,c:p==null?"#888":p<.7?"#ef4444":p<1?"#f5b301":"#22c55e",t:p==null?"–":Math.round(p*100)+"%"}}),
  col3=p=>p<.7?"#ef4444":p<1?"#f5b301":"#22c55e",rk=V.filter(v=>ob(v)).map(v=>({n:v.nome,v:pfo(v.k[k]),c:col3(pfo(v.k[k])),hl:v.nome===sc})).sort((a,b)=>b.v-a.v),
  tc=V.filter(v=>v.tco!=null).map(v=>({n:v.nome,v:v.tco/frV(v),c:col3(v.tco/frV(v)),hl:v.nome===sc})).sort((a,b)=>b.v-a.v),
@@ -823,11 +823,11 @@ $("fx").onchange=async e=>{
     for(const v of vend){const r=AV.find(x=>String(x[28]||"").trim().toLowerCase().startsWith(v.nome.toLowerCase()));if(r)v.av={n:{"TV":nv(r[29]),"PPP":nv(r[30]),"Facturação":nv(r[31]),"NPS":nv(r[32]),"Refid's":nv(r[33]),"Meo Energia":nv(r[34]),"Net Segura":nv(r[35])},f:nv(r[36])}}
     const nomes=vend.map(v=>v.nome),who=s=>{s=String(s||"").trim().toLowerCase();return nomes.find(n=>s.startsWith(n.trim().toLowerCase()))},N=x=>Number(x)||0,D={};
     vend.forEach(v=>{D[v.nome]={"TV":Array(31).fill(0),"PPP":Array(31).fill(0),"Meo Energia":Array(31).fill(0),"Refid's":Array(31).fill(0),"Facturação":Array(31).fill(0)}});
-    etapa="vendas (inputRGUs)";const unk={};let last=0,mon=null;
+    etapa="vendas (inputRGUs)";const unk={},IND={"TV":Array(31).fill(0),"PPP":Array(31).fill(0),"Meo Energia":Array(31).fill(0),"Refid's":Array(31).fill(0),"Facturação":Array(31).fill(0)};let last=0,mon=null;
     const aR=aoa("inputRGUs","A2:AK10000"),aF=aoa("inputFaturação","A2:G10000"),mc={};aR.forEach(r=>{if(r[1] instanceof Date){const k=r[1].getFullYear()*12+r[1].getMonth();mc[k]=(mc[k]||0)+1}});aF.forEach(r=>{if(r[0] instanceof Date){const k=r[0].getFullYear()*12+r[0].getMonth();mc[k]=(mc[k]||0)+1}});
     const dk=Object.keys(mc).sort((a,b)=>mc[b]-mc[a]||b-a)[0],okM=d=>dk==null||d.getFullYear()*12+d.getMonth()===+dk;
-    for(const r of aR){const d=r[1];if(!(d instanceof Date)||!okM(d))continue;const st=String(r[36]||"").trim();if(!st||st==="Não Instalado")continue;const n=who(r[2]);if(!n){const q=String(r[2]||"").trim();if(q)unk[q]=(unk[q]||0)+1;continue}const i=d.getDate()-1,o=D[n];mon=[d.getFullYear(),d.getMonth()];last=Math.max(last,d.getDate());o.TV[i]+=N(r[9]);o.PPP[i]+=N(r[12])+N(r[13])+N(r[14]);o["Meo Energia"][i]+=N(r[20]);o["Refid's"][i]+=N(r[19])}
-    etapa="vendas (inputFaturação)";for(const r of aF){const d=r[0];if(!(d instanceof Date)||!okM(d))continue;const n=who(r[6]);if(!n){const q=String(r[6]||"").trim();if(q)unk[q]=(unk[q]||0)+1;continue}D[n]["Facturação"][d.getDate()-1]+=N(r[5]);last=Math.max(last,d.getDate())}
+    for(const r of aR){const d=r[1];if(!(d instanceof Date)||!okM(d))continue;const st=String(r[36]||"").trim();if(!st||st==="Não Instalado")continue;const n=who(r[2]);if(!n){const q=String(r[2]||"").trim();if(q)unk[q]=(unk[q]||0)+1;{const i=d.getDate()-1;mon=[d.getFullYear(),d.getMonth()];last=Math.max(last,d.getDate());IND.TV[i]+=N(r[9]);IND.PPP[i]+=N(r[12])+N(r[13])+N(r[14]);IND["Meo Energia"][i]+=N(r[20]);IND["Refid's"][i]+=N(r[19])}continue}const i=d.getDate()-1,o=D[n];mon=[d.getFullYear(),d.getMonth()];last=Math.max(last,d.getDate());o.TV[i]+=N(r[9]);o.PPP[i]+=N(r[12])+N(r[13])+N(r[14]);o["Meo Energia"][i]+=N(r[20]);o["Refid's"][i]+=N(r[19])}
+    etapa="vendas (inputFaturação)";for(const r of aF){const d=r[0];if(!(d instanceof Date)||!okM(d))continue;const n=who(r[6]);if(!n){const q=String(r[6]||"").trim();if(q)unk[q]=(unk[q]||0)+1;IND["Facturação"][d.getDate()-1]+=N(r[5]);last=Math.max(last,d.getDate());continue}D[n]["Facturação"][d.getDate()-1]+=N(r[5]);last=Math.max(last,d.getDate())}
     vend.forEach(v=>v.d=D[v.nome]);
     etapa="NPS da loja";let npsL=null;{const cs=wb.Sheets[real("Cash")],ff=x=>{if(typeof x==="number")return x;if(typeof x==="string"){const t=parseFloat(x.replace(",",".").replace("%",""));return isFinite(t)?(x.includes("%")?t/100:t):null}return null};
     if(cs&&cs["F37"])npsL=ff(cs["F37"].v);
@@ -835,7 +835,7 @@ $("fx").onchange=async e=>{
     if(npsL!=null&&npsL>1.5)npsL=npsL/100}
     etapa="tabelas de €/crédito";const RT={n:{},p:{}};for(const r of aoaS("€crédito","A1:V16").slice(3,15)){const q=String(r[1]||"").trim();if(q){RT.n[q]=r.slice(2,9).map(x=>nv(x)||0);RT.p[q]=r.slice(14,21).map(x=>nv(x)||0)}}
     const MN="Janeiro Fevereiro Março Abril Maio Junho Julho Agosto Setembro Outubro Novembro Dezembro".split(" "),dias=mon?new Date(mon[0],mon[1]+1,0).getDate():30;
-    etapa="gravar os dados";const PL={mes:mon?MN[mon[1]]+" "+mon[0]:"Mês atual",store,vendedores:vend,dias,dia:last||dias,rates:RT,npsLoja:npsL,rel:buildRel({vend,store,RT,npsL,mon,last,dias,unk,miss:want.filter(w=>!real(w)).concat(bad.map(b=>b+" (vazia)"))}),at:Date.now()};const nid=mon?"m"+mon[0]+"-"+String(mon[1]+1).padStart(2,"0"):null;
+    etapa="gravar os dados";const sx=w=>!!VS[w]&&!!mon&&saiuEm(w,mon[0]+"-"+String(mon[1]+1).padStart(2,"0"));const PL={mes:mon?MN[mon[1]]+" "+mon[0]:"Mês atual",store,vendedores:vend,dias,dia:last||dias,ind:IND,rates:RT,npsLoja:npsL,rel:buildRel({vend,store,RT,npsL,mon,last,dias,unk,miss:want.filter(w=>!real(w)&&!sx(w)).concat(bad.filter(b=>!sx(b)).map(b=>b+" (vazia)"))}),at:Date.now()};const nid=mon?"m"+mon[0]+"-"+String(mon[1]+1).padStart(2,"0"):null;
     if(nid)await chk(sb.from("snap").upsert({id:nid,data:PL}));
     if(!CUR||!nid||nid>=ymid(CUR))await db.doc("snap/current").set(PL);
     await loadHist();mid=nid&&CUR&&nid<ymid(CUR)?nid:null;useSnap();{const na=(PL.rel||[]).filter(x=>x[0]==="av").length;msg="atualizado"+(na?" · "+na+" aviso(s), ver Resumo loja":"")}
