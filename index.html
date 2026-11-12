@@ -878,7 +878,7 @@ document.addEventListener("click",async e=>{
 const nv=x=>{if(x===null||x===undefined||x==="")return null;x=Number(x);return isFinite(x)?Math.round(x*1e4)/1e4:null};
 $("fx").onchange=async e=>{
   const fl=e.target.files[0];if(!fl)return;msg="a ler o Excel…";render();
-  let etapa="a abrir o ficheiro";try{const buf=await fl.arrayBuffer(),nm0=XLSX.read(buf,{type:"array",bookSheets:true}).SheetNames,NZ=x=>String(x).normalize("NFC").trim().toLowerCase(),real=w=>nm0.find(n=>NZ(n)===NZ(w)),want=["Resumo Loja","inputRGUs","inputFaturação","€crédito","Cash","avaliaçao",...Object.keys(VS)];
+  let etapa="a abrir o ficheiro";try{const buf=await fl.arrayBuffer(),nm0=XLSX.read(buf,{type:"array",bookSheets:true}).SheetNames,NZ=x=>String(x).normalize("NFC").trim().toLowerCase(),real=w=>nm0.find(n=>NZ(n)===NZ(w)),want=["Resumo Loja","inputRGUs","inputFaturação","€crédito","Cash","avaliaçao","Racios",...Object.keys(VS)];
     const wb=XLSX.read(buf,{type:"array",sheets:want.map(real).filter(Boolean),cellDates:true,cellFormula:false,cellStyles:false});
     const aoa=(n,rg)=>XLSX.utils.sheet_to_json(wb.Sheets[real(n)],{header:1,range:rg,raw:true,defval:null}),aoaS=(n,rg)=>{try{return aoa(n,rg)}catch(e){return []}};
     etapa="folha Resumo Loja";for(const n of ["Resumo Loja","inputRGUs","inputFaturação"])if(!real(n))throw new Error("a folha \""+n+"\" não foi encontrada no ficheiro");
