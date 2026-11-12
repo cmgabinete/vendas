@@ -181,6 +181,26 @@ html[data-mm="1"] nav #navt{display:none!important}
 :root[data-tema="lima"] nav{border:1px solid var(--bd);border-radius:28px;margin:12px 0 12px 12px;height:calc(100vh - 24px);position:sticky;top:12px;overflow-x:hidden;overflow-y:auto}
 :root[data-tema="lima"] nav.hp button.on{background:transparent;color:var(--tx);box-shadow:none;border:0;outline:none}:root[data-tema="lima"] nav.hp button.pt{color:var(--navonx)}
 :root[data-tema="lima"] nav.hp #npill{display:block;position:absolute;z-index:0;pointer-events:none;border-radius:14px;background:var(--navon);transition:top .42s cubic-bezier(.3,1.15,.4,1),height .42s cubic-bezier(.3,1.15,.4,1),left .3s,width .3s}}
+</style><style id="limacss2">#limabg{display:none}
+:root[data-tema="lima"] #limabg{display:block;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#limabg i{position:absolute;border-radius:50%;filter:blur(70px);will-change:transform}
+#limabg i:nth-child(1){width:46vw;height:46vw;left:-8vw;top:-12vw;background:var(--navon);opacity:.30;animation:lbd1 19s ease-in-out infinite alternate}
+#limabg i:nth-child(2){width:40vw;height:40vw;right:-10vw;top:12vh;background:#c9a73a;opacity:.26;animation:lbd2 23s ease-in-out infinite alternate}
+#limabg i:nth-child(3){width:44vw;height:44vw;left:28vw;bottom:-22vw;background:#2f9a82;opacity:.26;animation:lbd3 27s ease-in-out infinite alternate}
+@keyframes lbd1{to{transform:translate(18vw,14vh) scale(1.15)}}@keyframes lbd2{to{transform:translate(-20vw,20vh) scale(.9)}}@keyframes lbd3{to{transform:translate(-16vw,-18vh) scale(1.12)}}
+:root[data-tema="lima"] .app{position:relative;z-index:1}
+:root[data-tema="lima"] .card,:root[data-tema="lima"] nav{background:linear-gradient(135deg,rgba(255,255,255,.17) 0%,rgba(255,255,255,.05) 38%,rgba(255,255,255,.035) 62%,rgba(255,255,255,.13) 100%);background-size:240% 240%;border:1px solid rgba(255,255,255,.16);box-shadow:0 14px 40px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(255,255,255,.05);-webkit-backdrop-filter:blur(18px) saturate(1.7);backdrop-filter:blur(18px) saturate(1.7)}
+:root[data-tema="lima"] .card{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,background-position .7s}
+:root[data-tema="lima"] .card:hover{transform:translateY(-3px);background-position:100% 100%;box-shadow:0 20px 50px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.36)}
+:root[data-tema="lima"] .btn,:root[data-tema="lima"] #ctl button,:root[data-tema="lima"] .chip{transition:transform .2s,background .2s,box-shadow .2s}
+:root[data-tema="lima"] .btn:active,:root[data-tema="lima"] #ctl button:active{transform:scale(.95)}
+:root[data-tema="lima"] .chip{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+:root[data-tema="lima"] tr{transition:background .2s}
+:root[data-tema="lima"] tr:hover td{background:rgba(255,255,255,.06)}
+@media(min-width:761px){:root[data-tema="lima"] nav.hp #npill{background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 55%),var(--navon);box-shadow:0 8px 28px -4px var(--navon),inset 0 1px 0 rgba(255,255,255,.5)}}
+.rip{display:none}:root[data-tema="lima"] .rip{display:block;position:fixed;z-index:9999;pointer-events:none;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;border:2px solid var(--navon);box-shadow:0 0 18px var(--navon);animation:ripple 1s cubic-bezier(.2,.7,.2,1) forwards}
+@media(max-width:760px){:root[data-tema="lima"] .card,:root[data-tema="lima"] nav{-webkit-backdrop-filter:blur(12px) saturate(1.5);backdrop-filter:blur(12px) saturate(1.5)}#limabg i{filter:blur(50px)}}
+@media(prefers-reduced-motion:reduce){#limabg i{animation:none}}
 </style></head>
 <body><div class="app"><nav id="nav" hidden><b id="nvn">TIPO LOJA</b></nav><div class="w">
 <div class="top"><div><h1>Análise de Vendas da Loja</h1><div class="mut" id="sub">A carregar…</div></div>
@@ -563,6 +583,7 @@ function animCharts(){const m=document.getElementById("main");if(!m||!m.animate)
  m.querySelectorAll("svg path[stroke]").forEach(p=>{if(p.getAttribute("fill")!=="none"||p.getAttribute("stroke-dasharray"))return;let L=0;try{L=p.getTotalLength()}catch(e){}if(!L)return;p.animate([{strokeDasharray:L+" "+L,strokeDashoffset:L},{strokeDasharray:L+" "+L,strokeDashoffset:0}],{duration:1400,delay:200,easing:"ease-out",fill:"backwards"})});
  m.querySelectorAll(".big").forEach(e=>{if(e.children.length)return;const t=e.textContent.trim(),x=t.match(/^(-?\d[\d\s\u00a0]*(?:,\d+)?)(\s?(?:%|€))?$/);if(!x)return;const dec=(x[1].split(",")[1]||"").length,grp=/\d[\s\u00a0]\d/.test(x[1]),v=parseFloat(x[1].replace(/[\s\u00a0]/g,"").replace(",",".")),t0=performance.now(),D=1200;if(!isFinite(v)||v===0)return;
   const f=n=>{let a=n.toFixed(dec),[ip,dp]=a.split(".");if(grp)ip=ip.replace(/\B(?=(\d{3})+(?!\d))/g," ");return ip+(dp?","+dp:"")+(x[2]||"")},st=n=>{const k=Math.min(1,(n-t0)/D),ez=1-Math.pow(1-k,3);if(e._tk!==t0)return;e.textContent=f(v*ez);if(k<1)requestAnimationFrame(st);else e.textContent=t};if(document.hidden)return;e._tk=t0;e.textContent=f(0);requestAnimationFrame(st);setTimeout(()=>{if(e._tk===t0)e.textContent=t},D+300)})}
+try{document.addEventListener("pointerdown",e=>{if(document.documentElement.dataset.tema!=="lima")return;const r=document.createElement("div");r.className="rip";r.style.left=e.clientX+"px";r.style.top=e.clientY+"px";document.body.appendChild(r);setTimeout(()=>r.remove(),1100)},true);const lb=document.createElement("div");lb.id="limabg";lb.innerHTML="<i></i><i></i><i></i>";document.body.prepend(lb)}catch(e){}
 function animMain(){const m=document.getElementById("main");if(!m)return;m.classList.remove("in");void m.offsetWidth;m.classList.add("in");setTimeout(animCharts,30)}
 function setNav(c){document.documentElement.dataset.nav=c;try{localStorage.setItem("nav",c)}catch(e){}const b=document.querySelector("#navt");if(b){b.querySelector("i").textContent=c==="c"?"»":"«";b.querySelector(".nt").textContent="Encolher"}}
 
@@ -707,7 +728,7 @@ function regv(){const t=new Date(),hj=t.getDate(),cur=CUR&&ymid(snap)==="m"+t.ge
  h+=`<div class="card" style="margin-top:12px"><div class="mut">OS TEUS ÚLTIMOS REGISTOS <button class="chip" style="margin-left:8px" onclick="regUndo()">↩ Desfazer o último</button></div>${ev.length?ev.map(e=>`<div class="rw"><span>${new Date(+e.ts).toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"})}</span><span>${lab(e.produto)}</span><b class="${e.delta>0?"forte":"crit"}">${e.delta>0?"+":""}${e.delta}</b></div>`).join(""):'<div class="mut">Ainda sem registos.</div>'}</div>`;
  return h+(msg?`<div class="card" style="margin-top:8px;border-color:var(--warn)">${esc(msg)}</div>`:"")}
 
-const NAVI0=[["geral","▦","Resumo loja"],["diaria","◷","Vendas diárias"],["reg","➕","Registar vendas"],["colab","☺","Lojistas"],["semanal","📊","Análise"],["eq","👥","Gestão de equipa"],["nps","🎯","NPS e qualidade"],["rel","📑","Relatório"]],NAVI=NAVI0.slice(),GRP={obj:"semanal",apoio:"semanal",graf:"semanal",hist:"semanal",fecho:"semanal",cen:"semanal",hor:"eq",aval:"eq",coach:"eq",brf:"eq",frm:"nps"},TABS={semanal:[["semanal","Avaliação da semana"],["obj","Objetivos"],["apoio","Quem precisa de apoio"],["graf","Gráficos"],["hist","Histórico"],["fecho","Fecho do mês"],["cen","Cenários"]],eq:[["eq","Equipa"],["hor","Horário"],["aval","Avaliações"],["brf","Briefings"],["coach","Coachings"]],nps:[["nps","Solicitações NPS"],["frm","Formulário MEO"]]};
+const NAVI0=[["geral","▦","Resumo loja"],["diaria","◷","Vendas diárias"],["reg","➕","Registar vendas"],["colab","☺","Lojistas"],["semanal","📊","Análise"],["eq","👥","Gestão de equipa"],["nps","🎯","NPS e qualidade"],["rel","📑","Relatório"]],NAVI=NAVI0.slice(),GRP={obj:"semanal",apoio:"semanal",graf:"semanal",hist:"semanal",fecho:"semanal",cen:"semanal",hor:"eq",aval:"eq",coach:"eq",brf:"eq",frm:"reg"},TABS={semanal:[["semanal","Avaliação da semana"],["obj","Objetivos"],["apoio","Quem precisa de apoio"],["graf","Gráficos"],["hist","Histórico"],["fecho","Fecho do mês"],["cen","Cenários"]],eq:[["eq","Equipa"],["hor","Horário"],["aval","Avaliações"],["brf","Briefings"],["coach","Coachings"]],reg:[["reg","Registar vendas"],["frm","Formulário MEO"]]};
 let navEd=false;
 function menuCfg(){const m=CFG.menu||{},o=(m.o||[]).filter(k=>NAVI.some(x=>x[0]===k));NAVI.forEach(x=>{if(!o.includes(x[0]))o.push(x[0])});return{o,h:m.h||[]}}
 function buildNav(){const n=document.getElementById("nav");if(!n)return;const nv=document.getElementById("nvn"),t=nv?nv.textContent:"TIPO LOJA",{o,h}=menuCfg();
