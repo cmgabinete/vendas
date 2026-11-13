@@ -260,13 +260,15 @@ function render() {
     [...ps].sort((a, b) => b.semana[wk] - a.semana[wk]).map(p => `<tr><td>${p.nome}</td><td>${p.tvW[wk]}</td><td>${p.enW[wk]}</td><td>${p.seW[wk]}</td><td>${p.dvW[wk]}</td><td><b>${p.semana[wk]}</b></td></tr>`).join("");
 
   const cat = (t, n) => `<div class="cat">${t}<b>${n}</b></div>`;
+  const hasW = ps.some(p => p.semana[wk] > 0);
+  const isLast = wk === WK.length - 1;
   const campeao = [...ps].sort((a, b) => b.semana[wk] - a.semana[wk])[0];
   const evo = [...ps].sort((a, b) => b.evo[wk] - a.evo[wk])[0];
-  const inq = [...ps].filter(p => p.inq != null).sort((a, b) => num(b.inq) - num(a.inq))[0];
+  const inq = isLast ? [...ps].filter(p => p.inq != null).sort((a, b) => num(b.inq) - num(a.inq))[0] : null;
   $("cats").innerHTML =
-    cat("🏆 Campeão da semana", campeao && campeao.semana[wk] > 0 ? campeao.nome : "–") +
-    cat("📈 Melhor evolução", evo && evo.evo[wk] > 0 ? evo.nome : "–") +
-    cat("⭐ Mais inquéritos NPS", inq ? inq.nome : "–") +
+    cat("🏆 Campeão da semana", hasW && campeao.semana[wk] > 0 ? campeao.nome : "–") +
+    cat("📈 Melhor evolução", hasW && evo && evo.evo[wk] > 0 ? evo.nome : "–") +
+    cat("⭐ Mais inquéritos NPS (fim do mês)", isLast && inq ? inq.nome : "–") +
     cat("📅 Mês", G.mes || "–");
 }
 
