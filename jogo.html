@@ -256,7 +256,7 @@ function render() {
   requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll("#lb .bar i").forEach(el => el.style.width = (el.dataset.v / SC * 100) + "%")));
 
   $("tbl").innerHTML = `<tr><th>Colaborador</th><th>TV</th><th>Meo Energia</th><th>Seguros</th><th>Diversidade</th><th>Pontos da semana</th></tr>` +
-    ps.map(p => `<tr><td>${p.nome}</td><td>${p.tvW[wk]}</td><td>${p.enW[wk]}</td><td>${p.seW[wk]}</td><td>${p.dvW[wk]}</td><td><b>${p.semana[wk]}</b></td></tr>`).join("");
+    [...ps].sort((a, b) => b.semana[wk] - a.semana[wk]).map(p => `<tr><td>${p.nome}</td><td>${p.tvW[wk]}</td><td>${p.enW[wk]}</td><td>${p.seW[wk]}</td><td>${p.dvW[wk]}</td><td><b>${p.semana[wk]}</b></td></tr>`).join("");
 
   const cat = (t, n) => `<div class="cat">${t}<b>${n}</b></div>`;
   const campeao = [...ps].sort((a, b) => b.semana[wk] - a.semana[wk])[0];
