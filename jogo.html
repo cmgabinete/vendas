@@ -70,7 +70,7 @@ th:first-child,td:first-child{text-align:left}
       <g id="marks"></g>
       <g id="sleds"></g>
     </svg>
-    <p class="rules" style="margin-top:8px">Marcos semanais (no fim de cada semana): 23, 64, 105, 145 e 180 pontos. A escala ajusta-se ao líder: o trenó da frente fica sempre perto do fim do percurso.</p>
+    <p class="rules" style="margin-top:8px">Há um marco no fim de cada semana. O objetivo do mês são 180 pontos. A escala ajusta-se ao líder: o trenó da frente fica sempre perto do fim do percurso.</p>
   </div>
   <div class="card">
     <h2>Lances da semana</h2>
@@ -110,8 +110,9 @@ const SUPABASE_URL = "https://nfpjwxezlrunruzqbhjn.supabase.co";
 const SUPABASE_KEY = "sb_publishable_Nf9n_q5rIe3t_dek7H0A9w_gloi0dEJ";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const END = new Date("2027-01-16T00:00:00Z");
-const MAX = 180, MARKS = [23, 64, 105, 145, 180];
-const WK = [[1, 4], [5, 11], [12, 18], [19, 25], [26, 31]];
+const MAX = 180;
+let MARKS = [23, 64, 105, 145, 180];
+let WK = [[1, 4], [5, 11], [12, 18], [19, 25], [26, 31]];
 const NS = "http://www.w3.org/2000/svg";
 let G = null, wk = 0, shown = {}, raf = 0, SC = 60;
 
@@ -273,6 +274,10 @@ function showGame(data) {
   $("loginBox").classList.add("hide");
   $("game").classList.remove("hide");
   $("sub").textContent = (data.mes || "Dezembro") + " · atualizado em " + new Date(data.atualizado).toLocaleString("pt-PT");
+  if (Array.isArray(data.semanas) && data.semanas.length) WK = data.semanas;
+  const DIM = WK[WK.length - 1][1];
+  MARKS = WK.map(([i, j]) => Math.round(180 * j / DIM));
+  MARKS[MARKS.length - 1] = 180;
   G = { ps: build(data), mes: data.mes };
   initSleds(G.ps);
   render();
