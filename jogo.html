@@ -70,7 +70,7 @@ th:first-child,td:first-child{text-align:left}
       <g id="marks"></g>
       <g id="sleds"></g>
     </svg>
-    <p class="rules" style="margin-top:8px">Há um marco no fim de cada semana. O objetivo do mês são 180 pontos. A escala ajusta-se ao líder: o trenó da frente fica sempre perto do fim do percurso.</p>
+    <p class="rules" style="margin-top:8px">O percurso mostra a % do objetivo individual de TV e Meo Energia. Há um marco no fim de cada semana. A escala ajusta-se ao líder: o trenó da frente fica sempre perto do fim do percurso.</p>
   </div>
   <div class="card">
     <h2>Lances da semana</h2>
@@ -110,8 +110,8 @@ const SUPABASE_URL = "https://nfpjwxezlrunruzqbhjn.supabase.co";
 const SUPABASE_KEY = "sb_publishable_Nf9n_q5rIe3t_dek7H0A9w_gloi0dEJ";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const END = new Date("2027-01-16T00:00:00Z");
-const MAX = 180;
-let MARKS = [23, 64, 105, 145, 180];
+const MAX = 100;
+let MARKS = [];
 let WK = [[1, 4], [5, 11], [12, 18], [19, 25], [26, 31]];
 const NS = "http://www.w3.org/2000/svg";
 let G = null, wk = 0, shown = {}, raf = 0, SC = 60;
@@ -120,9 +120,25 @@ const $ = id => document.getElementById(id);
 const num = x => +x || 0;
 const wsum = (a, w) => { const [i, j] = WK[w]; return (a || []).slice(i - 1, j).reduce((x, y) => x + num(y), 0); };
 
+function bonusOf(p) {
+  const items = [];
+  const sellsSeg = !p.goe && num(p.seg) > 0;
+  const sellsDiv = !p.goe && num(p.div) > 0;
+  const pctTV = p.objTV > 0 ? 100 * p.tvT / p.objTV : 0;
+  const pctEN = p.objEN > 0 ? 100 * p.enT / p.objEN : 0;
+  if (p.nps != null && p.nps >= 0.7) items.push(["NPS 70%", 5]);
+  if (sellsSeg) { if (p.seg >= 0.15) items.push(["Seguros 15%", 5]); }
+  else if (pctTV >= 100) items.push(["Objetivo TV", 5]);
+  if (sellsDiv) { if (p.div >= 1.6) items.push(["Diversidade 160%", 5]); }
+  else if (pctEN >= 100) items.push(["Objetivo Meo Energia", 5]);
+  return { total: items.reduce((a, b) => a + b[1], 0), items };
+}
+
 function build(data) {
   const ps = data.jogadores.map(p => ({
-    nome: p.nome, tv: p.tv || [], en: p.energia || [], se: p.seguros || [], dv: p.diversidade || [], inq: p.inqueritos, bon: []
+    nome: p.nome, tv: p.tv || [], en: p.energia || [], se: p.seguros || [], dv: p.diversidade || [], bon: [],
+    inq: p.inqueritos, nps: p.nps, seg: p.seg, div: p.div, goe: !!p.goe,
+    objTV: num(p.objTV), objEN: num(p.objEN)
   }));
   ps.forEach(p => {
     p.tvW = WK.map((_, w) => wsum(p.tv, w));
@@ -131,6 +147,8 @@ function build(data) {
     p.dvW = WK.map((_, w) => wsum(p.dv, w));
     p.semana = WK.map((_, w) => 3 * (p.tvW[w] + p.enW[w]) + p.seW[w] + p.dvW[w]);
     p.evo = WK.map((_, w) => w === 0 ? 0 : (p.tvW[w] + p.enW[w]) - (p.tvW[w - 1] + p.enW[w - 1]));
+    p.tvT = p.tvW.reduce((a, b) => a + b, 0);
+    p.enT = p.enW.reduce((a, b) => a + b, 0);
   });
   for (let d = 0; d < 31; d++) {
     let best = null, bp = 0;
@@ -149,9 +167,11 @@ function build(data) {
     if (best && best.evo[w] > 0) best.semana[w] += 5;
   }
   ps.forEach(p => {
+    const objU = p.objTV + p.objEN;
     let s = 0;
-    p.acum = WK.map((_, w) => (s += p.semana[w]));
-    if (num(p.inq) >= 10) p.acum[WK.length - 1] += 5;
+    p.acum = WK.map((_, w) => { s += p.tvW[w] + p.enW[w]; return objU > 0 ? 100 * s / objU : 0; });
+    p.bonus = bonusOf(p);
+    p.acum[WK.length - 1] += p.bonus.total;
   });
   return ps;
 }
@@ -203,7 +223,7 @@ function animateTrack(ps, w) {
   const pth = $("prog"), L = pth.getTotalLength();
   pth.style.strokeDasharray = L;
   const top = Math.max(0, ...ps.map(p => p.acum[w]));
-  SC = Math.max(60, Math.ceil((top + 30) / 30) * 30);
+  SC = Math.max(20, Math.ceil((top + 10) / 10) * 10);
   drawMarks(pth, L);
   pth.style.strokeDashoffset = L * (1 - Math.min(top, SC) / SC);
   pth.style.transition = "stroke-dashoffset 1s ease";
@@ -253,7 +273,7 @@ function render() {
 
   const sorted = [...ps].sort((a, b) => b.acum[wk] - a.acum[wk]);
   const medal = ["🥇", "🥈", "🥉"];
-  $("lb").innerHTML = sorted.map((p, i) => `<div class="lb"><div style="text-align:center">${medal[i] || (i + 1)}</div><div><div class="name">${p.nome}</div><div class="bar"><i data-v="${p.acum[wk]}"></i></div></div><div class="pts">${p.acum[wk]} pts</div></div>`).join("");
+  $("lb").innerHTML = sorted.map((p, i) => `<div class="lb"><div style="text-align:center">${medal[i] || (i + 1)}</div><div><div class="name">${p.nome}</div><div class="bar"><i data-v="${p.acum[wk]}"></i></div></div><div class="pts">${Math.round(p.acum[wk])}%</div></div>`).join("");
   requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll("#lb .bar i").forEach(el => el.style.width = (el.dataset.v / SC * 100) + "%")));
 
   $("tbl").innerHTML = `<tr><th>Colaborador</th><th>TV</th><th>Meo Energia</th><th>Seguros</th><th>Diversidade</th><th>Pontos da semana</th></tr>` +
@@ -278,8 +298,8 @@ function showGame(data) {
   $("sub").textContent = (data.mes || "Dezembro") + " · atualizado em " + new Date(data.atualizado).toLocaleString("pt-PT");
   if (Array.isArray(data.semanas) && data.semanas.length) WK = data.semanas;
   const DIM = WK[WK.length - 1][1];
-  MARKS = WK.map(([i, j]) => Math.round(180 * j / DIM));
-  MARKS[MARKS.length - 1] = 180;
+  MARKS = WK.map(([i, j]) => Math.round(100 * j / DIM));
+  MARKS[MARKS.length - 1] = 100;
   G = { ps: build(data), mes: data.mes };
   initSleds(G.ps);
   render();
