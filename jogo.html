@@ -183,7 +183,7 @@ function weeksWithData(ps) {
 function initSleds(ps) {
   const g = $("sleds"); g.innerHTML = "";
   ps.forEach((p, idx) => {
-    g.innerHTML += `<g id="s${idx}"><text font-size="20" text-anchor="middle">🛷</text><text y="-20" font-size="10" font-weight="700" text-anchor="middle" stroke="#050b24" stroke-width="3" paint-order="stroke">${p.nome.split(" ")[0]}</text></g>`;
+    g.innerHTML += `<g id="s${idx}"><text font-size="20" text-anchor="middle">🛷</text><text id="n${idx}" y="-20" font-size="10" font-weight="700" text-anchor="middle" stroke="#050b24" stroke-width="3" paint-order="stroke"></text></g>`;
   });
 }
 
@@ -236,6 +236,14 @@ function render() {
   $("weeks").querySelectorAll("button").forEach(b => b.onclick = () => { wk = +b.dataset.w; render(); });
 
   animateTrack(ps, wk);
+
+  const byPos = [...ps].sort((a, b) => b.acum[wk] - a.acum[wk]);
+  ps.forEach((p, idx) => {
+    const el = $("n" + idx);
+    if (!el) return;
+    const pos = byPos.indexOf(p);
+    el.textContent = pos < 3 && p.acum[wk] > 0 ? p.nome.split(" ")[0] : "";
+  });
 
   const ev = eventsOf(ps, wk);
   $("feed").innerHTML = ev.length
