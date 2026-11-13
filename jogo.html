@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Caminho ao Trenó de Natal</title>
 <style>
-:root{--blue:#0066ff;--blue2:#00b3ff;--ink:#0f172a;--mut:#64748b;--bg:#f1f5fb;--red:#e53935}
+:root{--blue:#0066ff;--blue2:#00b3ff;--ink:#ffffff;--mut:#9fb8e8;--bg:#03071a;--red:#ff5a5a}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
 header{background:linear-gradient(135deg,#050b24,#0a2a8a 55%,var(--blue));color:#fff;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px}
@@ -15,30 +15,30 @@ header p{margin:4px 0 0;opacity:.85;font-size:13px}
 .wrap{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;padding:14px;max-width:1100px;margin:auto}
 .full{grid-column:1/-1}
 @media(max-width:820px){.wrap{grid-template-columns:1fr}.full{grid-column:auto}}
-.card{background:#fff;border-radius:16px;padding:14px;box-shadow:0 6px 22px rgba(15,23,42,.08)}
+.card{background:#0b1a4a;border:1px solid #1d3a8a;border-radius:16px;padding:14px;box-shadow:0 6px 22px rgba(0,0,0,.35)}
 .card h2{margin:0 0 10px;font-size:15px}
 .weeks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.weeks button{border:0;border-radius:999px;padding:7px 12px;background:#e2e8f0;cursor:pointer;font-weight:600}
+.weeks button{border:0;border-radius:999px;padding:7px 12px;background:#14296e;color:#fff;cursor:pointer;font-weight:600}
 .weeks button.on{background:var(--blue);color:#fff}
 svg{width:100%;height:auto;display:block}
 .lb{display:grid;grid-template-columns:28px 1fr 70px;gap:8px;align-items:center;margin:9px 0}
-.bar{height:11px;border-radius:99px;background:#e2e8f0;overflow:hidden}
+.bar{height:11px;border-radius:99px;background:#14296e;overflow:hidden}
 .bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--blue2),var(--blue));transition:width 1s}
 .name{font-size:13px;font-weight:600;margin-bottom:3px}
 .pts{text-align:right;font-weight:700;font-size:14px}
 .feed{max-height:380px;overflow-y:auto}
-.ev{display:flex;justify-content:space-between;gap:8px;padding:8px 6px;border-bottom:1px solid #e2e8f0;font-size:13px}
+.ev{display:flex;justify-content:space-between;gap:8px;padding:8px 6px;border-bottom:1px solid #1d3a8a;font-size:13px}
 .ev small{color:var(--mut)}
 .ev b{color:var(--blue)}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:6px 4px;border-bottom:1px solid #e2e8f0;text-align:right}
+th,td{padding:6px 4px;border-bottom:1px solid #1d3a8a;text-align:right}
 th:first-child,td:first-child{text-align:left}
 .cats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.cat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;font-size:12px;color:var(--mut)}
+.cat{background:#071540;border:1px solid #1d3a8a;border-radius:12px;padding:10px;font-size:12px;color:var(--mut)}
 .cat b{display:block;color:var(--ink);font-size:13px;margin-top:3px}
 .rules{font-size:12.5px;color:var(--mut);line-height:1.6;margin:0}
-.login{max-width:340px;margin:60px auto;background:#fff;border-radius:16px;padding:22px;box-shadow:0 6px 22px rgba(15,23,42,.08)}
-.login input{width:100%;padding:10px;margin:6px 0 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px}
+.login{max-width:340px;margin:60px auto;background:#0b1a4a;border:1px solid #1d3a8a;border-radius:16px;padding:22px;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+.login input{width:100%;padding:10px;margin:6px 0 12px;border:1px solid #1d3a8a;border-radius:10px;font-size:15px;background:#050b24;color:#fff}
 .login button{width:100%;padding:11px;border:0;border-radius:10px;background:var(--blue);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
 .err{color:var(--red);font-size:13px;min-height:18px}
 .hide{display:none}
@@ -69,8 +69,8 @@ th:first-child,td:first-child{text-align:left}
     <h2>Percurso</h2>
     <div class="weeks" id="weeks"></div>
     <svg id="track" viewBox="0 0 600 380" aria-label="Percurso do trenó">
-      <rect x="0" y="0" width="600" height="380" rx="18" fill="#eef6ff"/>
-      <path id="base" d="M40,320 C120,110 250,350 330,220 S520,70 560,120" fill="none" stroke="#cbd5e1" stroke-width="16" stroke-linecap="round"/>
+      <rect x="0" y="0" width="600" height="380" rx="18" fill="#071540"/>
+      <path id="base" d="M40,320 C120,110 250,350 330,220 S520,70 560,120" fill="none" stroke="#1d3a8a" stroke-width="16" stroke-linecap="round"/>
       <path id="prog" d="M40,320 C120,110 250,350 330,220 S520,70 560,120" fill="none" stroke="#00b3ff" stroke-width="10" stroke-linecap="round"/>
       <g id="marks"></g>
       <g id="sleds"></g>
@@ -183,7 +183,7 @@ function weeksWithData(ps) {
 function initSleds(ps) {
   const g = $("sleds"); g.innerHTML = "";
   ps.forEach((p, idx) => {
-    g.innerHTML += `<g id="s${idx}"><text font-size="20" text-anchor="middle">🛷</text><text y="-20" font-size="10" font-weight="700" text-anchor="middle" stroke="#fff" stroke-width="3" paint-order="stroke">${p.nome.split(" ")[0]}</text></g>`;
+    g.innerHTML += `<g id="s${idx}"><text font-size="20" text-anchor="middle">🛷</text><text y="-20" font-size="10" font-weight="700" text-anchor="middle" stroke="#050b24" stroke-width="3" paint-order="stroke">${p.nome.split(" ")[0]}</text></g>`;
   });
 }
 
