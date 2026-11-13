@@ -60,6 +60,7 @@ th:first-child,td:first-child{text-align:left}
 </div>
 
 <div id="game" class="wrap hide">
+  <div class="card full" id="hero" style="font-size:16px;font-weight:700;text-align:center"></div>
   <div class="card">
     <h2>Percurso</h2>
     <div class="weeks" id="weeks"></div>
@@ -121,7 +122,7 @@ const wsum = (a, w) => { const [i, j] = WK[w]; return (a || []).slice(i - 1, j).
 
 function build(data) {
   const ps = data.jogadores.map(p => ({
-    nome: p.nome, tv: p.tv || [], en: p.energia || [], se: p.seguros || [], dv: p.diversidade || [], inq: p.inqueritos
+    nome: p.nome, tv: p.tv || [], en: p.energia || [], se: p.seguros || [], dv: p.diversidade || [], inq: p.inqueritos, bon: []
   }));
   ps.forEach(p => {
     p.tvW = WK.map((_, w) => wsum(p.tv, w));
@@ -131,6 +132,18 @@ function build(data) {
     p.semana = WK.map((_, w) => 3 * (p.tvW[w] + p.enW[w]) + p.seW[w] + p.dvW[w]);
     p.evo = WK.map((_, w) => w === 0 ? 0 : (p.tvW[w] + p.enW[w]) - (p.tvW[w - 1] + p.enW[w - 1]));
   });
+  for (let d = 0; d < 31; d++) {
+    let best = null, bp = 0;
+    ps.forEach(p => {
+      const pt = 3 * (num(p.tv[d]) + num(p.en[d])) + num(p.se[d]) + num(p.dv[d]);
+      if (pt > bp) { bp = pt; best = p; }
+    });
+    if (best) {
+      const w = WK.findIndex(([i, j]) => d + 1 >= i && d + 1 <= j);
+      best.semana[w] += 2;
+      best.bon.push(d + 1);
+    }
+  }
   for (let w = 1; w < WK.length; w++) {
     const best = ps.reduce((a, b) => (b.evo[w] > a.evo[w] ? b : a), ps[0]);
     if (best && best.evo[w] > 0) best.semana[w] += 5;
@@ -154,6 +167,7 @@ function eventsOf(ps, w) {
       if (num(p.dv[k])) out.push({ d, nome: p.nome, t: "Diversidade", q: num(p.dv[k]), pts: num(p.dv[k]) });
     }
   });
+  ps.forEach(p => p.bon.forEach(d => { if (d >= i && d <= j) out.push({ d, nome: p.nome, t: "⭐ Lance do dia", q: 2, pts: 2 }); }));
   return out.sort((a, b) => b.d - a.d || a.nome.localeCompare(b.nome));
 }
 
@@ -223,6 +237,11 @@ function render() {
   $("feed").innerHTML = ev.length
     ? ev.map(e => `<div class="ev"><div><small>dia ${e.d}</small> · ${e.nome} <b>${e.t} +${e.q}</b></div><div><b>+${e.pts}</b></div></div>`).join("")
     : `<p class="rules">Ainda não há lances nesta semana.</p>`;
+
+  const top1 = [...ps].sort((a, b) => b.semana[wk] - a.semana[wk])[0];
+  $("hero").innerHTML = top1 && top1.semana[wk] > 0
+    ? `🏆 Campeão da semana: <span style="color:#0a56c9">${top1.nome}</span> · ${top1.semana[wk]} pts`
+    : "🏆 Campeão da semana: ainda sem pontos";
 
   const sorted = [...ps].sort((a, b) => b.acum[wk] - a.acum[wk]);
   const medal = ["🥇", "🥈", "🥉"];
