@@ -70,7 +70,7 @@ th:first-child,td:first-child{text-align:left}
       <g id="marks"></g>
       <g id="sleds"></g>
     </svg>
-    <p class="rules" style="margin-top:8px">Marcos: 60, 120 e 180 pontos. O trenó da frente mostra o progresso do líder.</p>
+    <p class="rules" style="margin-top:8px">Marcos: 60, 120 e 180 pontos. A escala ajusta-se ao líder: o trenó da frente fica sempre perto do fim do percurso.</p>
   </div>
   <div class="card">
     <h2>Lances da semana</h2>
@@ -113,7 +113,7 @@ const END = new Date("2027-01-16T00:00:00Z");
 const MAX = 180, MARKS = [60, 120, 180];
 const WK = [[1, 4], [5, 11], [12, 18], [19, 25], [26, 31]];
 const NS = "http://www.w3.org/2000/svg";
-let G = null, wk = 0, shown = {}, raf = 0;
+let G = null, wk = 0, shown = {}, raf = 0, SC = 60;
 
 const $ = id => document.getElementById(id);
 const num = x => +x || 0;
@@ -167,16 +167,18 @@ function initSleds(ps) {
   ps.forEach((p, idx) => {
     g.innerHTML += `<g id="s${idx}"><text font-size="20" text-anchor="middle">🛷</text><text y="-20" font-size="10" font-weight="700" text-anchor="middle" stroke="#fff" stroke-width="3" paint-order="stroke">${p.nome.split(" ")[0]}</text></g>`;
   });
-  const pth = $("prog"), L = pth.getTotalLength();
+}
+
+function drawMarks(pth, L) {
   const mg = $("marks"); mg.innerHTML = "";
-  MARKS.forEach(m => {
-    const pt = pth.getPointAtLength(m / MAX * L);
+  MARKS.filter(m => m <= SC).forEach(m => {
+    const pt = pth.getPointAtLength(m / SC * L);
     mg.innerHTML += `<circle cx="${pt.x}" cy="${pt.y}" r="13" fill="#fff" stroke="#0a56c9" stroke-width="3"/><text x="${pt.x}" y="${pt.y + 4}" font-size="10" font-weight="700" text-anchor="middle" fill="#0a56c9">${m}</text>`;
   });
 }
 
 function placeSled(idx, v, L, pth) {
-  const pt = pth.getPointAtLength(Math.max(0, Math.min(v, MAX)) / MAX * L);
+  const pt = pth.getPointAtLength(Math.max(0, Math.min(v, SC)) / SC * L);
   const lane = idx % 2 ? 9 : -9;
   const up = (idx % 3) * 3;
   const el = $("s" + idx);
@@ -187,7 +189,9 @@ function animateTrack(ps, w) {
   const pth = $("prog"), L = pth.getTotalLength();
   pth.style.strokeDasharray = L;
   const top = Math.max(0, ...ps.map(p => p.acum[w]));
-  pth.style.strokeDashoffset = L * (1 - Math.min(top, MAX) / MAX);
+  SC = Math.max(60, Math.ceil((top + 30) / 30) * 30);
+  drawMarks(pth, L);
+  pth.style.strokeDashoffset = L * (1 - Math.min(top, SC) / SC);
   pth.style.transition = "stroke-dashoffset 1s ease";
 
   const from = { ...shown }, to = {};
@@ -223,7 +227,7 @@ function render() {
   const sorted = [...ps].sort((a, b) => b.acum[wk] - a.acum[wk]);
   const medal = ["🥇", "🥈", "🥉"];
   $("lb").innerHTML = sorted.map((p, i) => `<div class="lb"><div style="text-align:center">${medal[i] || (i + 1)}</div><div><div class="name">${p.nome}</div><div class="bar"><i data-v="${p.acum[wk]}"></i></div></div><div class="pts">${p.acum[wk]} pts</div></div>`).join("");
-  requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll("#lb .bar i").forEach(el => el.style.width = (el.dataset.v / MAX * 100) + "%")));
+  requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll("#lb .bar i").forEach(el => el.style.width = (el.dataset.v / SC * 100) + "%")));
 
   $("tbl").innerHTML = `<tr><th>Colaborador</th><th>TV</th><th>Meo Energia</th><th>Seguros</th><th>Diversidade</th><th>Pontos da semana</th></tr>` +
     ps.map(p => `<tr><td>${p.nome}</td><td>${p.tvW[wk]}</td><td>${p.enW[wk]}</td><td>${p.seW[wk]}</td><td>${p.dvW[wk]}</td><td><b>${p.semana[wk]}</b></td></tr>`).join("");
