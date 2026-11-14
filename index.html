@@ -913,7 +913,7 @@ function render(){
   $("up").style.display="";{const nn=document.getElementById("nvn");if(nn)nn.textContent=String(CFG.loja||"").toUpperCase()}if(snap)try{setFr()}catch(e){}
   if(!db){$("main").innerHTML='<div class="card">Sem acesso aos dados. Inicia sessão para ver os dados.</div>';return}
   if(!snap){$("main").innerHTML='<div class="card">Ainda não há dados. Toca em “Atualizar com Excel” e escolhe o teu ficheiro.</div>';return}
-  $("sub").textContent=`${snap.mes} · atualizado a ${new Date(snap.at).toLocaleString("pt-PT")}`+(msg?` · ${msg}`:"");
+  $("sub").textContent=`${snap.mes} · atualizado a ${new Date(snap.at).toLocaleString("pt-PT")}`+(msg?` · ${msg}`:"")+` · versão v2026-11-14`;
   if(view==="colab"&&!sel)sel=snap.vendedores[0].nome;
   {const ids=[...new Set(H.map(x=>x.id).concat(CUR?[ymid(CUR)]:[]))].sort().reverse(),cu=CUR?ymid(CUR):"";$("msel").innerHTML=ids.map(i=>{const q=i===cu?CUR:(H.find(x=>x.id===i)||{}).s;return `<option value="${i}" ${(mid||cu)===i?"selected":""}>${esc(q?q.mes:i)}</option>`}).join("");$("msel").hidden=false}
   document.documentElement.dataset.view=view;$("nav").hidden=false;{const g=GRP[view]||view,sig=g+"|"+view+"|"+pendBr()+"|"+JSON.stringify(navOpen);if(window._ns!==sig){window._ns=sig;buildNav()}}

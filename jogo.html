@@ -295,7 +295,7 @@ function render() {
 function showGame(data) {
   $("loginBox").classList.add("hide");
   $("game").classList.remove("hide");
-  $("sub").textContent = (data.mes || "Dezembro") + " · atualizado em " + new Date(data.atualizado).toLocaleString("pt-PT");
+  $("sub").textContent = (data.mes || "Dezembro") + " · atualizado em " + new Date(data.atualizado).toLocaleString("pt-PT") + " · objetivos carregados: " + data.jogadores.filter(j => +j.objTV > 0 || +j.objEN > 0).length + " de " + data.jogadores.length + " · versão v2026-11-14";
   if (Array.isArray(data.semanas) && data.semanas.length) WK = data.semanas;
   const DIM = WK[WK.length - 1][1];
   MARKS = WK.map(([i, j]) => Math.round(100 * j / DIM));
