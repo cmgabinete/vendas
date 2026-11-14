@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Caminho ao Trenó de Natal</title>
+<title>Operação Trenó</title>
 <style>
 :root{--blue:#1d6fe8;--blue2:#5aa8ff;--ink:#0f1f4d;--mut:#56658a;--bg:#eef3fb;--red:#d62f2f}
 *{box-sizing:border-box}
@@ -53,7 +53,7 @@ th:first-child,td:first-child{text-align:left}
 <header id="top">
   <div class="snow" id="snow"></div>
   <div style="position:relative">
-    <h1>🛷 Caminho ao Trenó de Natal</h1>
+    <h1>🛷 Operação Trenó</h1>
   </div>
 </header>
 
@@ -246,12 +246,12 @@ function animateTrack(ps, w) {
   SC = Math.max(20, Math.ceil((top + 10) / 10) * 10);
   drawMarks(pth, L);
   pth.style.strokeDashoffset = L * (1 - Math.min(top, SC) / SC);
-  pth.style.transition = "stroke-dashoffset 1s ease";
+  pth.style.transition = "stroke-dashoffset 5s ease";
 
   const from = { ...shown }, to = {};
   ps.forEach(p => to[p.nome] = p.acum[w]);
   cancelAnimationFrame(raf);
-  const t0 = performance.now(), D = 1100;
+  const t0 = performance.now(), D = 5000;
   const frame = now => {
     const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
     ps.forEach((p, idx) => {
