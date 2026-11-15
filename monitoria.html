@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monitoria Atendimento</title>
+<style>
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#eef3fb;color:#0f1f4d}
+main{max-width:720px;margin:24px auto;padding:0 16px}
+.card{background:#fff;border:1px solid #d6e2f5;border-radius:14px;padding:16px;margin-bottom:12px}
+h1{font-size:20px;margin:0 0 6px}
+p.mut{color:#56658a;font-size:13px;margin:4px 0 0}
+textarea{width:100%;min-height:260px;border:1px solid #c5d6ee;border-radius:10px;padding:10px;font:inherit;font-size:14px;box-sizing:border-box}
+button{background:#1d6fe8;color:#fff;border:0;border-radius:10px;padding:11px 16px;font-weight:700;font-size:15px;cursor:pointer}
+button:disabled{background:#9bb6e6}
+ul{margin:6px 0 0;padding-left:18px;font-size:13px}
+.err{color:#d62f2f;font-size:13px;min-height:18px}
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <h1>Monitoria Atendimento</h1>
+    <p class="mut">Cola aqui a nota do atalho. O link abre o formulário já com a loja, a data e as respostas. O colaborador observado, o email Altice e o observador não entram no link: escolhe-os no formulário.</p>
+  </div>
+  <div class="card">
+    <textarea id="nota" placeholder="Cola aqui a nota (Loja: …, data, perguntas e respostas)"></textarea>
+    <p class="err" id="erro"></p>
+    <p><button id="btn" disabled>Abrir formulário pré-preenchido</button></p>
+    <p class="mut" id="resumo"></p>
+    <ul id="lista"></ul>
+  </div>
+</main>
+<script>
+const FORM = "https://docs.google.com/forms/d/e/1FAIpQLSe6nWpjts16YOzad48VaapgeJ57YWvAQkTzynmYGOm-Ud5vdg/viewform";
+const E = {
+  data: "348831650", loja: "1879579322",
+  acol_senha: "221644971", acol_contacto: "162246498", acol_agradece: "1668422353", acol_motivo: "1622355241", acol_obs: "1095834831",
+  diag_perguntas: "912639025", diag_servicos: "522500544",
+  seg: "1309375780", ofertas: "960990134",
+  prop1: "2128907049", prop2: "1386935341", prop3: "1045294816", prop_tipos: "2109332428",
+  estr_meo: "1285053548", estr_net: "1283374974",
+  upsell: "1520537411", conhece: "886588296", meos: "802757471", fecho: "295495280", venda: "524245872", resumo: "1234646120",
+  disp: "7442365", resolve: "290394648", nps: "1340866643", rap: "765932905", dific: "1343446750",
+  despede: "134958787", volta: "262889862", porta: "2102727796", crm: "1219435865", obs_gerais: "1918777304"
+};
+const TIPOS = ["M4","TV","Mudança de Casa (TV)","Meo Energia","Net Segura /Netsegura casa","PPP","Seguro","Acessórios","Faturação (Smartphone, TV 4K, Gaming, Vepós, outros)","Eletrodomésticos","Troca de MEOS (Pontos)","Outro"];
+// chave (texto da pergunta na nota) -> campo do formulário
+const MAPA = [
+  ["Fez o acolhimento", E.acol_senha, "sim"], ["Estabeleceu contacto visual", E.acol_contacto, "sim"],
+  ["Agradeceu a espera", E.acol_agradece, "sim"], ["Questionou o motivo", E.acol_motivo, "sim"],
+  ["Observações do acolhimento", E.acol_obs, "texto"],
+  ["Fez perguntas de diagnóstico", E.diag_perguntas, "sim"], ["Consultou os serviços atuais", E.diag_servicos, "sim"],
+  ["Validou e classificou o segmento", E.seg, "sim"], ["Validou as ofertas", E.ofertas, "sim"],
+  ["Propôs o produto estratégico", null, "estrategico"],
+  ["Fez upselling", E.upsell, "sim"], ["Conhece as ofertas comerciais", E.conhece, "sim"],
+  ["Verificou se o cliente tem MEOS", E.meos, "sim"], ["Fez tentativa de fecho", E.fecho, "sim"],
+  ["Concretizou a venda", E.venda, "sim"], ["Resumo da parte comercial", E.resumo, "texto"],
+  ["Demonstrou disponibilidade", E.disp, "sim"], ["Resolveu a situação", E.resolve, "sim"],
+  ["Informou e esclareceu o NPS", E.nps, "sim"], ["Informou o RAP", E.rap, "sim"],
+  ["Apresentou alguma dificuldade", E.dific, "texto"],
+  ["Agradeceu a visita", E.despede, "sim"], ["Convidou o cliente a voltar", E.volta, "sim"],
+  ["Acompanhou o cliente", E.porta, "sim"], ["Efetuou o registo em CRM", E.crm, "sim"],
+  ["Observações gerais", E.obs_gerais, "texto"]
+];
+
+function norm(a) {
+  a = (a || "").trim();
+  if (!a) return null;
+  if (/chamou senha/i.test(a) || /^sim/i.test(a)) return "Sim";
+  if (/^n[ãa]o/i.test(a)) return "Não";
+  if (/^(na|n\/a|n\.a\.?|não aplicável|nao aplicavel)$/i.test(a)) return "NA";
+  return null;
+}
+
+function analisar(texto) {
+  const r = { params: [], lista: [] };
+  const add = (id, val, rotulo) => { if (val) { r.params.push([ "entry." + id, val ]); r.lista.push(rotulo + ": " + val); } };
+  const linhas = texto.split(/\r?\n/);
+  for (const linha of linhas) {
+    const t = linha.trim();
+    const dt = t.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (dt && !r.data) { r.data = dt[3] + "-" + dt[2] + "-" + dt[1]; add(E.data, r.data, "Data"); continue; }
+    const lo = t.match(/^Loja:\s*(.+)$/);
+    if (lo) { r.loja = lo[1].trim(); add(E.loja, r.loja, "Loja"); continue; }
+    const m = t.match(/^(.*):\s*(.*)$/);
+    if (!m) continue;
+    const pergunta = m[1], resposta = m[2].trim();
+    if (!resposta) continue;
+    if (/Apresentou proposta diferente/i.test(pergunta)) {
+      const n = parseInt(resposta, 10);
+      if (n >= 1) { add(E.prop1, "Sim", "1ª proposta"); }
+      if (n >= 2) { add(E.prop2, "Sim", "2ª proposta"); }
+      if (n >= 1 && n < 3) { add(E.prop3, "Não", "3ª proposta"); }
+      if (n >= 3) { add(E.prop3, "Sim", "3ª proposta"); }
+      continue;
+    }
+    if (/Quais as propostas/i.test(pergunta)) {
+      const partes = resposta.split(/\s+e\s+|,|;|\//i).map(s => s.trim().toLowerCase()).filter(Boolean);
+      for (const p of partes) {
+        const op = TIPOS.find(o => o.toLowerCase().startsWith(p) || (p.startsWith("tv") && o === "TV") || (p.startsWith("meo") && o === "Meo Energia") || (p.startsWith("net") && o.startsWith("Net Segura")) || (p.startsWith("fatur") && o.startsWith("Faturação")) || (p.startsWith("troca") && o.startsWith("Troca")));
+        if (op) add(E.prop_tipos, op, "Proposta");
+      }
+      continue;
+    }
+    const chave = MAPA.find(x => pergunta.toLowerCase().includes(x[0].toLowerCase()));
+    if (!chave) continue;
+    if (chave[2] === "estrategico") {
+      const meo = /meo/i.test(resposta), net = /net/i.test(resposta);
+      add(E.estr_meo, meo ? "Sim" : "Não", "Estratégico Meo Energia");
+      add(E.estr_net, net ? "Sim" : "Não", "Estratégico Netsegura");
+      continue;
+    }
+    if (chave[2] === "texto") {
+      if (/^não$/i.test(resposta) && chave[0] === "Apresentou alguma dificuldade") continue;
+      add(chave[1], resposta, chave[0]);
+      continue;
+    }
+    const v = norm(resposta);
+    if (!v) { r.avisos = (r.avisos || []).concat(chave[0] + " ('" + resposta + "')"); continue; }
+    add(chave[1], v, chave[0]);
+  }
+  return r;
+}
+
+let ultimo = null;
+document.getElementById("nota").addEventListener("input", e => {
+  const erro = document.getElementById("erro"), lista = document.getElementById("lista"), btn = document.getElementById("btn");
+  const texto = e.target.value;
+  if (!texto.trim()) { ultimo = null; btn.disabled = true; lista.innerHTML = ""; erro.textContent = ""; document.getElementById("resumo").textContent = ""; return; }
+  ultimo = analisar(texto);
+  btn.disabled = ultimo.params.length === 0;
+  document.getElementById("resumo").textContent = ultimo.params.length + " campos preenchidos" + (ultimo.avisos ? " · não reconhecidos: " + ultimo.avisos.join("; ") : "");
+  lista.innerHTML = ultimo.lista.map(x => "<li>" + x.replace(/</g, "&lt;") + "</li>").join("");
+  erro.textContent = ultimo.params.length ? "" : "Não encontrei respostas na nota.";
+});
+document.getElementById("btn").addEventListener("click", () => {
+  if (!ultimo) return;
+  const qs = ultimo.params.map(([k, v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v)).join("&");
+  window.open(FORM + "?" + qs, "_blank", "noopener");
+});
+</script>
+</body>
+</html>
