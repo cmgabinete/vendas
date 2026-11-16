@@ -47,6 +47,16 @@ th:first-child,td:first-child{text-align:left}
 .login button{width:100%;padding:11px;border:0;border-radius:10px;background:var(--blue);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
 .err{color:var(--red);font-size:13px;min-height:18px}
 .hide{display:none}
+.pod{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin:10px 0 18px}
+.pod>div{border-radius:14px 14px 6px 6px;padding:12px 10px;text-align:center;min-width:120px;background:linear-gradient(180deg,#fff,#dbe8ff);box-shadow:0 10px 24px rgba(20,50,110,.2);animation:rise .8s cubic-bezier(.2,0,0,1) both}
+.pod .p1{height:170px;background:linear-gradient(180deg,#fff6c2,#ffc83d);box-shadow:0 12px 30px rgba(255,180,0,.45)}
+.pod .p2{height:135px;background:linear-gradient(180deg,#ffffff,#c9d4e4)}
+.pod .p3{height:110px;background:linear-gradient(180deg,#ffe2c6,#e89355)}
+.pod .med{font-size:28px}
+.wcards{display:flex;flex-wrap:wrap;gap:10px}
+.wcard{background:#f2f6fd;border:1px solid #d6e2f5;border-radius:12px;padding:10px 12px;min-width:210px;flex:1;animation:rise .6s cubic-bezier(.2,0,0,1) both}
+@keyframes rise{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.pod>div,.wcard{animation:none}}
 </style>
 </head>
 <body>
@@ -95,6 +105,10 @@ th:first-child,td:first-child{text-align:left}
   <div class="card full">
     <h2>Raspadinhas e prémio final</h2>
     <div id="pre"></div>
+  </div>
+  <div class="card full">
+    <h2>Vencedores de cada semana</h2>
+    <div id="vence"></div>
   </div>
   <div class="card full">
     <h2>Vendas da semana</h2>
@@ -196,11 +210,15 @@ function build(data) {
     let sp = 0;
     p.pts = WK.map((_, w) => (sp += p.semana[w]));
     p.pts[WK.length - 1] += p.bonus.total;
+    const TI = WK.length;
+    [p.tvW, p.enW, p.seW, p.dvW].forEach(a => a.push(a.reduce((x, y) => x + y, 0)));
+    p.semana.push(p.pts[TI - 1]); p.evo.push(0); p.acum.push(p.acum[TI - 1]);
   });
   return ps;
 }
 
 function eventsOf(ps, w) {
+  if (w >= WK.length) return [];
   const [i, j] = WK[w], out = [];
   ps.forEach(p => {
     for (let d = i; d <= j; d++) {
@@ -268,6 +286,26 @@ function animateTrack(ps, w) {
   raf = requestAnimationFrame(frame);
 }
 
+// Vencedores por semana e pódio do total (destaque)
+function vencedores(ps) {
+  const L = WK.length - 1;
+  const top = [...ps].sort((a, b) => b.pts[L] - a.pts[L]).filter(p => p.pts[L] > 0).slice(0, 3);
+  const medal = ["🥇", "🥈", "🥉"], cls = ["p1", "p2", "p3"];
+  const ordem = [1, 0, 2].filter(i => top[i]);
+  const pod = '<div class="pod">' + ordem.map(i => `<div class="${cls[i]}" style="animation-delay:${i * 0.15}s"><div class="med">${medal[i]}</div><b>${top[i].nome}</b><div>${Math.round(top[i].pts[L])} pts</div></div>`).join("") + "</div>";
+  const nome = (p, v) => p ? p.nome + " · " + v : "–";
+  const cards = WK.map(([i, j], w) => {
+    const camp = [...ps].sort((a, b) => b.semana[w] - a.semana[w])[0];
+    const evo = [...ps].sort((a, b) => b.evo[w] - a.evo[w])[0];
+    const npsW = [...ps].filter(p => p.elig[w] === true && p.nps != null).sort((a, b) => b.nps - a.nps)[0];
+    return `<div class="wcard"><b>Semana ${w + 1}</b> <span class="mut">${i}–${j}</span>` +
+      `<div>🏆 ${camp && camp.semana[w] > 0 ? nome(camp, Math.round(camp.semana[w]) + " pts") : "–"}</div>` +
+      `<div>📈 ${evo && evo.evo[w] > 0 ? nome(evo, "+" + evo.evo[w] + " unid.") : "–"}</div>` +
+      `<div>⭐ ${npsW ? nome(npsW, Math.round(npsW.nps * 100) + "% NPS") : "–"}</div></div>`;
+  }).join("");
+  return pod + '<div class="wcards">' + cards + "</div>";
+}
+
 // Raspadinhas: 1 por campeão da semana, 1 por melhor evolução, 1 por melhor NPS (elegíveis), 1 por marco atingido.
 // Prémio final (acumulado): 3, 2 e 1 folgas para o 1.º, 2.º e 3.º.
 function premios(ps) {
@@ -285,7 +323,7 @@ function premios(ps) {
   const top = [...ps].sort((a, b) => b.pts[L] - a.pts[L]);
   const folgas = {};
   [3, 2, 1].forEach((f, i) => { if (top[i] && top[i].pts[L] > 0) folgas[top[i].nome] = f; });
-  const linhas = [...ps].sort((a, b) => (rasp[b.nome] - rasp[a.nome]) || (b.pts[L] - a.pts[L])).map(p =>
+  const linhas = [...ps].sort((a, b) => (b.pts[L] - a.pts[L]) || (rasp[b.nome] - rasp[a.nome])).map(p =>
     `<tr><td>${p.nome}</td><td>${rasp[p.nome]}</td><td>${Math.round(p.pts[L])} pts</td><td>${folgas[p.nome] ? folgas[p.nome] + (folgas[p.nome] === 1 ? " folga" : " folgas") : "–"}</td></tr>`).join("");
   return `<table><tr><th>Colaborador</th><th>Raspadinhas</th><th>Pontos acumulados</th><th>Prémio final</th></tr>${linhas}</table>` +
     `<p class="rules" style="margin-top:8px">O prémio final é atribuído a 31 de dezembro, com base no total acumulado até essa data.</p>`;
@@ -293,9 +331,10 @@ function premios(ps) {
 
 function render() {
   const ps = G.ps;
-  const wl = weeksWithData(ps);
+  const wl = [...weeksWithData(ps), WK.length];
+  const isTot = wk === WK.length;
   if (!wl.includes(wk)) wk = wl[wl.length - 1];
-  $("weeks").innerHTML = wl.map(w => `<button class="${w === wk ? "on" : ""}" data-w="${w}">Semana ${w + 1}</button>`).join("");
+  $("weeks").innerHTML = wl.map(w => `<button class="${w === wk ? "on" : ""}" data-w="${w}">${w === WK.length ? "Total" : "Semana " + (w + 1)}</button>`).join("");
   $("weeks").querySelectorAll("button").forEach(b => b.onclick = () => { wk = +b.dataset.w; render(); });
 
   animateTrack(ps, wk);
@@ -314,7 +353,9 @@ function render() {
     : `<p class="rules">Ainda não há lances nesta semana.</p>`;
 
   const top1 = [...ps].sort((a, b) => b.semana[wk] - a.semana[wk])[0];
-  $("hero").innerHTML = top1 && top1.semana[wk] > 0
+  $("hero").innerHTML = isTot
+    ? `🏆 Líder do mês: <span style="color:#0a56c9">${[...ps].sort((a, b) => b.pts[wk] - a.pts[wk])[0].nome}</span> · ${Math.round([...ps].sort((a, b) => b.pts[wk] - a.pts[wk])[0].pts[wk])} pts`
+    : top1 && top1.semana[wk] > 0
     ? `🏆 Campeão da semana: <span style="color:#0a56c9">${top1.nome}</span> · ${top1.semana[wk]} pts`
     : "🏆 Campeão da semana: ainda sem pontos";
 
@@ -334,6 +375,10 @@ function render() {
   const evo = [...ps].sort((a, b) => b.evo[wk] - a.evo[wk])[0];
   const npsW = [...ps].filter(p => p.elig[wk] === true && p.nps != null).sort((a, b) => b.nps - a.nps)[0];
   const lider = [...ps].sort((a, b) => b.pts[wk] - a.pts[wk])[0];
+  if (isTot) {
+    const lid = [...ps].sort((a, b) => b.pts[wk] - a.pts[wk])[0];
+    $("cats").innerHTML = cat("🏅 Líder do mês", lid && lid.pts[wk] > 0 ? lid.nome + " · " + Math.round(lid.pts[wk]) + " pts" : "–") + cat("📅 Mês", G.mes || "–");
+  } else
   $("cats").innerHTML =
     cat("🏆 Campeão da semana", hasW && campeao.semana[wk] > 0 ? campeao.nome : "–") +
     cat("📈 Melhor evolução", hasW && evo && evo.evo[wk] > 0 ? evo.nome : "–") +
@@ -341,6 +386,7 @@ function render() {
     cat("🏅 Campeão acumulado (até esta semana)", lider && lider.pts[wk] > 0 ? lider.nome + " · " + Math.round(lider.pts[wk]) + " pts" : "–") +
     cat("📅 Mês", G.mes || "–");
   $("pre").innerHTML = premios(ps);
+  $("vence").innerHTML = vencedores(ps);
 }
 
 function showGame(data) {
