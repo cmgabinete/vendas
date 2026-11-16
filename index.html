@@ -302,10 +302,10 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const pc=x=>x==null?"–":Math.round(x*100)+"%";
 const nf=(n,k)=>n==null?"–":(k==="Facturação"?Math.round(n).toLocaleString("pt-PT")+" €":(Math.round(n*10)/10).toString().replace(".",","));
 const med=a=>{a=a.filter(x=>x!=null).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:null};
-function diaEf(){const dias=snap.dias||30,dia=snap.dia||dias,t=new Date(),m=MNL.findIndex(x=>String(snap.mes).startsWith(x)),y=+(String(snap.mes).match(/\d{4}/)||[0])[0];return m>=0&&y&&t.getFullYear()===y&&t.getMonth()===m?Math.min(dias,t.getDate()-1):dia}
+function diaEf(){const dias=snap.dias||30,dia=snap.dia||dias,t=new Date(),m=MNL.findIndex(x=>String(snap.mes).startsWith(x)),y=+(String(snap.mes).match(/\d{4}/)||[0])[0];return m>=0&&y&&t.getFullYear()===y&&t.getMonth()===m?Math.min(dias,t.getDate()):dia}
 function stale(){if(view==="hor"||view==="reg"||view==="nps"||view==="rel"||view==="frm"||view==="coach"||view==="brf")return"";const dias=snap.dias||30,dia=snap.dia||dias,e=diaEf();if(snap.live)return `<div class="card" style="border-color:var(--warn);margin-bottom:8px"><b class="fraco">Excel até ao dia ${dia}.</b> Depois disso só há registos ao vivo de TV e Meo Energia (${snap.live.n}). Os outros indicadores só atualizam com o Excel.</div>`;if(e<=dia)return"";return `<div class="card slim" style="border-color:var(--warn);margin-bottom:6px" title="As previsões já contam os ${e-dia} dia(s) que passaram, mas as vendas desses dias não estão incluídas."><b class="fraco">⚠ Dados até ao dia ${dia}; hoje é dia ${e+1}.</b> Atualiza o Excel para as previsões refletirem tudo.</div>`}
 function hojeFrac(){if(!snap.liveHoje)return 0;const t=new Date(),h=t.getHours()+t.getMinutes()/60;return Math.min(1,Math.max(0,(h-9)/13))}
-const fr0=()=>(diaEf()+hojeFrac())/(snap.dias||30);const pfo=d=>d.real/d.obj/(d.fr!=null?d.fr:fr0());
+const fr0=()=>diaEf()/(snap.dias||30);const pfo=d=>d.real/d.obj/(d.fr!=null?d.fr:fr0());
 function ana(v,all){
   const r=[];
   for(const[k,w]of KP){const d=v.k[k];if(!d||!d.obj)continue;
@@ -537,7 +537,7 @@ function wdc(v){const h=hp(v);if(!h)return null;const M=h.M,c=h.p.c.map((x,i)=>{
 function wdIn(v,a,b){const w=wdc(v);if(!w||!w.n)return null;let n=0;for(let i=Math.max(1,a);i<=Math.min(b,w.c.length);i++)if(isW(w.c[i-1]))n++;return n}
 function frac(v,a,b){if(b<a)return 0;const w=wdc(v);if(!w||!w.n)return(b-a+1)/(snap.dias||30);return wdIn(v,a,b)/w.n}
 function restW(v){const w=wdc(v);if(!w||!w.n)return null;return wdIn(v,diaEf()+1,snap.dias||30)}
-function frV(v){const w=wdc(v);if(!w||!w.n)return fr0();const ew=wdIn(v,1,diaEf());v.poucos=ew<4&&(ew===0||diaEf()>=8);const e=diaEf()+hojeFrac();return Math.max(e,v.poucos?4:.0001)/(snap.dias||30)}
+function frV(v){const w=wdc(v);if(!w||!w.n)return fr0();const ew=wdIn(v,1,diaEf());v.poucos=ew<4&&(ew===0||diaEf()>=8);const e=diaEf();return Math.max(e,v.poucos?4:.0001)/(snap.dias||30)}
 function objDia(v,k,d){const o=v.k[k];if(!o||!o.obj)return 0;const w=wdc(v);if(!w||!w.n)return o.obj/(snap.dias||30);return isW(w.c[d-1]||"")?o.obj/w.n:0}
 function setFr(){if(!snap)return;for(const v of snap.vendedores){const f=frV(v);for(const k in v.k)if(v.k[k]&&typeof v.k[k]==="object")v.k[k].fr=f}}
 function buildRel(o){const{vend,store,RT,npsL,mon,last,dias,unk,miss}=o,r=[],ok=t=>r.push(["ok",t]),av=t=>r.push(["av",t]);
