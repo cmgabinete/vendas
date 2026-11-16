@@ -93,6 +93,10 @@ th:first-child,td:first-child{text-align:left}
     <div class="cats" id="cats"></div>
   </div>
   <div class="card full">
+    <h2>Raspadinhas e prémio final</h2>
+    <div id="pre"></div>
+  </div>
+  <div class="card full">
     <h2>Vendas da semana</h2>
     <div style="overflow-x:auto"><table id="tbl"></table></div>
   </div>
@@ -153,7 +157,7 @@ function pondGOE(ps) {
 function build(data) {
   const ps = data.jogadores.map(p => ({
     nome: p.nome, tv: p.tv || [], en: p.energia || [], se: p.seguros || [], dv: p.diversidade || [], bon: [],
-    inq: p.inqueritos, nps: p.nps, seg: p.seg, div: p.div, goe: !!p.goe,
+    inq: p.inqueritos, nps: p.nps, elig: p.elegivel || [], seg: p.seg, div: p.div, goe: !!p.goe,
     objTV: num(p.objTV), objEN: num(p.objEN), pTV: 1, pEN: 1, isGOE: false
   }));
   pondGOE(ps);
@@ -162,7 +166,7 @@ function build(data) {
     p.enW = WK.map((_, w) => wsum(p.en, w));
     p.seW = WK.map((_, w) => wsum(p.se, w));
     p.dvW = WK.map((_, w) => wsum(p.dv, w));
-    p.semana = WK.map((_, w) => 3 * (p.tvW[w] * p.pTV + p.enW[w] * p.pEN) + p.seW[w] + (p.isGOE ? 0 : p.dvW[w]));
+    p.semana = WK.map((_, w) => Math.round(3 * (p.tvW[w] * p.pTV + p.enW[w] * p.pEN) + p.seW[w] + (p.isGOE ? 0 : p.dvW[w])));
     p.evo = WK.map((_, w) => w === 0 ? 0 : (p.tvW[w] + p.enW[w]) - (p.tvW[w - 1] + p.enW[w - 1]));
     p.tvT = p.tvW.reduce((a, b) => a + b, 0);
     p.enT = p.enW.reduce((a, b) => a + b, 0);
@@ -264,6 +268,29 @@ function animateTrack(ps, w) {
   raf = requestAnimationFrame(frame);
 }
 
+// Raspadinhas: 1 por campeão da semana, 1 por melhor evolução, 1 por melhor NPS (elegíveis), 1 por marco atingido.
+// Prémio final (acumulado): 3, 2 e 1 folgas para o 1.º, 2.º e 3.º.
+function premios(ps) {
+  const L = WK.length - 1, rasp = {}, ganhos = [];
+  ps.forEach(p => rasp[p.nome] = 0);
+  WK.forEach((_, w) => {
+    const camp = [...ps].sort((a, b) => b.semana[w] - a.semana[w])[0];
+    if (camp && camp.semana[w] > 0) { rasp[camp.nome]++; ganhos.push(["Campeão da semana", w, camp.nome]); }
+    const evo = [...ps].sort((a, b) => b.evo[w] - a.evo[w])[0];
+    if (evo && evo.evo[w] > 0) { rasp[evo.nome]++; ganhos.push(["Melhor evolução", w, evo.nome]); }
+    const npsW = [...ps].filter(p => p.elig[w] === true && p.nps != null).sort((a, b) => b.nps - a.nps)[0];
+    if (npsW) { rasp[npsW.nome]++; ganhos.push(["Melhor NPS", w, npsW.nome]); }
+  });
+  ps.forEach(p => MARKS.forEach(m => { if (p.pts[L] >= m) rasp[p.nome]++; }));
+  const top = [...ps].sort((a, b) => b.pts[L] - a.pts[L]);
+  const folgas = {};
+  [3, 2, 1].forEach((f, i) => { if (top[i] && top[i].pts[L] > 0) folgas[top[i].nome] = f; });
+  const linhas = [...ps].sort((a, b) => (rasp[b.nome] - rasp[a.nome]) || (b.pts[L] - a.pts[L])).map(p =>
+    `<tr><td>${p.nome}</td><td>${rasp[p.nome]}</td><td>${Math.round(p.pts[L])} pts</td><td>${folgas[p.nome] ? folgas[p.nome] + (folgas[p.nome] === 1 ? " folga" : " folgas") : "–"}</td></tr>`).join("");
+  return `<table><tr><th>Colaborador</th><th>Raspadinhas</th><th>Pontos acumulados</th><th>Prémio final</th></tr>${linhas}</table>` +
+    `<p class="rules" style="margin-top:8px">O prémio final é atribuído a 31 de dezembro, com base no total acumulado até essa data.</p>`;
+}
+
 function render() {
   const ps = G.ps;
   const wl = weeksWithData(ps);
@@ -305,12 +332,15 @@ function render() {
   const isLast = wk === WK.length - 1;
   const campeao = [...ps].sort((a, b) => b.semana[wk] - a.semana[wk])[0];
   const evo = [...ps].sort((a, b) => b.evo[wk] - a.evo[wk])[0];
-  const inq = isLast ? [...ps].filter(p => p.inq != null).sort((a, b) => num(b.inq) - num(a.inq))[0] : null;
+  const npsW = [...ps].filter(p => p.elig[wk] === true && p.nps != null).sort((a, b) => b.nps - a.nps)[0];
+  const lider = [...ps].sort((a, b) => b.pts[wk] - a.pts[wk])[0];
   $("cats").innerHTML =
     cat("🏆 Campeão da semana", hasW && campeao.semana[wk] > 0 ? campeao.nome : "–") +
     cat("📈 Melhor evolução", hasW && evo && evo.evo[wk] > 0 ? evo.nome : "–") +
-    cat("⭐ Mais inquéritos NPS (fim do mês)", isLast && inq ? inq.nome : "–") +
+    cat("⭐ Melhor NPS (elegíveis)", npsW ? npsW.nome + " · " + Math.round(npsW.nps * 100) + "%" : "–") +
+    cat("🏅 Campeão acumulado (até esta semana)", lider && lider.pts[wk] > 0 ? lider.nome + " · " + Math.round(lider.pts[wk]) + " pts" : "–") +
     cat("📅 Mês", G.mes || "–");
+  $("pre").innerHTML = premios(ps);
 }
 
 function showGame(data) {
