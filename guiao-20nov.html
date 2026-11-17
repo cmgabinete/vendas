@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7030a0">
+<title>Guião · Reunião 20 de novembro · Forum Coimbra</title>
+<style>
+:root{--roxo:#7030a0;--rosa:#c8199e;--laranja:#c66a00;--tx:#1f1a26;--mut:#635a6e;--bg:#f7f4fa;--card:#fff;--linha:#e6dff0;--ok:#1b6e3e;--okbg:#e2f5e9;--mau:#a8104a;--maubg:#fde6ee;
+  --ease:cubic-bezier(.2,0,0,1);color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Calibri,sans-serif}
+::selection{background:#e9d6f7}
+header{position:sticky;top:0;z-index:5;background:var(--roxo);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;box-shadow:0 2px 10px rgba(40,10,60,.18)}
+.top{display:flex;align-items:center;gap:12px;max-width:760px;margin:0 auto}
+h1{font-size:15px;margin:0;font-weight:600;opacity:.9;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.relogio{font:700 26px/1 ui-monospace,"Cascadia Mono",Consolas,monospace;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.relogio small{font-size:13px;font-weight:500;opacity:.75}
+.bt{appearance:none;border:0;border-radius:12px;padding:10px 14px;min-height:44px;font-family:inherit;font-weight:600;font-size:15px;line-height:1;cursor:pointer;background:#fff;color:var(--roxo)}
+.bt.sec{background:rgba(255,255,255,.16);color:#fff}
+.bt:focus-visible,.item:focus-within,summary:focus-visible{outline:3px solid #ffc94d;outline-offset:2px}
+.barra{max-width:760px;margin:8px auto 0;height:8px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:#ffc94d;border-radius:99px;transition:width .25s var(--ease)}
+.estado{max-width:760px;margin:6px auto 0;font-size:13px;display:flex;justify-content:space-between;gap:8px;opacity:.95}
+.estado .atraso{color:#ffd0e6;font-weight:700}
+main{max-width:760px;margin:0 auto;padding:14px 12px 120px}
+.sec{background:var(--card);border-radius:16px;margin:0 0 14px;box-shadow:0 1px 3px rgba(40,10,60,.08);overflow:hidden;scroll-margin-top:120px}
+.sec.atual{box-shadow:0 0 0 2px var(--rosa),0 4px 14px rgba(200,25,158,.15)}
+.sec.feito{opacity:.6}
+.cab{display:flex;align-items:baseline;gap:10px;padding:14px 16px 6px}
+.cab h2{margin:0;font-size:18px;color:var(--roxo);flex:1}
+.min{font-size:13px;font-weight:700;color:var(--laranja);white-space:nowrap}
+.obj{margin:0 16px 8px;color:var(--mut);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 16px 10px}
+.chips span{font-size:13px;font-weight:600;padding:4px 9px;border-radius:99px;background:#f1e8f8;color:var(--roxo);font-variant-numeric:tabular-nums}
+.item{border-top:1px solid var(--linha)}
+.linha{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer;min-height:52px}
+.linha input{appearance:none;flex:none;width:26px;height:26px;margin:1px 0 0;border:2px solid var(--roxo);border-radius:8px;display:grid;place-items:center;cursor:pointer;transition:background .12s var(--ease)}
+.linha input::after{content:"";width:12px;height:7px;border:3px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px) scale(0);transition:transform .12s var(--ease)}
+.linha input:checked{background:var(--ok);border-color:var(--ok)}
+.linha input:checked::after{transform:rotate(-45deg) translate(1px,-1px) scale(1)}
+.ponto{flex:1;font-weight:600}
+.item.ok .ponto{color:var(--mut);text-decoration:line-through;text-decoration-color:rgba(99,90,110,.5)}
+details{margin:-4px 16px 12px 54px}
+summary{cursor:pointer;color:var(--rosa);font-size:14px;font-weight:600;list-style:none;padding:4px 0;min-height:32px;display:inline-flex;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";margin-right:2px}
+details[open] summary::before{content:"▾ "}
+.fala{margin:4px 0 0;font-size:15px;line-height:1.55;color:var(--tx);border-left:3px solid #e9d6f7;padding:2px 0 2px 12px}
+.dica{margin:0 16px 12px;padding:8px 12px;border-radius:10px;background:#fff6e5;color:#7a4a00;font-size:14px}
+.qa .linha{cursor:default}
+.qa p{margin:0;font-size:15px}
+.qa b{color:var(--roxo)}
+footer{max-width:760px;margin:0 auto;padding:0 16px 40px;color:var(--mut);font-size:13px;text-align:center}
+.rodape{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(247,244,250,.94);backdrop-filter:blur(6px);border-top:1px solid var(--linha);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+.rodape .top{gap:8px}
+.rodape .bt{flex:1;background:var(--card);color:var(--roxo);border:1px solid var(--linha)}
+.rodape .bt.prox{background:var(--rosa);color:#fff;border-color:var(--rosa)}
+.rodape .bt.aviso{background:var(--maubg);color:var(--mau);border-color:var(--mau)}
+@media (max-width:420px){h1{display:none}.top{justify-content:space-between}}
+/* iPad 13" (1032 px ao alto, 1376 deitado): letra maior, lida à distância do braço */
+@media (min-width:1000px){body{font-size:19px!important}.top,.barra,.estado,main,footer{max-width:1000px!important}.relogio{font-size:34px!important}h1{font-size:19px!important}.cab h2{font-size:23px!important}.fala{font-size:18px!important}.min{font-size:15px}.obj{font-size:16px}.chips span{font-size:15px!important}.linha input{width:30px;height:30px}.bt{font-size:17px;min-height:50px}}
+/* iPad e ecrãs maiores: letra e alvos um pouco maiores */
+@media (min-width:700px){body{font-size:17px}.top,.barra,.estado,main,footer{max-width:880px}.relogio{font-size:30px}h1{font-size:17px}.cab h2{font-size:20px}.fala{font-size:16.5px}.linha{padding:14px 18px}.chips span{font-size:14px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{header,.rodape{position:static}details{display:block}details>summary{display:none}.fala{display:block}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>Guião 20/11</h1>
+    <div class="relogio" aria-live="off"><span id="t">00:00</span> <small>/ 20:00</small></div>
+    <button class="bt" id="play" type="button" aria-label="Iniciar cronómetro">Iniciar</button>
+  </div>
+  <div class="barra" role="progressbar" aria-label="Pontos assinalados" aria-valuemin="0" aria-valuemax="100" id="barra"><i id="barraI"></i></div>
+  <div class="estado"><span id="prog">0 de 0 pontos</span><span id="ritmo"></span></div>
+</header>
+
+<main id="lista"></main>
+<footer>As marcações ficam guardadas neste dispositivo. Funciona sem internet.</footer>
+
+<div class="rodape">
+  <div class="top">
+    <button class="bt" id="limpar" type="button">Recomeçar</button>
+    <button class="bt prox" id="prox" type="button">Ponto seguinte ↓</button>
+  </div>
+</div>
+
+<script>
+// Conteúdo do guião. min = minutos previstos para a secção.
+const G=[
+ {id:"s1",t:"Slides 1 a 5 · Abertura",min:4,obj:"Enquadrar depressa: são os slides da reunião anterior.",
+  p:[["Cumprimentar e dizer ao que venho","Bom dia a todos. Em nome da equipa do Forum Coimbra, obrigado pelo tempo. Vou ser rápido nos slides de liderança, que já vimos na última reunião, e focar-me nos nossos resultados e no que estamos a fazer para melhorar."],
+     ["Slide 4 «O que fazemos?»: uma frase só","Isto resume bem o dia a dia da loja: fazemos um pouco de tudo, e é por isso que precisamos de dinâmicas simples que mantenham a equipa focada."]]},
+ {id:"s6",t:"Slide 6 · Resultados operacionais",min:4,obj:"Estamos acima da média nacional em vendas; mostrar a previsão.",
+  n:["TV 11,4 vs 8,9","PPP 26,0 vs 18,0","NET 19,1 vs 14,4","Energia 8,2 vs 5,7","TCO 101,7% vs 101,1%"],
+  p:[["Tabela: vendas por lojista acima do nacional","Começo pela tabela, com a média de janeiro a outubro. Em todos os indicadores de vendas por lojista estamos acima da média nacional: TV 11,4 contra 8,9, PPP 26 contra 18, NET Segura 19,1 contra 14,4 e MEO Energia 8,2 contra 5,7. O TCO está em 101,7%, também acima do nacional."],
+     ["Abaixo: NPS, Diversidade e Seguros","Onde estamos abaixo: NPS, Diversidade e Seguros. Voltarei a isto no slide seguinte."],
+     ["Gráfico: 3.º trim. o melhor (PPP 117%)","No gráfico, os 100% são o objetivo. O 3.º trimestre foi o nosso melhor do ano, com o PPP a 117%. Em outubro a TV e a Energia cumpriram."],
+     ["Novembro: Energia ~126%, PPP ~81% (recuperar)","Para novembro, a previsão pelo ritmo atual põe a Energia acima dos 120%, mas o PPP à volta dos 81%: é aí que temos de recuperar até ao fim do mês."]]},
+ {id:"s7",t:"Slide 7 · Bem e a melhorar",min:3,obj:"Uma mensagem: vendemos bem, o foco é a qualidade.",
+  n:["PPP +44%","Energia +44%","NET +33%","TV +28%","NPS 43,7 vs 56,8"],
+  p:[["+28% a +44% por lojista face ao nacional","Resumindo o ano: cada lojista nosso vende entre 28% e 44% mais do que a média nacional. 44% mais em PPP e em Energia, 33% em NET Segura e 28% em TV."],
+     ["A melhorar: NPS (já 72,5 em nov.), Diversidade, Seguros","O que temos de melhorar é a qualidade. O NPS está em 43,7 contra 56,8 do nacional, mas já está a recuperar: em novembro vamos em 72,5. A Diversidade e os Seguros estão abaixo do nacional, mas acima dos mínimos de 160% e 15%."],
+     ["Mensagem: vendemos bem, foco na qualidade","Por isso a nossa mensagem é esta: vendemos bem, o foco agora é a qualidade."]]},
+ {id:"s8",t:"Slide 8 · Desafios e onde atuamos",min:4.5,obj:"O slide mais importante: 5 desafios que controlamos, cada um com ação, meta e prazo.",
+  dica:"Se faltar tempo: dizer só os desafios e as metas; as dinâmicas numa frase.",
+  p:[["Abrir: «é aqui que quero que nos ajudem»","Este é o slide onde quero que nos ajudem. Escolhemos cinco desafios que dependem de nós, e para cada um temos onde atuar e uma meta com prazo."],
+     ["1 · Refidelizações → 5 por dia, 100% em dez.","Primeiro, as refidelizações: é o nosso indicador mais fraco, a 68% do objetivo no ano. Vamos propor a refidelização em cada atendimento a cliente em fim de fidelização, consultando o CRM. Meta: 5 por dia na loja, para chegar aos 100% em dezembro."],
+     ["2 · PPP → agregado M4 + Moche / MEO One, 9,6 por dia","Segundo, o PPP: caiu para 87,7% em outubro e a previsão de novembro é 81%. Nos clientes com M4, perguntamos se mais alguém do agregado tem número e tentamos fechar com campanha: Moche se for menor, MEO One se for sénior. Meta: passar de 6,8 para 9,6 PPP por dia, para fechar novembro nos 100%."],
+     ["3 · NPS → pedir sempre + controlo diário","Terceiro, o NPS: estamos em 43,7, abaixo dos 56,8 do nacional. Pedimos o NPS em todos os atendimentos e controlamos os registos todos os dias. Meta: chegar à média nacional em dezembro, e em novembro já vamos em 72,5."],
+     ["4 · Seguros e Diversidade → smartphones e gadgets (25,3%)","Quarto, Seguros e Diversidade: 15,8% e 175,7%, abaixo do nacional. Estão ligados à venda de smartphones. Propomos seguro em cada smartphone e, desde este mês, também em gadgets: relógios, consolas e tablets. Está a resultar: em novembro os Seguros já vão em 25,3%. Meta: chegar à média nacional em dezembro."],
+     ["5 · Lojistas novos → par com sénior, TV e Energia, TCO 100%","Quinto, a integração dos lojistas novos: temos um rookie e um júnior, que ficaram entre 36% e 85% de TCO. Cada um trabalha em par com um sénior e tem coaching semanal, com foco em TV e MEO Energia. Meta: TCO a 100% até dezembro."],
+     ["Dinâmicas testadas: Pontos (ago) e Raspadinhas (out)","Em baixo, as dinâmicas que já testámos: a de Pontos deu-nos o melhor agosto do ano, mas perdeu força em setembro. As raspadinhas de outubro, mais simples, devolveram a Energia aos 100%."]]},
+ {id:"s9",t:"Slide 9 · Em curso e até ao fim do ano",min:3,obj:"O que já está a acontecer e o plano até dezembro.",
+  p:[["Controlo diário do NPS e Formulário MEO","Neste momento temos o controlo diário dos registos de NPS numa folha partilhada, verificada todos os dias por lojista, e a validação diária das vendas no Formulário MEO. Os primeiros efeitos já se veem: NPS de 72,5 em novembro e Seguros a 25,3%, com o seguro também em gadgets."],
+     ["Coachings Cliente Mistério: 2 casos + 5 compromissos","Até ao fim do ano fazemos coachings de Cliente Mistério com dois casos reais: o cliente que queria um iPhone com pontos, onde a oportunidade era a Energia, e a mudança de morada. Cada lojista sai com 5 compromissos: 3 perguntas de diagnóstico, uma oportunidade por atendimento, sempre uma alternativa, tentativa de fecho e pedir o NPS."],
+     ["Operação Trenó de Natal: ranking semanal, final a 31/12","E em dezembro lançamos a Operação Trenó de Natal: pontos por TV, Energia, Seguros, Diversidade e NPS, ranking semanal e final a 31 de dezembro. Há categorias para quem está a evoluir, para que todos tenham hipótese de ganhar."]]},
+ {id:"s10",t:"Slides 10 e 11 · Fecho",min:1.5,obj:"Fechar com a mensagem e abrir às perguntas.",
+  p:[["Resumo + obrigado + perguntas","Em resumo: vendemos muito acima da média nacional, testámos dinâmicas e aprendemos com elas, e agora o nosso foco é a qualidade. Obrigado. Estou disponível para perguntas e para partilhar o que funcionou connosco."]]}
+];
+const QA=[["Porque é que o NPS está abaixo?","Faltava controlo dos pedidos. Desde novembro o registo é verificado todos os dias e já estamos em 72,5."],
+ ["Porque caiu setembro?","A Dinâmica de Pontos perdeu força no 2.º mês e tivemos dois lojistas novos em integração. Mudámos para uma regra simples em outubro."],
+ ["O que é «por FO»?","Média por lojista (força operacional), de janeiro a outubro."],
+ ["Quanto custam as dinâmicas?","Raspadinhas e uma folga; a Operação Trenó de Natal fica dentro do orçamento de 50 €."],
+ ["Como vão recuperar o PPP em novembro?","Meta de 9,6 por dia até 30 de novembro: nos clientes M4, perguntar pelo resto do agregado e fechar com campanha (Moche para menores, MEO One para seniores)."]];
+
+const KEY="guiao-20nov-forum";
+let lido={};try{lido=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+const st=Object.assign({chk:{},acc:0,ini:null},lido);
+const guarda=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// desenhar
+let h="";
+G.forEach(s=>{
+  h+=`<section class="sec" id="${s.id}"><div class="cab"><h2>${esc(s.t)}</h2><span class="min">${String(s.min).replace(".",",")} min</span></div><p class="obj">${esc(s.obj)}</p>`;
+  if(s.n)h+=`<div class="chips">${s.n.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`;
+  if(s.dica)h+=`<p class="dica">${esc(s.dica)}</p>`;
+  s.p.forEach(([k,f],i)=>{const id=s.id+"-"+i;
+    h+=`<div class="item" data-id="${id}"><label class="linha"><input type="checkbox" id="${id}"><span class="ponto">${esc(k)}</span></label><details><summary>Ver o que dizer</summary><p class="fala">${esc(f)}</p></details></div>`});
+  h+=`</section>`;
+});
+h+=`<section class="sec qa" id="qa"><div class="cab"><h2>Perguntas prováveis</h2></div>${QA.map(([q,a])=>`<div class="item"><div class="linha"><p><b>${esc(q)}</b><br>${esc(a)}</p></div></div>`).join("")}</section>`;
+$("lista").innerHTML=h;
+
+const todos=[...document.querySelectorAll('.item[data-id] input')];
+todos.forEach(c=>{c.checked=!!st.chk[c.id];c.addEventListener("change",()=>{st.chk[c.id]=c.checked;if(!c.checked)delete st.chk[c.id];guarda();atualiza()})});
+
+// cronómetro
+const decorrido=()=>st.acc+(st.ini?Date.now()-st.ini:0);
+const mmss=ms=>{const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+let lock=null;
+async function acordado(on){try{if(on&&"wakeLock"in navigator)lock=await navigator.wakeLock.request("screen");else if(lock){await lock.release();lock=null}}catch(e){}}
+$("play").onclick=()=>{if(st.ini){st.acc+=Date.now()-st.ini;st.ini=null;acordado(false)}else{st.ini=Date.now();acordado(true)}guarda();atualiza()};
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&st.ini)acordado(true)});
+
+function atualiza(){
+  const feitos=todos.filter(c=>c.checked).length,pct=Math.round(feitos/todos.length*100);
+  $("barraI").style.width=pct+"%";$("barra").setAttribute("aria-valuenow",pct);
+  $("prog").textContent=`${feitos} de ${todos.length} pontos`;
+  // secção atual = primeira com pontos por assinalar
+  let acum=0,fimAtual=null,atual=null;
+  G.forEach(s=>{acum+=s.min;const el=$(s.id),cs=[...el.querySelectorAll("input")],tudo=cs.every(c=>c.checked);
+    el.classList.toggle("feito",tudo);
+    if(!tudo&&!atual){atual=s;fimAtual=acum}
+    el.classList.toggle("atual",s===atual);
+    el.querySelectorAll(".item").forEach(it=>it.classList.toggle("ok",it.querySelector("input").checked))});
+  const ms=decorrido();$("t").textContent=mmss(ms);
+  $("play").textContent=st.ini?"Pausa":(ms?"Continuar":"Iniciar");
+  $("play").setAttribute("aria-label",st.ini?"Pausar cronómetro":"Iniciar cronómetro");
+  const r=$("ritmo");
+  if(!atual){r.textContent="Tudo dito ✓";r.className=""}
+  else if(ms>0){const atraso=ms/60000-fimAtual;
+    if(atraso>0.25){r.textContent=`Atrasado ${Math.ceil(atraso)} min · acelera`;r.className="atraso"}
+    else{r.textContent=`${atual.t.split(" · ")[0]} até ${mmss(fimAtual*60000)}`;r.className=""}}
+  else{r.textContent="";r.className=""}
+  $("prox").disabled=!atual;
+}
+setInterval(()=>{if(st.ini)atualiza()},500);
+
+$("prox").onclick=()=>{const c=todos.find(x=>!x.checked);if(!c)return;
+  c.closest(".item").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});c.focus({preventScroll:true})};
+// confirmação no próprio botão (confirm() não funciona em todos os sítios onde a página abre)
+let armado=null;
+$("limpar").onclick=()=>{const b=$("limpar");
+  if(!armado){b.textContent="Tocar outra vez para apagar";b.classList.add("aviso");armado=setTimeout(()=>{armado=null;b.textContent="Recomeçar";b.classList.remove("aviso")},4000);return}
+  clearTimeout(armado);armado=null;b.textContent="Recomeçar";b.classList.remove("aviso");st.chk={};st.acc=0;st.ini=null;guarda();todos.forEach(c=>c.checked=false);acordado(false);atualiza();scrollTo(0,0)};
+atualiza();
+</script>
+</body>
+</html>
