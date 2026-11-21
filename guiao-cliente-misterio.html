@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guião de atendimento – cliente mistério</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --muted:#5b6474; --accent:#0a6cff; --ok:#1f9d55; --line:#e3e6ec; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+  header { background:#0b1f3a; color:#fff; padding:20px 16px; }
+  header h1 { margin:0 0 4px; font-size:1.4rem; }
+  header p { margin:0; opacity:.85; font-size:.95rem; }
+  main { max-width:880px; margin:0 auto; padding:16px; }
+  nav.phases { display:flex; gap:8px; overflow-x:auto; padding:8px 0 14px; position:sticky; top:0; background:var(--bg); z-index:2; }
+  nav.phases button { flex:0 0 auto; border:1px solid var(--line); background:#fff; color:var(--ink); padding:8px 12px; border-radius:999px; cursor:pointer; font-size:.9rem; }
+  nav.phases button.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  section.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:16px; }
+  section.card h2 { margin:0 0 6px; font-size:1.2rem; }
+  .goal { color:var(--muted); margin:0 0 12px; }
+  .examples { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+  .examples li { background:#f0f5ff; border-left:4px solid var(--accent); padding:10px 12px; border-radius:8px; display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+  .examples li span { flex:1; }
+  .copy { flex:0 0 auto; background:#fff; color:var(--accent); border:1px solid var(--accent); border-radius:8px; padding:4px 10px; cursor:pointer; font-size:.8rem; }
+  .copy.done { background:var(--ok); border-color:var(--ok); color:#fff; }
+  .rules { margin:12px 0 0; padding-left:18px; }
+  .hesita { margin-top:14px; font-weight:600; }
+  .scen { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .scen button { border:1px solid var(--line); background:#fff; padding:8px 12px; border-radius:10px; cursor:pointer; font-size:.9rem; }
+  .scen button.active { border-color:var(--accent); box-shadow:0 0 0 2px #cfe2ff inset; }
+  .focus { background:#fff8e6; border:1px solid #f3dd9b; border-radius:10px; padding:10px 12px; font-size:.95rem; }
+  .check label { display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--line); cursor:pointer; }
+  .check input { margin-top:4px; width:18px; height:18px; }
+  .score { font-size:1.1rem; font-weight:700; margin:12px 0 0; }
+  .reset { margin-top:10px; border:1px solid var(--line); background:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; }
+  footer { color:var(--muted); font-size:.85rem; text-align:center; padding:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Guião de atendimento – cliente mistério</h1>
+  <p>Usa as fases pela ordem. Toca num exemplo para o copiar e adaptar ao cliente.</p>
+</header>
+
+<main>
+  <nav class="phases" id="nav"></nav>
+
+  <section class="card" id="phase-view"></section>
+
+  <section class="card">
+    <h2>Escolhe o cenário</h2>
+    <p class="goal">O guião serve para todos. Este ponto mostra onde dar mais atenção.</p>
+    <div class="scen" id="scen"></div>
+    <div class="focus" id="focus"></div>
+  </section>
+
+  <section class="card">
+    <h2>Autoavaliação no fim do atendimento</h2>
+    <p class="goal">Marca o que fizeste. O resultado aparece no fim.</p>
+    <div class="check" id="check"></div>
+    <p class="score" id="score"></p>
+    <button class="reset" id="reset">Limpar</button>
+  </section>
+</main>
+
+<footer>Para usar em loja. Adapta sempre as palavras ao cliente.</footer>
+
+<script>
+const PHASES = [
+  { id:"antes", name:"Antes", goal:"Estar pronto antes de o cliente entrar.",
+    examples:[
+      "Badge com o meu nome visível ao peito.",
+      "Farda completa e arrumada.",
+      "Balcão limpo, sem caixas à frente da loja.",
+      "Se houver fila, dizer ao cliente quanto tempo deve esperar."
+    ], rules:[] },
+  { id:"acolhimento", name:"1. Acolhimento", goal:"O cliente sente que foi recebido com atenção (primeiro minuto).",
+    examples:[
+      "Bom dia, sou o [nome]. Obrigado pela paciência. Em que posso ajudar?",
+      "Boa tarde, faça favor, sente-se. Eu já o atendo.",
+      "Olá, vejo que veio por causa de [motivo]. Vamos tratar disso.",
+      "Obrigado por ter esperado. Quer que lhe explique o processo primeiro?"
+    ],
+    rules:["Chamar pela senha, com contacto visual e sorriso.","Se o cliente estiver à entrada, sair do balcão e ir ao encontro dele."] },
+  { id:"motivo", name:"2. Motivo", goal:"Perceber o que o cliente quer, sem o interromper.",
+    examples:[
+      "Conte-me, o que o trouxe hoje?",
+      "Está insatisfeito com o serviço atual ou quer apenas comparar?",
+      "Pelo que percebi, quer [repetir o motivo]. Está certo?",
+      "Que mudança pensa fazer?"
+    ], rules:[] },
+  { id:"diagnostico", name:"3. Diagnóstico", goal:"Perceber o que usa, paga e valoriza, antes de propor. Mínimo de três perguntas.",
+    examples:[
+      "Quanto paga hoje por mês, e o que mais pesa na fatura?",
+      "Quantos cartões ou telemóveis usa, e quantos dados gasta por mês?",
+      "Usa TV, internet fixa ou telefone fixo? Como usa?",
+      "Tem à mão uma fatura da energia? Se tiver, faço-lhe a simulação."
+    ],
+    rules:["Não assumir nada: dizer \"ilimitado\" sem perguntar pode não servir ao cliente.","Quando consultares o contrato, dizer em voz alta o que estás a ver."] },
+  { id:"proposta", name:"4. Proposta principal", goal:"Apresentar a opção que responde ao diagnóstico.",
+    examples:[
+      "Com base no que me disse, a opção que mais lhe serve é [proposta], porque [motivo].",
+      "Ficava com [velocidade ou dados] por [valor mensal]. Inclui [o que está incluído].",
+      "Com a sua fatura, a poupança mensal seria cerca de [valor]. Quer que lhe mostre a conta?",
+      "A fidelização é de [meses]. Há alguma taxa? Se houver, digo-lhe qual é."
+    ],
+    rules:["Explicar em linguagem simples.","Dizer sempre o valor mensal total e a fidelização."] },
+  { id:"alternativa", name:"5. Alternativa", goal:"O cliente sai com pelo menos duas opções para comparar.",
+    examples:[
+      "Tenho outra opção, mais simples, se preferir não ficar fidelizado: [alternativa].",
+      "Se quiser gastar menos, posso mostrar [opção mais barata], com [o que perde].",
+      "Se quiser TV incluída, a outra opção é [pacote com TV].",
+      "Vou mostrar duas opções. A primeira é a que recomendo, a segunda serve para comparar."
+    ], rules:[] },
+  { id:"complementar", name:"6. Complementar e MEOS", goal:"Mostrar um benefício extra que o cliente ainda não pediu.",
+    examples:[
+      "Além do que me pediu, a Meo Energia dá-lhe duplicação de dados e de internet em casa. Quer que lhe explique?",
+      "Os seus MEOS, ou pontos, podem servir para [benefício]. Já os usou?",
+      "Quem tem telemóvel e internet em casa costuma beneficiar de [pacote]. Faz sentido para si?",
+      "Há também [serviço complementar], que pode juntar à sua conta. Quer ver os valores?"
+    ], rules:[] },
+  { id:"fecho", name:"7. Fecho", goal:"Pedir a decisão e combinar o próximo passo. Nunca terminar sem uma destas perguntas.",
+    examples:[
+      "Posso avançar já com esta opção, ou quer que lhe deixe a comparação por escrito?",
+      "Quer que trate de tudo agora, ou prefere pensar e voltar?",
+      "Se estiver de acordo, faço o pedido neste momento. Demora cerca de [tempo].",
+      "Qual é a dúvida que ainda tem para decidir? Eu esclareço."
+    ],
+    hesita:["Percebo que o preço pese. Se pagar menos por mês, ficava mais tranquilo?","Vou deixar-lhe a simulação escrita, para ver com calma em casa.","Quer que lhe reserve a proposta até [dia]?"],
+    rules:["Se o cliente quiser pensar, combinar quando volta ou como faz o pedido pelo site ou contacto."] },
+  { id:"nps", name:"8. Pedido de NPS", goal:"Pedir a avaliação no fim. Em 57 visitas do 1.º semestre, ninguém fez este pedido.",
+    examples:[
+      "Vai receber um inquérito de satisfação. Se puder responder, agradeço muito.",
+      "A sua opinião é importante para nós. Pode responder ao inquérito que lhe chegar?",
+      "Se tiver um minuto no fim, responda ao inquérito, ajuda-nos a melhorar.",
+      "Podia dar uma nota de 0 a 10 ao atendimento que teve hoje?"
+    ], rules:[] },
+  { id:"despedida", name:"9. Despedida", goal:"Fechar a visita com clareza.",
+    examples:[
+      "Obrigado pela visita. Ficou combinado [resumo]. Se tiver dúvidas, pode voltar ou ligar.",
+      "Foi um prazer. Pode contar comigo para o que precisar.",
+      "Antes de sair, confirme comigo o número de contacto, por favor.",
+      "Boa tarde, até breve. Se decidir avançar, é só voltar ou ligar."
+    ], rules:[] }
+];
+
+const SCENARIOS = [
+  { id:"c2", name:"Meo Energia – cliente", focus:"Não ir logo à fatura: perguntar consumos e fechar a venda (só 23% das tentativas de fecho nesta situação)." },
+  { id:"c5", name:"Meo Energia – não cliente", focus:"Badge visível e nome dito em voz alta (62%). Não assumir o plafond e apresentar pelo menos uma alternativa." },
+  { id:"c4", name:"Best Offer", focus:"Diagnóstico mais completo: não ficar só em quanto paga. Mencionar os MEOS e a duplicação (13%)." },
+  { id:"c3", name:"Mudança de casa", focus:"Perguntar sempre pela energia, e apresentar serviço complementar (só 8% de venda cruzada)." }
+];
+
+const CHECKS = [
+  "Saí do balcão e fui ao encontro do cliente?",
+  "Tenho badge com o meu nome visível?",
+  "Fiz pelo menos três perguntas de diagnóstico antes da proposta?",
+  "Perguntei o que o cliente usa e quanto paga?",
+  "Apresentei pelo menos uma alternativa?",
+  "Sugeri um serviço complementar ou falei dos MEOS?",
+  "Pedi a decisão ou combinei o próximo passo?",
+  "Pedi o NPS no fim?",
+  "Agradeci a visita e resumi o que ficou combinado?"
+];
+
+const nav = document.getElementById("nav");
+const view = document.getElementById("phase-view");
+let current = 0;
+
+function store(key, val) {
+  try {
+    if (val === undefined) return JSON.parse(localStorage.getItem(key));
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch (e) { return val === undefined ? null : undefined; }
+}
+
+function renderNav() {
+  nav.innerHTML = "";
+  PHASES.forEach((p, i) => {
+    const b = document.createElement("button");
+    b.textContent = p.name;
+    if (i === current) b.classList.add("active");
+    b.onclick = () => { current = i; renderNav(); renderPhase(); };
+    nav.appendChild(b);
+  });
+}
+
+function copyText(text, btn) {
+  const done = () => { btn.textContent = "Copiado"; btn.classList.add("done"); setTimeout(() => { btn.textContent = "Copiar"; btn.classList.remove("done"); }, 1200); };
+  try { navigator.clipboard.writeText(text).then(done, () => {}); } catch (e) {}
+}
+
+function exampleList(items) {
+  const ul = document.createElement("ul"); ul.className = "examples";
+  items.forEach(t => {
+    const li = document.createElement("li");
+    const s = document.createElement("span"); s.textContent = t; li.appendChild(s);
+    const b = document.createElement("button"); b.className = "copy"; b.textContent = "Copiar";
+    b.onclick = () => copyText(t, b);
+    li.appendChild(b); ul.appendChild(li);
+  });
+  return ul;
+}
+
+function renderPhase() {
+  const p = PHASES[current];
+  view.innerHTML = "";
+  const h = document.createElement("h2"); h.textContent = p.name; view.appendChild(h);
+  const g = document.createElement("p"); g.className = "goal"; g.textContent = p.goal; view.appendChild(g);
+  view.appendChild(exampleList(p.examples));
+  if (p.hesita) {
+    const t = document.createElement("p"); t.className = "hesita"; t.textContent = "Quando o cliente hesita:"; view.appendChild(t);
+    view.appendChild(exampleList(p.hesita));
+  }
+  if (p.rules.length) {
+    const ul3 = document.createElement("ul"); ul3.className = "rules";
+    p.rules.forEach(r => { const li = document.createElement("li"); li.textContent = r; ul3.appendChild(li); });
+    view.appendChild(ul3);
+  }
+  const prev = document.createElement("button"); prev.className = "reset"; prev.textContent = "← Anterior";
+  prev.disabled = current === 0; prev.onclick = () => { current--; renderNav(); renderPhase(); };
+  const next = document.createElement("button"); next.className = "reset"; next.textContent = "Seguinte →";
+  next.style.marginLeft = "8px"; next.disabled = current === PHASES.length - 1;
+  next.onclick = () => { current++; renderNav(); renderPhase(); };
+  const row = document.createElement("div"); row.style.marginTop = "14px"; row.appendChild(prev); row.appendChild(next);
+  view.appendChild(row);
+}
+
+const scenDiv = document.getElementById("scen");
+const focusDiv = document.getElementById("focus");
+let scen = "c5";
+function renderScen() {
+  scenDiv.innerHTML = "";
+  SCENARIOS.forEach(s => {
+    const b = document.createElement("button"); b.textContent = s.name;
+    if (s.id === scen) b.classList.add("active");
+    b.onclick = () => { scen = s.id; renderScen(); };
+    scenDiv.appendChild(b);
+  });
+  focusDiv.textContent = "Foco: " + SCENARIOS.find(s => s.id === scen).focus;
+}
+
+const checkDiv = document.getElementById("check");
+const scoreDiv = document.getElementById("score");
+let state = store("cm-checks") || {};
+function updateScore() {
+  const n = Object.values(state).filter(Boolean).length;
+  scoreDiv.textContent = "Resultado: " + n + " de " + CHECKS.length + (n === CHECKS.length ? " – muito bem!" : "");
+}
+function renderChecks() {
+  checkDiv.innerHTML = "";
+  CHECKS.forEach((c, i) => {
+    const l = document.createElement("label");
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!state[i];
+    cb.onchange = () => { state[i] = cb.checked; store("cm-checks", state); updateScore(); };
+    const s = document.createElement("span"); s.textContent = c;
+    l.appendChild(cb); l.appendChild(s); checkDiv.appendChild(l);
+  });
+  updateScore();
+}
+document.getElementById("reset").onclick = () => { state = {}; store("cm-checks", state); renderChecks(); };
+
+renderNav(); renderPhase(); renderScen(); renderChecks();
+</script>
+</body>
+</html>
