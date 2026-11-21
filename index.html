@@ -274,7 +274,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 :root[data-tema="hud"] #main [style*="color:#"]:not(.big){filter:brightness(1.25)}
 :root[data-tema="azul"]{--navon:#1f6fe0}
 </style>
-<style id="npsscroll">#npscap table{width:max-content;min-width:100%}#npscap table th:first-child,#npscap table td:first-child{position:sticky;left:0;z-index:2;background:var(--card,#10179f);box-shadow:2px 0 6px rgba(0,0,0,.25)}#npscap table th:first-child{z-index:3}</style>
+<style id="npsscroll">#npscap .sc{background:var(--card)}#npscap table{width:max-content;min-width:100%}#npscap table th:first-child,#npscap table td:first-child{position:sticky;left:0;z-index:2;background:var(--card);box-shadow:2px 0 6px rgba(0,0,0,.25)}#npscap table th:first-child{z-index:3;background:var(--th)}</style>
 </head>
 <body><div class="app"><nav id="nav" hidden><div class="nvh"><span class="l3d spin" style="--s:.5" aria-hidden="true"><span class="g"><span class="p"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="p"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="p"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span></span><b id="nvn">TIPO LOJA</b></div></nav><div class="w">
 <div class="top"><div><h1>Análise de Vendas da Loja</h1><div class="mut" id="sub">A carregar…</div></div>
@@ -1317,7 +1317,7 @@ function npsSetA(v){npsA=+v||0;if(NPS[npsM]){NPS[npsM].ini=npsA||undefined;try{s
 function npsPes(nome,M){const n=npsNorm(nome),al=NPS_AL[n],ps=M.pessoas;let p=ps.find(x=>npsNorm(x.n)===n)||(al&&ps.find(x=>npsNorm(x.n)===al));if(p)return p;const f=ps.filter(x=>npsNorm(x.n).split(" ")[0]===n.split(" ")[0]);return f.length===1?f[0]:null}
 function npsElegSem(nome,SEM){const r=(NPSR||[]).find(x=>x.n===nome);return SEM.map(([i,j])=>{if(!r)return false;const t=r.ds.filter(x=>x.d>=i&&x.d<=j&&x.w);const meta=t.length*NPS_T;const reg=t.reduce((a,x)=>a+x.c,0);return meta>0&&reg>=0.7*meta})}
 function npsCalc(){NPSR=[];const ms=Object.keys(NPS).sort((a,b)=>NPS[a].m-NPS[b].m);if(!ms.length||!HOR||!HOR.meses)return null;if(!npsM||!NPS[npsM])npsM=ms[ms.length-1];
- const D=NPS[npsM],M=HOR.meses[npsM];if(!M)return{ms,sem:true};const dmax=Math.max(...D.r.map(x=>x[0]));if(!npsB||npsB>M.dias)npsB=dmax;const ini=D.ini||(npsM==="Novembro"?4:1);if(!npsA||npsA<1||npsA>npsB)npsA=ini;
+ const D=NPS[npsM],M=HOR.meses[npsM];if(!M)return{ms,sem:true};const dmax=Math.max(...D.r.map(x=>x[0]));if(!npsB||npsB>M.dias)npsB=dmax;const ini=D.ini||(npsM==="Novembro"?1:1);if(!npsA||npsA<1||npsA>npsB)npsA=ini;
  const cnt={},semp=new Set(),sol={};NPSC=cnt;D.r.forEach(([d,nm,s])=>{const p=npsPes(nm,M);if(!p){semp.add(nm);return}const k=p.n+"|"+d;(cnt[k]=cnt[k]||new Set()).add(s);(sol[s]=sol[s]||new Set()).add(p.n+" ("+d+")")});
  const dup=Object.entries(sol).filter(([s,v])=>v.size>1).map(([s,v])=>[s,[...v]]),reg=D.r.length;
  M.pessoas.filter(p=>HG(p.n)<=2&&p.c.some(isW)).forEach(p=>{const ds=[];for(let d=npsA;d<=npsB;d++){const w0=isW(p.c[d-1]),exc=w0&&npsEx(D,p.n,d),w=w0&&!exc,c=w?(cnt[p.n+"|"+d]||new Set()).size:0;ds.push({d,w,c,ok:w&&c>=NPS_T,cod:p.c[d-1],ex:exc})}
