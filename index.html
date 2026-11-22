@@ -759,7 +759,7 @@ function psMsg(v,i,W){
  if(!goe&&!(ss>=.15)&&v.seg!=null&&v.seg<.15)al.push(`Seguros em ${pc(v.seg)} (mínimo 15%): −10%`);
  const n=v.k.NPS;if(n&&n.real!=null&&n.real<R_.lo)al.push(`NPS em ${pc(n.real)}: abaixo de ${pc(R_.lo)} penaliza 25 €`);
  if(al.length){L.push("","⚠ Atenção:");al.forEach(t=>L.push("   • "+t))}
- if(nx&&Dk.length){L.push("","➡ Próxima semana (dias "+nx[0]+" a "+nx[1]+"): "+Dk.map(x=>{const def=Math.max(0,x.o*frac(v,1,fim)-x.real);return `${x.done||true?(Math.round((x.nx+def)*10)/10).toString().replace(".",","):""} ${nm(x.k)}`+(def>.05?` (inclui ${nf(def,x.k)} em atraso)`:"")}).join(" e ")+".")}
+ if(nx&&Dk.length){L.push("","➡ Próxima semana (dias "+nx[0]+" a "+nx[1]+"): "+Dk.map(x=>{const def=Math.max(0,x.o*frac(v,1,fim)-x.real),last=nx[1]>=(snap.dias||30),fal=Math.max(0,x.o-x.real);if(last){const mn=Math.max(0,.7*x.o-x.real),far=(x.real+x.nx)/x.o<.7,q=far?mn:fal;return `${(Math.round(q*10)/10).toString().replace(".",",")} ${nm(x.k)} ${far?"para chegar aos 70% (mínimo)":"para fechar o mês"}`}return `${(Math.round((x.nx+def)*10)/10).toString().replace(".",",")} ${nm(x.k)}`+(def>.05?` (inclui ${nf(def,x.k)} em atraso)`:"")}).join(" e ")+".")}
  else if(!nx&&Dk.length)L.push("","➡ Última semana do mês: foco em fechar o que falta.");
  const win=Dk.filter(x=>qb(x)&&x.fe>=qb(x));
  const pm=Dk.length?Math.min(...Dk.map(x=>pfo(v.k[x.k]))):1;
