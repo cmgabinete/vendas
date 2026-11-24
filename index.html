@@ -23,6 +23,8 @@ body{background:var(--bodybg)}.card{background:var(--cardbg);border:1px solid va
 table{border-collapse:collapse;width:100%;font-size:14px}
 th,td{padding:7px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
 th{background:var(--th);color:var(--thc);font-weight:600;font-size:12px}
+td.txt{white-space:normal;min-width:180px;max-width:380px}
+.clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .forte{color:var(--ok);font-weight:600}.fraco{color:var(--warn);font-weight:600}.crit{color:var(--bad);font-weight:600}
 .bar{height:6px;background:var(--bd);border-radius:4px;margin-top:6px}.bar i{display:block;height:100%;border-radius:4px;background:var(--ac)}
 .btn{background:var(--ac);color:var(--acx);border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
@@ -1162,9 +1164,14 @@ const loadBr=async()=>{const{data}=await sb.from("snap").select("data").eq("id",
 const brSave=async()=>{try{await chk(sb.from("snap").upsert({id:"briefings",data:BR}))}catch(e){msg="Não foi possível guardar os briefings."}};
 const pendBr=()=>BR.filter(b=>!b.s).length;
 function brAuto(d){const m=d.match(/(\d{4})-(\d{2})-(\d{2})/);if(!m||!HOR||!HOR.meses)return snap.vendedores.map(v=>v.nome);const M=HOR.meses[MNL[+m[2]-1]];if(!M||M.ano!==+m[1])return snap.vendedores.map(v=>v.nome);const r=[];M.pessoas.forEach(p=>{if(!isW(p.c[+m[3]-1]))return;const n=npsVn(p.n);if(n&&!r.includes(n))r.push(n)});return r.length?r:snap.vendedores.map(v=>v.nome)}
-function brTog(n){if(BF.p===null)BF.p=brAuto(BF.d);const i=BF.p.indexOf(n);if(i>=0)BF.p.splice(i,1);else BF.p.push(n);render()}
+const MESES=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const BRCAB="<tr><th>Data</th><th>Assunto</th><th>Presentes</th><th>Temática</th><th>SGQ</th></tr>";
+const brNorm=s=>s.trim().toLowerCase();
+function brJa(a){const k=brNorm(a),r=new Set();if(k)BR.forEach(b=>{if(brNorm(b.a)===k)b.p.forEach(n=>r.add(n))});return r}
+function brPre(d,a){const ja=brJa(a);return brAuto(d).filter(n=>!ja.has(n))}
+function brTog(n){if(BF.p===null)BF.p=brPre(BF.d,BF.a);const i=BF.p.indexOf(n);if(i>=0)BF.p.splice(i,1);else BF.p.push(n);render()}
 function brT(t){const i=BF.t.indexOf(t);if(i>=0)BF.t.splice(i,1);else BF.t.push(t);render()}
-function brAdd(abrir){if(!BF.a.trim()){msg="Escreve o assunto do briefing.";render();return}const p=BF.p===null?brAuto(BF.d):BF.p,b={id:Date.now(),d:BF.d,a:BF.a.trim(),o:BF.o.trim(),t:BF.t.slice(),p:p.slice(),s:false};BR.unshift(b);BF.a="";BF.o="";BF.p=null;
+function brAdd(abrir){if(!BF.a.trim()){msg="Escreve o assunto do briefing.";render();return}const p=BF.p===null?brPre(BF.d,BF.a):BF.p;if(!p.length){msg="Já receberam este assunto todos os presentes indicados.";render();return}const b={id:Date.now(),d:BF.d,a:BF.a.trim(),o:BF.o.trim(),t:BF.t.slice(),p:p.slice(),s:false};BR.unshift(b);BF.a="";BF.o="";BF.p=null;
  if(abrir)window.open(sgqUrl("Briefing",b.p,b.t,b.a,b.o||b.a),"_blank","noopener");brSave().then(render)}
 function brSet(id,k,v){const b=BR.find(x=>x.id===id);if(b){b[k]=v;brSave().then(render)}}
 function brDel(id){BR=BR.filter(x=>x.id!==id);brSave().then(render)}
@@ -1235,8 +1242,9 @@ function atendv(){const ms=Object.keys(ATEND).sort();
  return `<h2>Atendimento <span class="mut">· ${esc(mk.slice(1))}</span></h2><div class="card"><div style="margin:6px 0">${up} ${ATMsg?`<span class="${ATMsg.startsWith("Erro")?"crit":"mut"}">${esc(ATMsg)}</span>`:""}</div><div class="mut">Meses guardados: ${ms.map(m=>`<button class="chip ${m===mk?"on":""}" onclick="ATM='${m}';render()">${esc(m.slice(1))}</button>`).join(" ")}</div></div>
  <div class="card sc" style="margin-top:8px"><table><tr><th>Lojista</th><th>Clientes atendidos</th><th>% sem senha</th><th>Tempo médio</th><th>Ausências</th></tr>${rows.map(([n,o])=>`<tr><td><b>${esc(n)}</b></td><td>${o.c}</td><td>${o.t?Math.round(o.ss/o.t*100)+"%":"–"}</td><td>${o.tn?fmt(o.tm/o.tn):"–"}</td><td>${o.a}</td></tr>`).join("")||'<tr><td colspan="6" class="mut">Sem dados</td></tr>'}<tr><td><b>Total</b></td><td><b>${tot.c}</b></td><td colspan="3"></td></tr></table></div>
  ${D.semNome?`<div class="mut" style="margin-top:6px">${D.semNome} utilizador(es) do relatório sem correspondência no horário (ex.: contas de administração). Não entram na tabela.</div>`:""}`}
-function brv(){if(!BF.d)BF.d=coHoje();const V=snap.vendedores,pp=BF.p===null?brAuto(BF.d):BF.p,pend=BR.filter(b=>!b.s);
- const lista=BR.map(b=>`<tr><td>${coFmt(b.d)}</td><td><b>${esc(b.a)}</b>${b.o?`<div class="mut">${esc(b.o)}</div>`:""}</td><td>${b.p.length}</td><td>${esc((b.t||[]).join(", "))}</td><td style="white-space:nowrap"><label><input type="checkbox" ${b.s?"checked":""} onchange="brSet(${b.id},'s',this.checked)"> registado</label> <a class="chip" target="_blank" rel="noopener" style="text-decoration:none" href="${esc(sgqUrl("Briefing",b.p,b.t||[],b.a,b.o||b.a))}">📤</a> <a class="chip" style="text-decoration:none;cursor:pointer" onclick="brDel(${b.id})" title="Apagar">🗑</a></td></tr>`).join("");
+function brv(){if(!BF.d)BF.d=coHoje();const V=snap.vendedores,pp=BF.p===null?brPre(BF.d,BF.a):BF.p,pend=BR.filter(b=>!b.s),ja=brJa(BF.a),mes=coHoje().slice(0,7);
+ const brLin=b=>`<tr><td>${coFmt(b.d)}</td><td class="txt"><b>${esc(b.a)}</b>${b.o?`<div class="mut clamp2" title="${esc(b.o)}">${esc(b.o)}</div>`:""}</td><td>${b.p.length}</td><td>${esc((b.t||[]).join(", "))}</td><td style="white-space:nowrap"><label><input type="checkbox" ${b.s?"checked":""} onchange="brSet(${b.id},'s',this.checked)"> registado</label> <a class="chip" target="_blank" rel="noopener" style="text-decoration:none" href="${esc(sgqUrl("Briefing",b.p,b.t||[],b.a,b.o||b.a))}">📤</a> <a class="chip" style="text-decoration:none;cursor:pointer" onclick="brDel(${b.id})" title="Apagar">🗑</a></td></tr>`;
+ const lista=BR.filter(b=>(b.d||"").slice(0,7)===mes).map(brLin).join(""),arq=brArq(mes,brLin);
  return `<h2>Briefings</h2>${pend.length?`<div class="card" style="border-left:3px solid #f5a623"><b class="fraco">${pend.length} briefing${pend.length>1?"s":""} por registar no SGQ</b> <span class="mut">· abre o 📤 de cada um, termina no formulário e marca "registado".</span></div>`:""}
  ${bpdfCard()}<div class="card" style="margin-top:8px"><b>Novo briefing</b>
  ${sgNif()?"":`<div class="fraco" style="margin:6px 0">Falta o NIF (criador): <input type="text" inputmode="numeric" style="width:140px" placeholder="guardado só neste browser" onchange="sgNifSet(this.value);render()"></div>`}
@@ -1244,9 +1252,15 @@ function brv(){if(!BF.d)BF.d=coHoje();const V=snap.vendedores,pp=BF.p===null?brA
  <div style="margin:6px 0"><input type="text" style="width:100%" placeholder="Assunto (ex.: campanha Net + TV, objetivos da semana…)" value="${esc(BF.a)}" oninput="BF.a=this.value" onkeydown="if(event.key==='Enter')brAdd(true)"></div>
  <div style="margin:6px 0"><textarea style="width:100%;min-height:50px" placeholder="Observações (opcional; se vazio vai o assunto)" oninput="BF.o=this.value">${esc(BF.o)}</textarea></div><div style="margin:2px 0 6px"><button class="chip" onclick="mtGo('br')" title="Copia o texto com instruções para colares no Claude">✨ Melhorar texto</button> <span class="mut" style="font-size:.85em">copia o texto; cola no Claude; traz o resultado de volta</span></div>
  <div style="margin:6px 0"><span class="mut">Temática: </span>${SGQ.T.map(t=>`<button class="chip ${BF.t.includes(t)?"on":""}" onclick="brT('${t}')">${t}</button>`).join(" ")}</div>
- <div style="margin:6px 0"><span class="mut">Presentes (por defeito, quem trabalha nesse dia no horário): </span>${V.map(v=>`<button class="chip ${pp.includes(v.nome)?"on":""}" onclick="brTog(${JSON.stringify(v.nome).replace(/"/g,"&quot;")})">${esc(v.nome)}</button>`).join(" ")}</div>
+ ${ja.size?`<div class="mut" style="margin:6px 0">Já receberam este assunto: <b>${[...ja].map(esc).join(", ")}</b> (ficam de fora por defeito)</div>`:""}
+ <div style="margin:6px 0"><span class="mut">Presentes (por defeito, quem trabalha nesse dia e ainda não recebeu): </span>${V.map(v=>`<button class="chip ${pp.includes(v.nome)?"on":""}" onclick="brTog(${JSON.stringify(v.nome).replace(/"/g,"&quot;")})">${esc(v.nome)}</button>`).join(" ")}</div>
  <button class="btn" onclick="brAdd(true)">📤 Guardar e abrir no SGQ</button> <button class="btn" onclick="brAdd(false)">Só guardar</button></div>
- <div class="card" style="margin-top:8px"><b>Histórico</b>${BR.length?`<table style="margin-top:6px"><tr><th>Data</th><th>Assunto</th><th>Presentes</th><th>Temática</th><th>SGQ</th></tr>${lista}</table>`:'<div class="mut" style="margin-top:6px">Ainda não há briefings guardados.</div>'}</div>`}
+ <div class="card" style="margin-top:8px"><b>Histórico de ${MESES[+mes.slice(5)-1]} ${mes.slice(0,4)}</b>${lista?`<table style="margin-top:6px">${BRCAB}${lista}</table>`:'<div class="mut" style="margin-top:6px">Ainda não há briefings este mês.</div>'}</div>
+ <div class="card" style="margin-top:8px"><b>Arquivo</b> <span class="mut">· meses anteriores, por ano e mês</span>${arq||'<div class="mut" style="margin-top:6px">Ainda não há briefings de meses anteriores.</div>'}</div>`}
+function brArq(mes,row){const g={};BR.forEach(b=>{const k=(b.d||"").slice(0,7);if(k&&k!==mes)(g[k]=g[k]||[]).push(b)});
+ let out="",ano="";Object.keys(g).sort().reverse().forEach(k=>{const y=k.slice(0,4);if(y!==ano){if(ano)out+="</details>";ano=y;out+=`<details open><summary><b>${y}</b></summary>`}
+ out+=`<details style="margin:4px 0 4px 14px"><summary>${MESES[+k.slice(5)-1]} (${g[k].length})</summary><table style="margin-top:6px">${BRCAB}${g[k].map(row).join("")}</table></details>`});
+ return ano?out+"</details>":""}
 let RCL=null,CO={},coO={},coR={},coT="";
 const loadCo=async()=>{const{data}=await sb.from("snap").select("data").eq("id","coachreg").maybeSingle();CO=data&&data.data?data.data:{}};
 const coSave=async()=>{try{await chk(sb.from("snap").upsert({id:"coachreg",data:CO}))}catch(e){msg="Não foi possível guardar os coachings."}};
