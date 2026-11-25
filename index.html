@@ -1471,6 +1471,125 @@ function monMes(){const t=new Date();return t.getFullYear()+"-"+String(t.getMont
 function monQ(d){return Number(String(d).slice(8,10))<=15?1:2}
 async function monMarca(nome,q){const mes=window.monMesSel||monMes(),hoje=new Date().toISOString().slice(0,10);const d=hoje.slice(0,7)===mes&&monQ(hoje)===q?hoje:mes+(q===1?"-01":"-16");const r=monAdd([{data:d,loja:"Loja MEO Coimbra - Forum Coimbra",obs:"",colab:nome,email:"",origem:"manual",notas:""}]);await monSave();msg=r.novos?"Monitoria marcada para "+nome+" ("+q+".ª quinzena).":"Já existe uma monitoria igual.";render()}
 async function monToggle(nome,q,on){if(on)return monMarca(nome,q);const mes=window.monMesSel||monMes();MON=MON.filter(m=>!(m.colab===nome&&m.origem==="manual"&&m.data.slice(0,7)===mes&&monQ(m.data)===q));await monSave();msg="Marcação removida.";render()}
+
+const MN_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSe6nWpjts16YOzad48VaapgeJ57YWvAQkTzynmYGOm-Ud5vdg/viewform";
+const MN_E = {
+  data: "348831650", loja: "1879579322",
+  acol_senha: "221644971", acol_contacto: "162246498", acol_agradece: "1668422353", acol_motivo: "1622355241", acol_obs: "1095834831",
+  diag_perguntas: "912639025", diag_servicos: "522500544",
+  seg: "1309375780", ofertas: "960990134",
+  prop1: "2128907049", prop2: "1386935341", prop3: "1045294816", prop_tipos: "2109332428",
+  estr_meo: "1285053548", estr_net: "1283374974",
+  upsell: "1520537411", conhece: "886588296", meos: "802757471", fecho: "295495280", venda: "524245872", resumo: "1234646120",
+  disp: "7442365", resolve: "290394648", nps: "1340866643", rap: "765932905", dific: "1343446750",
+  despede: "134958787", volta: "262889862", porta: "2102727796", crm: "1219435865", obs_gerais: "1918777304"
+};
+const MN_TIPOS = ["M4","TV","Mudança de Casa (TV)","Meo Energia","Net Segura /Netsegura casa","PPP","Seguro","Acessórios","Faturação (Smartphone, TV 4K, Gaming, Vepós, outros)","Eletrodomésticos","Troca de MEOS (Pontos)","Outro"];
+// chave (texto da pergunta na nota) -> campo do formulário
+const MN_MAPA = [
+  ["Fez o acolhimento", MN_E.acol_senha, "sim"], ["Estabeleceu contacto visual", MN_E.acol_contacto, "sim"],
+  ["Agradeceu a espera", MN_E.acol_agradece, "sim"], ["Questionou o motivo", MN_E.acol_motivo, "sim"],
+  ["Observações do acolhimento", MN_E.acol_obs, "texto"],
+  ["Fez perguntas de diagnóstico", MN_E.diag_perguntas, "sim"], ["Consultou os serviços atuais", MN_E.diag_servicos, "sim"],
+  ["Validou e classificou o segmento", MN_E.seg, "sim"], ["Validou as ofertas", MN_E.ofertas, "sim"],
+  ["Propôs o produto estratégico", null, "estrategico"],
+  ["Fez upselling", MN_E.upsell, "sim"], ["Conhece as ofertas comerciais", MN_E.conhece, "sim"],
+  ["Verificou se o cliente tem MEOS", MN_E.meos, "sim"], ["Fez tentativa de fecho", MN_E.fecho, "sim"],
+  ["Concretizou a venda", MN_E.venda, "sim"], ["Resumo da parte comercial", MN_E.resumo, "texto"],
+  ["Demonstrou disponibilidade", MN_E.disp, "sim"], ["Resolveu a situação", MN_E.resolve, "sim"],
+  ["Informou e esclareceu o NPS", MN_E.nps, "sim"], ["Informou o RAP", MN_E.rap, "sim"],
+  ["Apresentou alguma dificuldade", MN_E.dific, "texto"],
+  ["Agradeceu a visita", MN_E.despede, "sim"], ["Convidou o cliente a voltar", MN_E.volta, "sim"],
+  ["Acompanhou o cliente", MN_E.porta, "sim"], ["Efetuou o registo em CRM", MN_E.crm, "sim"],
+  ["Observações gerais", MN_E.obs_gerais, "texto"]
+];
+
+function mnNorm(a) {
+  a = (a || "").trim();
+  if (!a) return null;
+  if (/chamou senha/i.test(a) || /^sim/i.test(a)) return "Sim";
+  if (/^n[ãa]o/i.test(a)) return "Não";
+  if (/^(na|n\/a|n\.a\.?|não aplicável|nao aplicavel)$/i.test(a)) return "NA";
+  return null;
+}
+
+function mnAnalisar(texto) {
+  const r = { params: [], lista: [] };
+  const add = (id, val, rotulo) => { if (val) { r.params.push([ "entry." + id, val ]); r.lista.push(rotulo + ": " + val); } };
+  const linhas = texto.split(/\r?\n/);
+  for (const linha of linhas) {
+    const t = linha.trim();
+    const dt = t.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (dt && !r.data) { r.data = dt[3] + "-" + dt[2] + "-" + dt[1]; add(MN_E.data, r.data, "Data"); continue; }
+    const lo = t.match(/^Loja:\s*(.+)$/);
+    if (lo) { r.loja = lo[1].trim(); add(MN_E.loja, r.loja, "Loja"); continue; }
+    const m = t.match(/^(.*):\s*(.*)$/);
+    if (!m) continue;
+    const pergunta = m[1], resposta = m[2].trim();
+    if (!resposta) continue;
+    if (/Apresentou proposta diferente/i.test(pergunta)) {
+      const n = parseInt(resposta, 10);
+      if (n >= 1) { add(MN_E.prop1, "Sim", "1ª proposta"); }
+      if (n >= 2) { add(MN_E.prop2, "Sim", "2ª proposta"); }
+      if (n >= 1 && n < 3) { add(MN_E.prop3, "Não", "3ª proposta"); }
+      if (n >= 3) { add(MN_E.prop3, "Sim", "3ª proposta"); }
+      continue;
+    }
+    if (/Quais as propostas/i.test(pergunta)) {
+      const partes = resposta.split(/\s+e\s+|,|;|\//i).map(s => s.trim().toLowerCase()).filter(Boolean);
+      for (const p of partes) {
+        const op = MN_TIPOS.find(o => o.toLowerCase().startsWith(p) || (p.startsWith("tv") && o === "TV") || (p.startsWith("meo") && o === "Meo Energia") || (p.startsWith("net") && o.startsWith("Net Segura")) || (p.startsWith("fatur") && o.startsWith("Faturação")) || (p.startsWith("troca") && o.startsWith("Troca")));
+        if (op) add(MN_E.prop_tipos, op, "Proposta");
+      }
+      continue;
+    }
+    const chave = MN_MAPA.find(x => pergunta.toLowerCase().includes(x[0].toLowerCase()));
+    if (!chave) continue;
+    if (chave[2] === "estrategico") {
+      const meo = /meo/i.test(resposta), net = /net/i.test(resposta);
+      add(MN_E.estr_meo, meo ? "Sim" : "Não", "Estratégico Meo Energia");
+      add(MN_E.estr_net, net ? "Sim" : "Não", "Estratégico Netsegura");
+      continue;
+    }
+    if (chave[2] === "texto") {
+      if (/^não$/i.test(resposta) && chave[0] === "Apresentou alguma dificuldade") continue;
+      add(chave[1], resposta, chave[0]);
+      continue;
+    }
+    const v = mnNorm(resposta);
+    if (!v) { r.avisos = (r.avisos || []).concat(chave[0] + " ('" + resposta + "')"); continue; }
+    add(chave[1], v, chave[0]);
+  }
+  return r;
+}
+
+
+const MN_LOJA = "Loja MEO Coimbra - Forum Coimbra";
+const MN_OBSERVADOR = "Carlos Miguel Lopes Gabinete";
+let MN_TEXTO = "";
+function monNotaAnalisar(t){
+  const r = mnAnalisar(t);
+  r.params = r.params.filter(([k]) => k !== "entry." + MN_E.loja);
+  if (r.params.length) { r.params.unshift(["entry." + MN_E.loja, MN_LOJA]); r.lista.unshift("Loja: " + MN_LOJA); r.params.push(["entry.1648353009", MN_OBSERVADOR]); r.lista.push("Observador: " + MN_OBSERVADOR); }
+  return r;
+}
+function monNotaLer(t){
+  MN_TEXTO = t;
+  const r = t.trim() ? monNotaAnalisar(t) : { params: [], lista: [] };
+  const res = document.getElementById("monNotaResumo"), lis = document.getElementById("monNotaLista"), err = document.getElementById("monNotaErro");
+  if (!res) return;
+  res.textContent = r.params.length ? r.params.length + " campos preenchidos" + (r.avisos ? " · não reconhecidos: " + r.avisos.join("; ") : "") : "";
+  lis.innerHTML = r.lista.map(x => "<li>" + x.replace(/</g, "&lt;") + "</li>").join("");
+  err.textContent = t.trim() && !r.params.length ? "Não encontrei respostas na nota." : "";
+}
+function monNotaAbrir(){
+  const r = monNotaAnalisar(MN_TEXTO);
+  const err = document.getElementById("monNotaErro");
+  if (!r.params.length) { if (err) err.textContent = "Cola primeiro a nota do atalho."; return; }
+  const qs = r.params.map(([k, v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v)).join("&");
+  window.open(MN_FORM + "?" + qs, "_blank", "noopener");
+}
+
 function monitv(){if(MON===null){monLoad();return'<h2>Monitorias</h2><div class="card">A carregar…</div>'}
  const mes=window.monMesSel||monMes(),ms=[...new Set(MON.map(m=>m.data.slice(0,7)).concat([monMes()]))].sort();
  const hoje=new Date().toISOString().slice(0,10),lim=mes<monMes()?2:mes>monMes()?0:monQ(hoje);
@@ -1480,9 +1599,9 @@ function monitv(){if(MON===null){monLoad();return'<h2>Monitorias</h2><div class=
  const estado=n=>{const f=[1,2].filter(q=>q<=lim&&!doMes.some(m=>m.colab===n&&monQ(m.data)===q));return f.length?'<span class="crit">em falta: '+f.map(q=>q+".ª quinzena").join(" e ")+'</span>':'<span class="forte">cumpre</span>'};
  const linhas=pessoas.map(n=>`<tr><td><b>${esc(n)}</b></td><td class="n">${cel(n,1)}</td><td class="n">${cel(n,2)}</td><td>${estado(n)}</td></tr>`).join("");
  const meses=ms.map(x=>`<option value="${x}" ${x===mes?"selected":""}>${x}</option>`).join("");
- return`<h2>Monitorias</h2><div class="card" style="margin-top:8px"><b>Formulário de monitoria</b> <span class="mut">· cola a nota do atalho e abre o formulário já preenchido, para verificares e enviares</span><p style="margin:8px 0 0"><a class="btn" href="monitoria.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">📝 Abrir a página da nota</a></p></div><div class="card top"><div><b>Loja MEO Coimbra - Forum Coimbra</b><div class="mut">Objetivo: 1 monitoria por colaborador em cada quinzena (1.ª: dias 1 a 15; 2.ª: dias 16 até ao fim) · total do mês: ${doMes.length}</div></div><div><select onchange="window.monMesSel=this.value;render()" style="width:auto">${meses}</select></div></div>
+ return`<h2>Monitorias</h2><div class="card top"><div><b>Loja MEO Coimbra - Forum Coimbra</b><div class="mut">Objetivo: 1 monitoria por colaborador em cada quinzena (1.ª: dias 1 a 15; 2.ª: dias 16 até ao fim) · total do mês: ${doMes.length}</div></div><div><select onchange="window.monMesSel=this.value;render()" style="width:auto">${meses}</select></div></div>
  <div class="card sc"><table><tr><th>Colaborador</th><th class="n">1.ª quinzena</th><th class="n">2.ª quinzena</th><th>Estado</th></tr>${linhas||'<tr><td colspan="4" class="mut">Sem colaboradores.</td></tr>'}</table></div>
- <div class="card" style="margin-top:10px"><b>Importar respostas do formulário</b><p class="mut" style="margin:6px 0">Descarrega a folha do Google Sheets em CSV (Ficheiro › Transferir › CSV) e escolhe o ficheiro. Não conta duas vezes a mesma monitoria.</p><input type="file" accept=".csv" onchange="monImport(this.files[0])"></div>
+ <div class="card" style="margin-top:10px"><b>Monitoria a partir da nota do atalho</b><p class="mut" style="margin:6px 0">Cola aqui a nota. A app abre o formulário já preenchido (loja, data e respostas), para verificares e enviares. O colaborador observado, o email Altice e o observador escolhes-os no formulário.</p><textarea id="monNota" oninput="monNotaLer(this.value)" placeholder="Cola aqui a nota (Loja: …, data, perguntas e respostas)" style="width:100%;min-height:160px">${esc(MN_TEXTO)}</textarea><p class="mut" id="monNotaResumo" style="margin:6px 0"></p><ul id="monNotaLista" class="mut" style="font-size:13px"></ul><p class="crit" id="monNotaErro" style="margin:4px 0"></p><button class="btn" onclick="monNotaAbrir()">📝 Abrir formulário pré-preenchido</button></div>
  <div class="card" style="margin-top:10px"><b>Acrescentar monitoria</b><div class="g2" style="margin-top:8px"><input type="date" id="mD" value="${new Date().toISOString().slice(0,10)}"><select id="mC">${pessoas.map(n=>`<option>${esc(n)}</option>`).join("")}</select><input id="mO" placeholder="Observador"><input id="mE" placeholder="Email Altice do colaborador"></div><textarea id="mN" placeholder="Observações" style="width:100%;min-height:50px;margin-top:6px"></textarea><p><button class="btn" onclick="monAddForm()">Acrescentar</button></p></div>
 `}
 async function monAddForm(){const m={data:document.getElementById("mD").value,loja:"Loja MEO Coimbra - Forum Coimbra",obs:document.getElementById("mO").value.trim(),colab:document.getElementById("mC").value,email:document.getElementById("mE").value.trim(),origem:"app",notas:document.getElementById("mN").value.trim()};if(!m.data||!m.colab){msg="Falta a data ou o colaborador.";render();return}const r=monAdd([m]);await monSave();msg=r.novos?"Monitoria acrescentada.":"Esta monitoria já existia.";render()}
