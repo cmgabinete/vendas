@@ -451,7 +451,35 @@ function histv(){
  {const mm=/^m(\d{4})-(\d{2})$/.exec(L[L.length-1].id);if(mm){const pid="m"+(+mm[1]-1)+"-"+mm[2],P=L.find(x=>x.id===pid)||H.find(x=>x.id===pid),u=L[L.length-1],mn=String(u.s.mes).split(" ")[0];
   h+=P?`<div class="card sc" style="margin-top:10px"><div class="mut">${esc(mn).toUpperCase()} ${mm[1]} CONTRA ${+mm[1]-1}</div><table><tr><th>Indicador</th><th>${+mm[1]-1}</th><th>${mm[1]}</th><th>Variação</th></tr>${K.map(([n,k,t])=>{const a=pcv(P.s,k,t),b=pcv(u.s,k,t);return `<tr><td><b>${n}</b></td><td>${pc(a)}</td><td>${pc(b)}</td><td class="${sc(b,a)}">${dl(b,a)}</td></tr>`}).join("")}</table></div>`:`<div class="mut" style="margin-top:6px">Ainda não há ${esc(mn)} de ${+mm[1]-1} guardado. Se carregares o Excel desse mês, a comparação com o mesmo mês do ano anterior aparece aqui.</div>`}}
  h+='<div class="card sc" style="margin-top:10px"><div class="mut">LOJISTAS · TCO E CASH BASE</div><table><tr><th>Lojista</th>'+L.map(x=>`<th>${esc(lb(x))}</th>`).join("")+'<th>Δ TCO</th></tr>'+snap.vendedores.map(v=>{const vs=L.map(x=>x.s.vendedores.find(z=>z.nome===v.nome)),a=vs[vs.length-1]&&vs[vs.length-1].tco,b=vs[vs.length-2]&&vs[vs.length-2].tco;return `<tr><td><b>${esc(v.nome)}</b></td>${vs.map(z=>`<td>${z?pc(z.tco)+" · "+eu(z.cash||0):"–"}</td>`).join("")}<td class="${sc(a,b)}">${dl(a,b)}</td></tr>`}).join("")+"</table></div>";
- return h+'<div class="mut" style="margin-top:6px">Meses a meio (até ao dia indicado) não são comparáveis com meses completos.</div>'+bkCard()}
+ return h+'<div class="mut" style="margin-top:6px">Meses a meio (até ao dia indicado) não são comparáveis com meses completos.</div>'+anualHtml()+bkCard()}
+let ANU={p:"TV",t:"mes"};
+const ANU_PROD=[["TV","TV"],["Meo Energia","Meo Energia"],["PPP","PPP"],["Refid's","Refidelizações"],["Facturação","Faturação"],["Net Segura","Net Segura"],["seg","Seguros (rácio)"],["div","Diversidade (rácio)"]];
+const ANU_PER=[["mes","Mês"],["trimestre","Trimestre"],["ano","Ano"]];
+function anSet(k,v){ANU[k]=v;render()}
+function anualHtml(){
+  const ms=H.filter(x=>/^m2026-\d\d$/.test(x.id)).sort((a,b)=>a.id<b.id?-1:1);
+  const rat=ANU.p==="seg"||ANU.p==="div";
+  const botoes=(lista,k,atual)=>lista.map(([v,l])=>`<button class="chip ${atual===v?"on":""}" onclick="anSet('${k}','${v}')">${esc(l)}</button>`).join(" ");
+  const cab=`<div class="card sc" style="margin-top:10px"><b>Evolução 2026 por lojista e produto</b><div class="mut" style="margin:4px 0 8px">Cada mês conta com os números que estavam no Excel quando o carregaste.</div><div style="margin:6px 0"><span class="mut">Produto: </span>${botoes(ANU_PROD,"p",ANU.p)}</div><div style="margin:6px 0"><span class="mut">Vista: </span>${botoes(ANU_PER,"t",ANU.t)}</div>`;
+  if(!ms.length)return cab+'<div class="mut">Ainda não há meses de 2026 guardados.</div></div>';
+  const nomes=new Set(),val={};
+  ms.forEach(x=>(x.s.vendedores||[]).forEach(v=>{nomes.add(v.nome);const raw=rat?{real:v[ANU.p],obj:null}:(v.k&&v.k[ANU.p]);(val[v.nome]=val[v.nome]||{})[x.id]=raw?{r:raw.real==null?null:+raw.real,o:raw.obj==null?null:+raw.obj}:null}));
+  const ids=ms.map(x=>x.id);
+  let per;
+  if(ANU.t==="mes")per=ids.map(i=>({lab:MESES[+i.slice(6)-1].slice(0,3),ids:[i]}));
+  else if(ANU.t==="trimestre"){const q={};ids.forEach(i=>{const k=Math.ceil(+i.slice(6)/3);(q[k]=q[k]||[]).push(i)});per=Object.keys(q).map(k=>({lab:"T"+k+" "+ids[0].slice(1,5),ids:q[k]}))}
+  else per=[{lab:ids[0].slice(1,5),ids}];
+  const agg=(nome,pids)=>{const cs=pids.map(i=>(val[nome]||{})[i]).filter(c=>c&&c.r!=null);if(!cs.length)return null;
+    if(rat)return{r:cs.reduce((a,c)=>a+c.r,0)/cs.length,o:null};
+    const os=cs.filter(c=>c.o!=null);return{r:cs.reduce((a,c)=>a+c.r,0),o:os.length===cs.length?os.reduce((a,c)=>a+c.o,0):null}};
+  const tot=pids=>{const cs=[...nomes].map(n=>agg(n,pids)).filter(Boolean);if(!cs.length)return null;
+    if(rat)return{r:cs.reduce((a,c)=>a+c.r,0)/cs.length,o:null};
+    return{r:cs.reduce((a,c)=>a+c.r,0),o:cs.every(c=>c.o!=null)?cs.reduce((a,c)=>a+c.o,0):null}};
+  const cel=c=>{if(!c)return '<span class="mut">–</span>';if(rat)return pc(c.r);return nf(c.r,ANU.p)+(c.o?' <span class="mut">'+pc(c.r/c.o)+' do obj.</span>':'')};
+  const rows=[...nomes].sort((a,b)=>a.localeCompare(b,"pt")).map(n=>`<tr><td><b>${esc(n)}</b></td>${per.map(p=>`<td class="n">${cel(agg(n,p.ids))}</td>`).join("")}</tr>`).join("");
+  const loja=`<tr><td><b>Loja</b></td>${per.map(p=>`<td class="n">${cel(tot(p.ids))}</td>`).join("")}</tr>`;
+  return cab+`<table><tr><th>Lojista</th>${per.map(p=>`<th class="n">${esc(p.lab)}</th>`).join("")}</tr>${rows}${loja}</table></div>`;
+}
 const HC=["","9","10","11","12","13","14","15","FO","FR","FE","BH","BX","ANV"],WD=["dom","2ª","3ª","4ª","5ª","6ª","sáb"],cod=v=>v==null||v===""?"":typeof v==="number"?String(Math.round(v)):String(v).trim().toUpperCase(),isW=c=>/^\d+$/.test(c);
 function parseHor(wb){const out={};for(const n of wb.SheetNames){const mi=MNL.findIndex(x=>x.toLowerCase()===String(n).normalize("NFC").trim().toLowerCase());if(mi<0)continue;
  const rows=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,range:"A1:AF60",raw:true,defval:null});if(rows.length<4)continue;
