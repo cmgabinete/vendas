@@ -1036,7 +1036,7 @@ const SUPABASE_URL="https://nfpjwxezlrunruzqbhjn.supabase.co",SUPABASE_KEY="sb_p
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY),L={snap:[],notes:[]};
 const loadSnap=async()=>{const{data}=await sb.from("snap").select("data").eq("id","current").maybeSingle();L.snap.forEach(cb=>cb({exists:!!data,data:()=>data&&data.data}))};
 const loadNotes=async()=>{const{data}=await sb.from("notes").select("*");L.notes.forEach(cb=>cb({docs:(data||[]).map(r=>({id:r.id,data:()=>({nome:r.nome,tipo:r.tipo,texto:r.texto,ts:Number(r.ts)})}))}))};
-const loadHist=async()=>{const{data}=await sb.from("snap").select("id,data").like("id","m%");H=(data||[]).map(r=>({id:r.id,s:r.data})).sort((a,b)=>a.id<b.id?-1:1)};
+const loadHist=async()=>{const{data}=await sb.from("snap").select("id,data").like("id","m%");H=(data||[]).filter(r=>/^m\d{4}-\d{2}$/.test(r.id)).map(r=>({id:r.id,s:r.data})).sort((a,b)=>a.id<b.id?-1:1)};
 const loadLive=async()=>{try{const t=new Date(),p=t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-01",{data,error}=await sb.from("live").select("*").gte("dia",p).order("ts");if(error)throw error;LIVE=data||[];LIVE_OK=true}catch(e){LIVE=[];LIVE_OK=false}};
 const liveSig=()=>LIVE.length+"|"+(LIVE.length?LIVE[LIVE.length-1].ts:"")+"|"+LIVE_OK;
 const refreshLive=async()=>{const sg=liveSig();await loadLive();if(sg===liveSig())return;const k=[dd,sw];useSnap();dd=k[0];sw=k[1];render()};
