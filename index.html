@@ -475,10 +475,15 @@ function anualHtml(){
   const tot=pids=>{const cs=[...nomes].map(n=>agg(n,pids)).filter(Boolean);if(!cs.length)return null;
     if(rat)return{r:cs.reduce((a,c)=>a+c.r,0)/cs.length,o:null};
     return{r:cs.reduce((a,c)=>a+c.r,0),o:cs.every(c=>c.o!=null)?cs.reduce((a,c)=>a+c.o,0):null}};
-  const cel=c=>{if(!c)return '<span class="mut">–</span>';if(rat)return pc(c.r);return nf(c.r,ANU.p)+(c.o?' <span class="mut">('+pc(c.r/c.o)+')</span>':'')};
-  const rows=[...nomes].sort((a,b)=>a.localeCompare(b,"pt")).map(n=>`<tr><td><b>${esc(n)}</b></td>${per.map(p=>`<td class="n">${cel(agg(n,p.ids))}</td>`).join("")}</tr>`).join("");
-  const loja=`<tr><td><b>Loja</b></td>${per.map(p=>`<td class="n">${cel(tot(p.ids))}</td>`).join("")}</tr>`;
-  return cab+`<table><tr><th>Lojista</th>${per.map(p=>`<th class="n">${esc(p.lab)}</th>`).join("")}</tr>${rows}${loja}</table></div>`;
+  const TH={div:1.6,seg:0.15};
+  const okC=c=>rat?c.r>=TH[ANU.p]:(c.o!=null&&c.r>=c.o);
+  const cel=c=>{if(!c)return '<span class="mut">–</span>';if(rat)return '<span class="'+(okC(c)?'forte':'crit')+'">'+pc(c.r)+'</span>';return nf(c.r,ANU.p)+(c.o?' <span class="'+(c.r/c.o>=1?'forte':c.r/c.o>=0.7?'fraco':'crit')+'">('+pc(c.r/c.o)+')</span>':'')};
+  const cnt=(ids,fn)=>{let ok=0,den=0;ids.forEach(i=>{const x=fn(i);if(x==null)return;den++;if(okC(x))ok++});return den?ok+'/'+den:'–'};
+  const cntN=n=>cnt(ids,i=>(val[n]||{})[i]||null);
+  const cntL=cnt(ids,i=>tot([i]));
+  const rows=[...nomes].sort((a,b)=>a.localeCompare(b,"pt")).map(n=>`<tr><td><b>${esc(n)}</b></td>${per.map(p=>`<td class="n">${cel(agg(n,p.ids))}</td>`).join("")}<td class="n"><b>${cntN(n)}</b></td></tr>`).join("");
+  const loja=`<tr><td><b>Loja</b></td>${per.map(p=>`<td class="n">${cel(tot(p.ids))}</td>`).join("")}<td class="n"><b>${cntL}</b></td></tr>`;
+  return cab+`<table><tr><th>Lojista</th>${per.map(p=>`<th class="n">${esc(p.lab)}</th>`).join("")}<th class="n">Meses cumpriu</th></tr>${rows}${loja}</table></div>`;
 }
 const HC=["","9","10","11","12","13","14","15","FO","FR","FE","BH","BX","ANV"],WD=["dom","2ª","3ª","4ª","5ª","6ª","sáb"],cod=v=>v==null||v===""?"":typeof v==="number"?String(Math.round(v)):String(v).trim().toUpperCase(),isW=c=>/^\d+$/.test(c);
 function parseHor(wb){const out={};for(const n of wb.SheetNames){const mi=MNL.findIndex(x=>x.toLowerCase()===String(n).normalize("NFC").trim().toLowerCase());if(mi<0)continue;
