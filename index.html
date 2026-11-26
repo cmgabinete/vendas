@@ -475,7 +475,7 @@ function anualHtml(){
   const tot=pids=>{const cs=[...nomes].map(n=>agg(n,pids)).filter(Boolean);if(!cs.length)return null;
     if(rat)return{r:cs.reduce((a,c)=>a+c.r,0)/cs.length,o:null};
     return{r:cs.reduce((a,c)=>a+c.r,0),o:cs.every(c=>c.o!=null)?cs.reduce((a,c)=>a+c.o,0):null}};
-  const cel=c=>{if(!c)return '<span class="mut">–</span>';if(rat)return pc(c.r);return nf(c.r,ANU.p)+(c.o?' <span class="mut">'+pc(c.r/c.o)+' do obj.</span>':'')};
+  const cel=c=>{if(!c)return '<span class="mut">–</span>';if(rat)return pc(c.r);return nf(c.r,ANU.p)};
   const rows=[...nomes].sort((a,b)=>a.localeCompare(b,"pt")).map(n=>`<tr><td><b>${esc(n)}</b></td>${per.map(p=>`<td class="n">${cel(agg(n,p.ids))}</td>`).join("")}</tr>`).join("");
   const loja=`<tr><td><b>Loja</b></td>${per.map(p=>`<td class="n">${cel(tot(p.ids))}</td>`).join("")}</tr>`;
   return cab+`<table><tr><th>Lojista</th>${per.map(p=>`<th class="n">${esc(p.lab)}</th>`).join("")}</tr>${rows}${loja}</table></div>`;
