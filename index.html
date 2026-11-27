@@ -121,11 +121,6 @@ html{--gb:9px;--gt:.14}
 :root[data-tema="vidro"] nav button:hover{background:rgba(255,255,255,.09)}
 :root[data-tema="vidro"] nav button.on{background:linear-gradient(90deg,#2f7bff,#5aa6ff);box-shadow:0 0 22px rgba(70,150,255,.55),inset 0 1px 0 rgba(255,255,255,.4)}
 :root[data-tema="vidro"] nav button.on i{background:rgba(255,255,255,.22)}
-/* teste GlassSurface (só com ?gsteste) */
-#gsFundo{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 30% 40%,#e8f0ff 0,#7f9fd6 18%,transparent 40%),radial-gradient(ellipse at 75% 70%,#2a4f9a 0,#0f2a5c 45%,transparent 70%),linear-gradient(160deg,#1d3f7a,#0a1d44)}
-:root[data-tema="vidro"] nav button.gs{position:relative}
-:root[data-tema="vidro"] nav button.gs.on{background:transparent;box-shadow:none;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.35)}
-:root[data-tema="vidro"] nav button.gs::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;backdrop-filter:url(#gsT) saturate(1.3);-webkit-backdrop-filter:url(#gsT) saturate(1.3);background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55),inset 0 1px 0 rgba(255,255,255,.7),inset 0 -2px 6px rgba(255,255,255,.25),0 6px 22px rgba(0,0,0,.25)}
 :root[data-tema="vidro"] .chips{background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:999px;padding:4px!important;display:inline-flex;gap:2px;max-width:100%;overflow-x:auto;box-shadow:inset 0 1px 2px rgba(0,0,0,.25)}
 :root[data-tema="vidro"] .chip{border-radius:999px;border-color:transparent;background:transparent;color:#dbe6ff}
 :root[data-tema="vidro"] .chip.on{background:linear-gradient(90deg,#2f7bff,#4fa0ff);color:#fff;box-shadow:0 0 16px rgba(70,150,255,.5),inset 0 1px 0 rgba(255,255,255,.35)}
@@ -866,18 +861,8 @@ function buildNav(){const n=document.getElementById("nav");if(!n)return;const nv
   if(!navEd&&TABS[k]&&navIsOpen(k))x+=TABS[k].map(([sk,sl])=>`<div class="nrow nsub"><button class="sb" data-v="${sk}"><span class="nt">${sl}${sk==="brf"&&pendBr()?` <b style="color:#ffb84d">(${pendBr()})</b>`:""}</span></button></div>`).join("")});
  x+=`${navEd?`<button id="navaz" title="Ordem alfabética"><i>🔤</i><span class="nt">Ordenar A–Z</span></button>`:""}<button id="navjogo" title="Operação Trenó (abre noutro separador)" onclick="window.open('https://cmgabinete.github.io/jogo-natal/?gestao','_blank','noopener')"><i>🎄</i><span class="nt">Operação Trenó</span></button><button id="nave" title="Personalizar o menu"><i>${navEd?"✔":"⚙"}</i><span class="nt">${navEd?"Concluir":"Personalizar"}</span></button><button id="navt" title="Expandir/encolher menu"><i>${document.documentElement.dataset.nav==="c"?"»":"«"}</i><span class="nt">Encolher</span></button><div id="navver" title="Versão desta app: para comparar telemóvel, PC e iPad" style="font-size:11px;opacity:.7;text-align:center;padding:4px 0">A carregar…</div>`;n.innerHTML=x;fetch(location.href,{method:"HEAD",cache:"no-store"}).then(r=>{const t=r.headers.get("last-modified");if(t)document.getElementById("navver").textContent="Versão de "+new Date(t).toLocaleString("pt-PT",{timeZone:"Europe/Lisbon",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}).catch(()=>{});
  const a=GRP[view]||view;n.querySelectorAll("button[data-v]").forEach(b=>b.classList.toggle("on",b.classList.contains("sb")?b.dataset.v===view:b.dataset.v===a&&(!TABS[a]||a===view||!navIsOpen(a))));
- if(/gsteste/.test(location.search))gsTeste();
  try{const hp=document.documentElement.dataset.tema==='lima'&&innerWidth>760;n.classList.toggle('hp',hp);if(hp){const on=n.querySelector('button.sb.on')||n.querySelector('button.on');if(on){on.classList.add('pt');const pl=document.createElement('div');pl.id='npill';n.prepend(pl);const g={t:on.offsetTop,h:on.offsetHeight,l:on.offsetLeft,w:on.offsetWidth},st=o=>{pl.style.top=o.t+'px';pl.style.height=o.h+'px';pl.style.left=o.l+'px';pl.style.width=o.w+'px'};st(window._pp||g);pl.getBoundingClientRect();requestAnimationFrame(()=>st(g));window._pp=g}}}catch(e){}}
 function tabsFor(v){return ""}
-function gsTeste(){
- if(!document.getElementById("gsT")){
-  const m=encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80" viewBox="0 0 200 80"><defs><linearGradient id="r" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#0000"/><stop offset="100%" stop-color="red"/></linearGradient><linearGradient id="b" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0000"/><stop offset="100%" stop-color="blue"/></linearGradient><filter id="s" x="0" y="0" width="200" height="80" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="11"/></filter></defs><rect width="200" height="80" fill="black"/><rect width="200" height="80" rx="38" fill="url(#r)"/><rect width="200" height="80" rx="38" fill="url(#b)" style="mix-blend-mode:difference"/><rect x="8" y="8" width="184" height="64" rx="32" fill="hsl(0 0% 50% / .93)" filter="url(#s)"/></svg>');
-  document.body.insertAdjacentHTML("afterbegin",'<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="gsT" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feImage id="gsM" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"/><feDisplacementMap in="SourceGraphic" in2="map" scale="-320" xChannelSelector="R" yChannelSelector="G"/></filter></svg>');
-  document.getElementById("gsM").setAttribute("href","data:image/svg+xml,"+m);
- }
- if(!document.getElementById("gsFundo"))document.body.insertAdjacentHTML("afterbegin",'<div id="gsFundo"></div>');
- document.querySelectorAll("nav button.on").forEach(b=>b.classList.add("gs"));
-}
 
 let navPrev=null,dragK=null,navOpen={};const navIsOpen=k=>navOpen[k]!==undefined?navOpen[k]:(GRP[view]||view)===k;
 document.addEventListener("pointerdown",e=>{const g=e.target.closest&&e.target.closest(".ndrag");if(!g)return;e.preventDefault();dragK=g.dataset.ng;const row=g.closest(".nrow");row.classList.add("ndragging");
